@@ -7,21 +7,19 @@ namespace PlamHill.BlazorChat.Server
     public class ChatHub : Hub
     {
 
-        LLamaWeights model;
-        ModelParams parameters;
-        public ChatHub(LLamaWeights lLamaWeights, ModelParams modelParams) 
+        LLamaContext LlamaContext;
+        public ChatHub(LLamaContext llamaContext) 
         {
-            model = lLamaWeights;
-            parameters = modelParams;
+          LlamaContext = llamaContext;
             
         }
 
         public async Task SendMessage(string user, string message)
         {
 
-          
 
-            using var context = model.CreateContext(parameters);
+
+            var context = LlamaContext;
             var ex = new InteractiveExecutor(context);
             ChatSession session = new ChatSession(ex);
 

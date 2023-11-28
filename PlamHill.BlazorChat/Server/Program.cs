@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using PalmHill.Llama;
 using PlamHill.BlazorChat.Server;
 using System.Runtime.InteropServices;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,9 +26,8 @@ ModelParams parameters = new ModelParams(modelPath)
     GpuLayerCount = 5,
 };
 LLamaWeights model = LLamaWeights.LoadFromFile(parameters);
-
-builder.Services.AddSingleton<LLamaWeights>(model);
-builder.Services.AddSingleton<ModelParams>(parameters);
+LLamaContext modelContext = model.CreateContext(parameters);
+builder.Services.AddSingleton<LLamaContext>(modelContext);
 
 
 var app = builder.Build();
