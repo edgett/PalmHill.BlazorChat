@@ -1,12 +1,71 @@
-﻿@page "/"
+﻿@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+@implements IAsyncDisposable
+@page "/"
 
-<FluentCard>
-  <h2>Hello World!</h2>
-  <FluentButton Appearance="@Appearance.Accent" @OnClick="">Click Me</FluentButton>
-</FluentCard>
+<div>
+    <h2>Hello World!</h2>
+
+    <div>
+        <h3>Send</h3>
+        <FluentTextField @bind-Value=messageInput></FluentTextField>
+        <FluentButton OnClick="Send">Send</FluentButton>
+    </div>
+
+    <div>
+        <h3>Messages</h3>
+
+        <ul>
+            @foreach (var m in messages)
+            {
+                <li>@m</li>
+            }
+
+        </ul>
+    </div>
+</div>
 
 
 @code
 {
-  
+
+    private HubConnection? hubConnection;
+    private List<string> messages = new List<string>();
+    private string? userInput ="edgett";
+    private string? messageInput;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/chathub"))
+            .Build();
+
+        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        {
+            var encodedMsg = $"{user}: {message}";
+            messages.Add(encodedMsg);
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    private async Task Send()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync("SendMessage", userInput, messageInput);
+        }
+    }
+
+    public bool IsConnected =>
+        hubConnection?.State == HubConnectionState.Connected;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
 }
