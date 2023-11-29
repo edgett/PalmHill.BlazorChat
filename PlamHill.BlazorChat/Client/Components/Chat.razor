@@ -14,19 +14,35 @@
             @foreach (var mr in modelResponses)
             {
                 <FluentCard>
-                    @mr.Prompt
+                    <FluentStack>
+                        <div>
+                        <FluentIcon Value="@(new Icons.Regular.Size24.PersonChat())" />
+                        </div>
+
+                        <div>
+                            <span>@mr.Prompt</span>                        
+                        </div>
+                    </FluentStack>
+                    
                 </FluentCard>
 
                 <FluentCard>
-                  <ModelMarkdown ModelResponse="@mr"></ModelMarkdown>
+                    <FluentStack>
+                        <div>
+                            <FluentIcon Value="@(new Icons.Regular.Size24.LightbulbPerson())" />
+                        </div>
+                        <ModelMarkdown ModelResponse="@mr"></ModelMarkdown>
+
+                    </FluentStack>
+                     
                 </FluentCard>
             }
         </div>
     </div>
     <div>
         <h3>Send</h3>
-        <FluentTextField @bind-Value=messageInput></FluentTextField>
-        <FluentButton OnClick="Send">Send</FluentButton>
+        <textarea @bind="messageInput" @onkeydown="HandleKeyPress" @bind:event="oninput"></textarea>
+        <FluentButton OnClick="()=>Send(messageInput)" >Send</FluentButton>
     </div>
 </div>
 
@@ -80,5 +96,18 @@
         {
             await hubConnection.DisposeAsync();
         }
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+            
+      
+
+        if (e.Key == "Enter")
+        {
+            await Send(messageInput);
+            await InvokeAsync(StateHasChanged);
+        }
+
     }
 }

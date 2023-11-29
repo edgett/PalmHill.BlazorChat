@@ -23,7 +23,7 @@ ModelParams parameters = new ModelParams(modelPath)
 {
     ContextSize = 1024,
     Seed = 1337,
-    GpuLayerCount = 20,
+    GpuLayerCount = 50,
 };
 LLamaWeights model = LLamaWeights.LoadFromFile(parameters);
 LLamaContext modelContext = model.CreateContext(parameters);
