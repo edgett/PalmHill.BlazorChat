@@ -4,18 +4,36 @@
 @page "/"
 
 <div>
-    <h2>Hello World!</h2>
 
-    <div>
-        <h3>Send</h3>
-        <FluentTextField @bind-Value=messageInput></FluentTextField>
-        <FluentButton OnClick="Send">Send</FluentButton>
-    </div>
+
+
+    <FluentCard>
+        <p>Just some content in a card (with a button that does not do anything).</p>
+
+        <FluentButton Appearance="Appearance.Accent">Hello</FluentButton>
+        <p>No Width or Height has been specified.</p>
+    </FluentCard>
 
     <div>
         <h3>Messages</h3>
 
-        <div>@modelResponses.Last().Resonse</div>
+        <div>
+            @foreach(var mr in modelResponses)
+            {
+                <FluentCard>
+                    @mr.Prompt
+                </FluentCard>
+
+                <FluentCard>
+                    @mr.Resonse
+                </FluentCard>
+            }
+        </div>
+    </div>
+    <div>
+        <h3>Send</h3>
+        <FluentTextField @bind-Value=messageInput></FluentTextField>
+        <FluentButton OnClick="Send">Send</FluentButton>
     </div>
 </div>
 
@@ -26,7 +44,7 @@
     private HubConnection? hubConnection;
     private List<ModelResponse> modelResponses = new List<ModelResponse>();
     private string? userInput ="edgett";
-    private string? messageInput;
+    private string messageInput = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -50,9 +68,16 @@
 
     private async Task Send()
     {
+        if (string.IsNullOrWhiteSpace(messageInput))
+        {
+            return;
+        }
+
         if (hubConnection is not null)
         {
+            modelResponses.Add(new ModelResponse() { Prompt = messageInput });
             var currentModelResponse = modelResponses.Last();
+            currentModelResponse.Prompt = messageInput;
             await hubConnection.SendAsync("SendPrompt", userInput, currentModelResponse.PromptId.ToString(), messageInput);
         }
     }
