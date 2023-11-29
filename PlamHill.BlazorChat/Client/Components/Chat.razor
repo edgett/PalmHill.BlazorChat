@@ -1,0 +1,81 @@
+﻿@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+@implements IAsyncDisposable
+
+
+<div>
+    <div>
+        <h3>Messages</h3>
+
+        <div>
+            @foreach (var mr in modelResponses)
+            {
+                <FluentCard>
+                    @mr.Prompt
+                </FluentCard>
+
+                <FluentCard>
+                    @mr.Resonse
+                </FluentCard>
+            }
+        </div>
+    </div>
+    <div>
+        <h3>Send</h3>
+        <FluentTextField @bind-Value=messageInput></FluentTextField>
+        <FluentButton OnClick="Send">Send</FluentButton>
+    </div>
+</div>
+
+@code
+{
+
+    private HubConnection? hubConnection;
+    private List<ModelResponse> modelResponses = new List<ModelResponse>();
+    private string? userInput = "edgett";
+    private string messageInput = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/chathub"))
+            .Build();
+
+        hubConnection.On<string, Guid, string>("ReceiveModelString", (user, messageId, message) =>
+        {
+            var currentModelResponse = modelResponses.Single(mr => mr.PromptId == messageId);
+            currentModelResponse.ResponseStrings.Add(message);
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    private async Task Send()
+    {
+        if (string.IsNullOrWhiteSpace(messageInput))
+        {
+            return;
+        }
+
+        if (hubConnection is not null)
+        {
+            modelResponses.Add(new ModelResponse() { Prompt = messageInput });
+            var currentModelResponse = modelResponses.Last();
+            currentModelResponse.Prompt = messageInput;
+            await hubConnection.SendAsync("SendPrompt", userInput, currentModelResponse.PromptId.ToString(), messageInput);
+        }
+    }
+
+    public bool IsConnected =>
+        hubConnection?.State == HubConnectionState.Connected;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}
