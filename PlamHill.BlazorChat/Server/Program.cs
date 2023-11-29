@@ -17,13 +17,13 @@ builder.Services.AddResponseCompression(opts =>
           new[] { "application/octet-stream" });
 });
 //Initlize LLLAMA
-string modelPath = @"C:\Users\localadmin\Downloads\orca-2-13b.Q6_K.gguf"; // change it to your own model path
+string modelPath = @"C:\models\orca-2-13b.Q6_K.gguf"; // change it to your own model path
                                                                           // Load a model
 ModelParams parameters = new ModelParams(modelPath)
 {
     ContextSize = 1024,
     Seed = 1337,
-    GpuLayerCount = 50,
+    GpuLayerCount = 20,
 };
 LLamaWeights model = LLamaWeights.LoadFromFile(parameters);
 LLamaContext modelContext = model.CreateContext(parameters);
