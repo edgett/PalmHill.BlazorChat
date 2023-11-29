@@ -1,6 +1,9 @@
 ﻿@using Microsoft.AspNetCore.SignalR.Client
 @inject NavigationManager Navigation
 @implements IAsyncDisposable
+@using Markdig
+@inherits FluentComponentBase
+
 
 
 <div>
@@ -15,7 +18,7 @@
                 </FluentCard>
 
                 <FluentCard>
-                    @mr.Resonse
+                  <ModelMarkdown ModelResponse="@mr"></ModelMarkdown>
                 </FluentCard>
             }
         </div>
@@ -45,7 +48,7 @@
         hubConnection.On<string, Guid, string>("ReceiveModelString", (user, messageId, message) =>
         {
             var currentModelResponse = modelResponses.Single(mr => mr.PromptId == messageId);
-            currentModelResponse.ResponseStrings.Add(message);
+            currentModelResponse.AddResponseString(message);
             InvokeAsync(StateHasChanged);
         });
 
