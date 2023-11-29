@@ -71,19 +71,19 @@
         await hubConnection.StartAsync();
     }
 
-    private async Task Send()
+    private async Task Send(string message)
     {
-        if (string.IsNullOrWhiteSpace(messageInput))
+        if (string.IsNullOrWhiteSpace(message))
         {
             return;
         }
 
         if (hubConnection is not null)
         {
-            modelResponses.Add(new ModelResponse() { Prompt = messageInput });
+            modelResponses.Add(new ModelResponse() { Prompt = message });
             var currentModelResponse = modelResponses.Last();
             currentModelResponse.Prompt = messageInput;
-            await hubConnection.SendAsync("SendPrompt", userInput, currentModelResponse.PromptId.ToString(), messageInput);
+            await hubConnection.SendAsync("SendPrompt", userInput, currentModelResponse.PromptId.ToString(), message);
         }
     }
 
