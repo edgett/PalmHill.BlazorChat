@@ -14,7 +14,7 @@ namespace PlamHill.BlazorChat.Server
             
         }
 
-        public async Task SendMessage(string user, string message)
+        public async Task SendPrompt(string user, string messageId, string message)
         {
 
 
@@ -31,7 +31,7 @@ namespace PlamHill.BlazorChat.Server
 
             await foreach (var text in session.ChatAsync(message, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" } }))
             {
-                await Clients.Caller.SendAsync("ReceiveMessage", user, text);
+                await Clients.Caller.SendAsync("ReceiveModelString", user, messageId, text);
             }
         }
     }

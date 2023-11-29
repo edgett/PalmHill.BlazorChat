@@ -15,13 +15,7 @@
     <div>
         <h3>Messages</h3>
 
-        <ul>
-            @foreach (var m in messages)
-            {
-                <li>@m</li>
-            }
-
-        </ul>
+        <div>@modelResponses.Last().Resonse</div>
     </div>
 </div>
 
@@ -30,20 +24,24 @@
 {
 
     private HubConnection? hubConnection;
-    private List<string> messages = new List<string>();
+    private List<ModelResponse> modelResponses = new List<ModelResponse>();
     private string? userInput ="edgett";
     private string? messageInput;
 
     protected override async Task OnInitializedAsync()
     {
+
+        var initialModelResponse = new ModelResponse();
+        modelResponses.Add(initialModelResponse);
+
         hubConnection = new HubConnectionBuilder()
             .WithUrl(Navigation.ToAbsoluteUri("/chathub"))
             .Build();
 
-        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        hubConnection.On<string, Guid, string>("ReceiveModelString", (user, messageId,message) =>
         {
-            var encodedMsg = $"{user}: {message}";
-            messages.Add(encodedMsg);
+            var currentModelResponse = modelResponses.Single(mr => mr.PromptId == messageId);
+            currentModelResponse.ResponseStrings.Add(message);
             InvokeAsync(StateHasChanged);
         });
 
@@ -54,7 +52,8 @@
     {
         if (hubConnection is not null)
         {
-            await hubConnection.SendAsync("SendMessage", userInput, messageInput);
+            var currentModelResponse = modelResponses.Last();
+            await hubConnection.SendAsync("SendPrompt", userInput, currentModelResponse.PromptId.ToString(), messageInput);
         }
     }
 
