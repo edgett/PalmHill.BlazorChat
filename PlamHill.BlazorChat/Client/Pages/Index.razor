@@ -4,16 +4,6 @@
 @page "/"
 
 <div>
-
-
-
-    <FluentCard>
-        <p>Just some content in a card (with a button that does not do anything).</p>
-
-        <FluentButton Appearance="Appearance.Accent">Hello</FluentButton>
-        <p>No Width or Height has been specified.</p>
-    </FluentCard>
-
     <div>
         <h3>Messages</h3>
 
@@ -48,9 +38,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-
-        var initialModelResponse = new ModelResponse();
-        modelResponses.Add(initialModelResponse);
 
         hubConnection = new HubConnectionBuilder()
             .WithUrl(Navigation.ToAbsoluteUri("/chathub"))
