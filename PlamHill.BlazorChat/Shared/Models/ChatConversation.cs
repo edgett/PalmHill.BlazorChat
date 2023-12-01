@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PalmHill.Llama.Models
+namespace PalmHill.BlazorChat.Shared.Models
 {
     public class ChatConversation
     {

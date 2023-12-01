@@ -2,6 +2,7 @@
 @inject NavigationManager Navigation
 @implements IAsyncDisposable
 @using Markdig
+@using PalmHill.BlazorChat.Shared.Models
 @inherits FluentComponentBase
 
 
@@ -16,14 +17,14 @@
                 <FluentCard>
                     <FluentStack>
                         <div>
-                        <FluentIcon Value="@(new Icons.Regular.Size24.PersonChat())" />
+                            <FluentIcon Value="@(new Icons.Regular.Size24.PersonChat())" />
                         </div>
 
                         <div>
-                            <span>@mr.Prompt</span>                        
+                            <span>@mr.Prompt</span>
                         </div>
                     </FluentStack>
-                    
+
                 </FluentCard>
 
                 <FluentCard>
@@ -34,7 +35,7 @@
                         <ModelMarkdown ModelResponse="@mr"></ModelMarkdown>
 
                     </FluentStack>
-                     
+
                 </FluentCard>
             }
         </div>
@@ -42,7 +43,7 @@
     <div>
         <h3>Send</h3>
         <textarea @bind="messageInput" class="textarea-fluent-ui    " @onkeydown="HandleKeyPress" @bind:event="oninput"></textarea>
-        <FluentButton OnClick="()=>Send(messageInput)" >Send</FluentButton>
+        <FluentButton OnClick="()=>Send(messageInput)">Send</FluentButton>
     </div>
 </div>
 
@@ -61,7 +62,7 @@
             .WithUrl(Navigation.ToAbsoluteUri("/chathub"))
             .Build();
 
-        hubConnection.On<string, Guid, string>("ReceiveModelString", (user, messageId, message) =>
+        hubConnection.On<Guid, string>("ReceiveModelString", (messageId, message) =>
         {
             var currentModelResponse = modelResponses.Single(mr => mr.PromptId == messageId);
             currentModelResponse.AddResponseString(message);
@@ -80,11 +81,38 @@
 
         if (hubConnection is not null)
         {
-            modelResponses.Add(new ModelResponse() { Prompt = message });
-            var currentModelResponse = modelResponses.Last();
-            currentModelResponse.Prompt = messageInput;
-            await hubConnection.SendAsync("SendPrompt", userInput, currentModelResponse.PromptId.ToString(), message);
+            var newMessage = new ModelResponse() { Prompt = message };
+            modelResponses.Add(newMessage);
+
+            var chatConversation = GetChatConversation(modelResponses);
+
+
+            await hubConnection.SendAsync("SendPrompt", newMessage.PromptId, chatConversation);
         }
+    }
+
+    public ChatConversation GetChatConversation(List<ModelResponse> modelResponses)
+    {
+        var chatConversation = new ChatConversation();
+        foreach (var mr in modelResponses)
+        {
+            var userMessage = new ChatMessage();
+            userMessage.Message = mr.Prompt;
+            userMessage.Role = ChatMessageRole.User;
+            chatConversation.ChatMessages.Add(userMessage);
+
+            if (mr.IsComplete)
+            {
+                var modelMessage = new ChatMessage();
+                modelMessage.Message = mr.Resonse;
+                modelMessage.Role = ChatMessageRole.Assistant;
+                chatConversation.ChatMessages.Add(modelMessage);
+
+            }
+
+        }
+
+        return chatConversation;
     }
 
     public bool IsConnected =>
@@ -100,10 +128,7 @@
 
     private async Task HandleKeyPress(KeyboardEventArgs e)
     {
-            
-      
-
-        if (e.Key == "Enter")
+        if (e.Key == "Enter" && !e.ShiftKey)
         {
             await Send(messageInput);
             await InvokeAsync(StateHasChanged);

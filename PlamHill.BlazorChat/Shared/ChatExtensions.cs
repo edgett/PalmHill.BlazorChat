@@ -5,9 +5,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using PalmHill.Llama.Models;
+using PalmHill.BlazorChat.Shared.Models;
 
-namespace PalmHill.Llama
+namespace PalmHill.BlazorChat.Shared
 {
     public static class ChatExtensions
     {
