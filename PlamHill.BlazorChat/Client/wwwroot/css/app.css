@@ -30,3 +30,23 @@ h1:focus {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+
+.textarea-fluent-ui {
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #333;
+    border-radius: 4px;
+    resize: vertical;
+    background-color: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+    .textarea-fluent-ui:focus {
+        outline: none;
+        border-color: #0078d4;
+        box-shadow: 0 0 5px rgba(0, 120, 212, 0.5);
+    }
