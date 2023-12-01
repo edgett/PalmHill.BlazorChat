@@ -24,6 +24,7 @@
         if (ModelResponse != null)
         {
             ModelResponse.ResponseChanged -= HandleResponseChanged;
+            ModelResponse.ResponseCompleted -= HandleResponseChanged;
         }
 
         // Assign the new ModelResponse object
@@ -33,6 +34,7 @@
         if (ModelResponse != null)
         {
             ModelResponse.ResponseChanged += HandleResponseChanged;
+            ModelResponse.ResponseCompleted += HandleResponseChanged;
 
             // Update the UI with the current state of the response
             markdownToRender = ModelResponse.Resonse;
@@ -45,6 +47,7 @@
         if (ModelResponse != null)
         {
             ModelResponse.ResponseChanged -= HandleResponseChanged;
+            ModelResponse.ResponseCompleted -= HandleResponseChanged;
         }
     }
 }

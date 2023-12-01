@@ -32,8 +32,10 @@
                         <div>
                             <FluentIcon Value="@(new Icons.Regular.Size24.LightbulbPerson())" />
                         </div>
-                        <ModelMarkdown ModelResponse="@mr"></ModelMarkdown>
 
+                        <div>
+                            <ModelMarkdown ModelResponse="@mr"></ModelMarkdown>
+                        </div>
                     </FluentStack>
 
                 </FluentCard>
@@ -65,6 +67,9 @@
         hubConnection.On<Guid, string>("ReceiveModelString", (messageId, message) =>
         {
             var currentModelResponse = modelResponses.Single(mr => mr.PromptId == messageId);
+
+            
+
             currentModelResponse.AddResponseString(message);
             InvokeAsync(StateHasChanged);
         });
