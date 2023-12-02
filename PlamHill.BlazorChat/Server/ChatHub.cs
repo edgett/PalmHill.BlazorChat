@@ -3,6 +3,7 @@ using LLama;
 using Microsoft.AspNetCore.SignalR;
 using PalmHill.BlazorChat.Shared;
 using PalmHill.BlazorChat.Shared.Models;
+using System.Web;
 
 namespace PlamHill.BlazorChat.Server
 {
@@ -25,10 +26,14 @@ namespace PlamHill.BlazorChat.Server
             var rawPrompt = chatConversation.ToLlamaPromptString();
             Console.WriteLine(rawPrompt);
 
+            var cancelGeneration = new CancellationTokenSource();
             var textBuffer = "";
             var fullResponse = "";
             // run the inference in a loop to chat with LLM
-            await foreach (var text in session.ChatAsync(rawPrompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { ChatExtensions.MESSAGE_END } }))
+            await foreach (var text in session.ChatAsync(rawPrompt,
+                                                        new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { ChatExtensions.MESSAGE_END } },
+                                                        cancelGeneration.Token)
+                                                        )
             {
                 fullResponse += text;
                 textBuffer += text;
@@ -37,9 +42,16 @@ namespace PlamHill.BlazorChat.Server
 
                 if (shouldSendBuffer)
                 {
-                    var textToSend = PreProcessResponse(textBuffer);
+                    var shouldCancelGeneration = ShouldCancelGeneration(textBuffer);
+                    var textToSend = PreProcessResponse(textBuffer, shouldCancelGeneration);
                     await Clients.Caller.SendAsync("ReceiveModelString", messageId, textToSend);
                     textBuffer = "";
+
+                    if (shouldCancelGeneration)
+                    {
+                        cancelGeneration.Cancel();
+                        break;
+                    }
                 }
             }
 
@@ -48,17 +60,31 @@ namespace PlamHill.BlazorChat.Server
             Console.WriteLine(fullResponse);
         }
 
-        public string PreProcessResponse(string response)
+        public string PreProcessResponse(string response, bool removeMessageStart = false)
         {
             var preProcessedResponse = response.Replace(ChatExtensions.MESSAGE_END, "");
+            if (removeMessageStart)
+            {
+                var messageStartIndex = preProcessedResponse.IndexOf(ChatExtensions.MESSAGE_START);
+                preProcessedResponse = preProcessedResponse.Substring(messageStartIndex, response.Length - messageStartIndex);
+            }
+
+
             return preProcessedResponse;
+        }
+
+        private bool ShouldCancelGeneration(string textBuffer)
+        {
+            if (textBuffer.Contains(ChatExtensions.MESSAGE_START))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private bool ShouldSendBuffer(string textBuffer)
         {
-
-
-
             // Check if the end of the text is ChatExtensions.MESSAGE_END
             if (textBuffer.EndsWith(ChatExtensions.MESSAGE_END))
             {
@@ -75,7 +101,6 @@ namespace PlamHill.BlazorChat.Server
             char lastChar = textBuffer[^1]; // Using ^1 to get the last character
             if (char.IsPunctuation(lastChar) || char.IsWhiteSpace(lastChar))
             {
-
                 if (textBuffer.Contains("<")) 
                 {
                     return false;
@@ -83,8 +108,6 @@ namespace PlamHill.BlazorChat.Server
 
                 return true;
             }
-
-           
 
             return false;
         }

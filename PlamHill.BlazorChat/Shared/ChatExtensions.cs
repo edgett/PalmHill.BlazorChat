@@ -12,9 +12,9 @@ namespace PalmHill.BlazorChat.Shared
     public static class ChatExtensions
     {
         public const string MESSAGE_START = "<|im_start|>";
-        public const string MESSAGE_END = "<|im_end|>";
-        public const string SYSTEM_MESSAGE_START = MESSAGE_START + "system";
-        public const string USER_MESSAGE_START = MESSAGE_START + "user";
+        public const string MESSAGE_END = "<|im_end|>" + "\n";
+        public const string SYSTEM_MESSAGE_START = MESSAGE_START + "system" + "\n";
+        public const string USER_MESSAGE_START = MESSAGE_START + "user" + "\n";
         public const string ASSISTANT_MESSAGE_START = MESSAGE_START + "assistant";
 
         public static string ToLlamaPromptString(this ChatConversation chatConversation)
@@ -23,9 +23,9 @@ namespace PalmHill.BlazorChat.Shared
 
             if (!string.IsNullOrWhiteSpace(chatConversation.SystemMessage))
             { 
-                promptString.AppendLine(SYSTEM_MESSAGE_START);
+                promptString.Append(SYSTEM_MESSAGE_START);
                 promptString.Append(chatConversation.SystemMessage);
-                promptString.AppendLine(MESSAGE_END);
+                promptString.Append(MESSAGE_END);
             }
 
             var messageIndex = 0;
@@ -45,9 +45,9 @@ namespace PalmHill.BlazorChat.Shared
                         throw new ArgumentOutOfRangeException($"Chat conversation is malformed at {nameof(ChatMessage)}[{messageIndex}]: The {nameof(chatMessage.Role)} must be {nameof(ChatMessageRole.Assistant)} or {nameof(ChatMessageRole.User)}");
                 }
 
-                promptString.AppendLine(messageStartString);
+                promptString.Append(messageStartString);
                 promptString.Append(chatMessage.Message);
-                promptString.AppendLine(MESSAGE_END);
+                promptString.Append(MESSAGE_END);
 
                 messageIndex++;
             }
