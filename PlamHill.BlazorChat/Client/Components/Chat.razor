@@ -31,6 +31,8 @@
                     <FluentStack>
                         <div>
                             <FluentIcon Value="@(new Icons.Regular.Size24.LightbulbPerson())" />
+
+                            <FluentProgressRing Visible="!mr.IsComplete" Style="height:24px; width:24px;" ></FluentProgressRing>
                         </div>
 
                         <div>
@@ -67,10 +69,15 @@
         hubConnection.On<Guid, string>("ReceiveModelString", (messageId, message) =>
         {
             var currentModelResponse = modelResponses.Single(mr => mr.PromptId == messageId);
-
-            
-
             currentModelResponse.AddResponseString(message);
+            InvokeAsync(StateHasChanged);
+        });
+
+        hubConnection.On<Guid, string>("MessageComplete", (messageId, status) =>
+        {
+            var currentModelResponse = modelResponses.Single(mr => mr.PromptId == messageId);
+            currentModelResponse.CompleteResponse();
+            
             InvokeAsync(StateHasChanged);
         });
 

@@ -24,25 +24,14 @@ namespace PlamHill.BlazorChat.Client
 
         public void AddResponseString(string responseString)
         {
-            if (responseString.EndsWith(ChatExtensions.MESSAGE_END))
-            {
-                IsComplete = true;
-                var stringToAdd = responseString.Substring(0, responseString.Length - ChatExtensions.MESSAGE_END.Length);
+            ResponseStrings.Add(responseString);
+            ResponseChanged?.Invoke(this, EventArgs.Empty);
+        }
 
-                if (stringToAdd.Length > 0)
-                { 
-                    ResponseStrings.Add(stringToAdd);
-                    ResponseChanged?.Invoke(this, EventArgs.Empty);
-                }
-
-                ResponseCompleted?.Invoke(this, EventArgs.Empty);
-            }
-            else 
-            { 
-                ResponseStrings.Add(responseString);
-                ResponseChanged?.Invoke(this, EventArgs.Empty);
-            }
-
+        public void CompleteResponse()
+        {
+            IsComplete = true;
+            ResponseCompleted?.Invoke(this, EventArgs.Empty);
         }
 
     }

@@ -8,7 +8,7 @@ namespace PalmHill.BlazorChat.Shared.Models
 {
     public class ChatConversation
     {
-        public string? SystemMessage { get; set; }
+        public string? SystemMessage { get; set; } = "You are a helpful assistant. Repsond in valid markdown only.";
         public List<ChatMessage> ChatMessages { get; set; } = new List<ChatMessage>();
     }
 }

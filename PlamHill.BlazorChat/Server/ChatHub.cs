@@ -22,26 +22,36 @@ namespace PlamHill.BlazorChat.Server
             var ex = new InteractiveExecutor(context);
             ChatSession session = new ChatSession(ex);
             
-
-            chatConversation.SystemMessage = "You are a helful assistant. Repsond in markdown.";
             var rawPrompt = chatConversation.ToLlamaPromptString();
+            Console.WriteLine(rawPrompt);
 
             var textBuffer = "";
-
+            var fullResponse = "";
             // run the inference in a loop to chat with LLM
             await foreach (var text in session.ChatAsync(rawPrompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { ChatExtensions.MESSAGE_END } }))
             {
-                Console.WriteLine(text);
-
+                fullResponse += text;
                 textBuffer += text;
                 var shouldSendBuffer = ShouldSendBuffer(textBuffer);
 
+
                 if (shouldSendBuffer)
                 {
-                    await Clients.Caller.SendAsync("ReceiveModelString", messageId, textBuffer);
+                    var textToSend = PreProcessResponse(textBuffer);
+                    await Clients.Caller.SendAsync("ReceiveModelString", messageId, textToSend);
                     textBuffer = "";
                 }
             }
+
+            await Clients.Caller.SendAsync("MessageComplete", messageId, "success");
+
+            Console.WriteLine(fullResponse);
+        }
+
+        public string PreProcessResponse(string response)
+        {
+            var preProcessedResponse = response.Replace(ChatExtensions.MESSAGE_END, "");
+            return preProcessedResponse;
         }
 
         private bool ShouldSendBuffer(string textBuffer)
