@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 using PalmHill.BlazorChat.Shared;
 using PalmHill.BlazorChat.Shared.Models;
 using System.Web;
+using PalmHill.Llama;
 
 namespace PlamHill.BlazorChat.Server
 {
@@ -22,37 +23,51 @@ namespace PlamHill.BlazorChat.Server
             var context = LlamaContext;
             var ex = new InteractiveExecutor(context);
             ChatSession session = new ChatSession(ex);
-            
-            var rawPrompt = chatConversation.ToLlamaPromptString();
-            Console.WriteLine(rawPrompt);
 
+            session.WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(new string[] { "Assistant:", ChatExtensions.MESSAGE_END }, redundancyLength: 15));
+            session.LoadChatHistory(chatConversation);
+
+            var promptMessage = chatConversation.ChatMessages.Last();
+
+            if (promptMessage.Role != ChatMessageRole.User)
+            {
+                throw new ArgumentOutOfRangeException(nameof(chatConversation.ChatMessages), "For inference the last message in the conversation must be a User message.");
+            }
+
+            if (string.IsNullOrWhiteSpace(promptMessage.Message))
+            { 
+                throw new ArgumentNullException(nameof(chatConversation.ChatMessages), "No prompt supplied.");
+            }
+            var inferenceParams = new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { ChatExtensions.MESSAGE_END, "User:" }, MaxTokens = -1 };
             var cancelGeneration = new CancellationTokenSource();
             var textBuffer = "";
             var fullResponse = "";
             // run the inference in a loop to chat with LLM
-            await foreach (var text in session.ChatAsync(rawPrompt,
-                                                        new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { ChatExtensions.MESSAGE_END } },
+            await foreach (var text in session.ChatAsync(promptMessage.Message,
+                                                        inferenceParams,
                                                         cancelGeneration.Token)
-                                                        )
+                          )
             {
-                fullResponse += text;
-                textBuffer += text;
-                var shouldSendBuffer = ShouldSendBuffer(textBuffer);
+                await Clients.Caller.SendAsync("ReceiveModelString", messageId, text);
+
+                //fullResponse += text;
+                //textBuffer += text;
+                //var shouldSendBuffer = ShouldSendBuffer(textBuffer);
 
 
-                if (shouldSendBuffer)
-                {
-                    var shouldCancelGeneration = ShouldCancelGeneration(textBuffer);
-                    var textToSend = PreProcessResponse(textBuffer, shouldCancelGeneration);
-                    await Clients.Caller.SendAsync("ReceiveModelString", messageId, textToSend);
-                    textBuffer = "";
+                //if (shouldSendBuffer)
+                //{
+                //    var shouldCancelGeneration = ShouldCancelGeneration(textBuffer);
+                //    var textToSend = PreProcessResponse(textBuffer, shouldCancelGeneration);
+                //    await Clients.Caller.SendAsync("ReceiveModelString", messageId, textToSend);
+                //    textBuffer = "";
 
-                    if (shouldCancelGeneration)
-                    {
-                        cancelGeneration.Cancel();
-                        break;
-                    }
-                }
+                //    if (shouldCancelGeneration)
+                //    {
+                //        cancelGeneration.Cancel();
+                //        break;
+                //    }
+                //}
             }
 
             await Clients.Caller.SendAsync("MessageComplete", messageId, "success");

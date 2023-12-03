@@ -11,4 +11,8 @@
     <PackageReference Include="LLamaSharp.Backend.Cuda12" Version="0.8.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PlamHill.BlazorChat\Shared\PlamHill.BlazorChat.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

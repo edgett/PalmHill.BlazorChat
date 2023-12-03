@@ -12,7 +12,7 @@ namespace PalmHill.BlazorChat.Shared
     public static class ChatExtensions
     {
         public const string MESSAGE_START = "<|im_start|>";
-        public const string MESSAGE_END = "<|im_end|>" + "\n";
+        public const string MESSAGE_END = "<|im_end|>";
         public const string SYSTEM_MESSAGE_START = MESSAGE_START + "system" + "\n";
         public const string USER_MESSAGE_START = MESSAGE_START + "user" + "\n";
         public const string ASSISTANT_MESSAGE_START = MESSAGE_START + "assistant";
@@ -26,6 +26,7 @@ namespace PalmHill.BlazorChat.Shared
                 promptString.Append(SYSTEM_MESSAGE_START);
                 promptString.Append(chatConversation.SystemMessage);
                 promptString.Append(MESSAGE_END);
+                promptString.Append("\n");
             }
 
             var messageIndex = 0;
@@ -48,6 +49,7 @@ namespace PalmHill.BlazorChat.Shared
                 promptString.Append(messageStartString);
                 promptString.Append(chatMessage.Message);
                 promptString.Append(MESSAGE_END);
+                promptString.Append("\n");
 
                 messageIndex++;
             }
