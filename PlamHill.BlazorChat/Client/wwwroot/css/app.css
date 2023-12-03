@@ -50,3 +50,14 @@ h1:focus {
         border-color: #0078d4;
         box-shadow: 0 0 5px rgba(0, 120, 212, 0.5);
     }
+
+
+.main-textarea {
+    width:100%;
+    height:46px;
+    border-radius: 10px 10px;
+}
+
+.body-content {
+    padding-right:10px;
+}

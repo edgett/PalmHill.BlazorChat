@@ -1,30 +1,36 @@
 ﻿@inherits LayoutComponentBase
+<FluentLayout>
+    <FluentHeader>
+        Some Header Text
+        <FluentSpacer />
+        Aligned to the end
+    </FluentHeader>
 
-<FluentHeader>
-    Some Header Text
-    <FluentSpacer />
-    Aligned to the end
-</FluentHeader>
+    <FluentStack Orientation="Orientation.Horizontal" Width="100%">
+        
 
-<FluentStack Orientation="Orientation.Horizontal" Width="100%">
-    <FluentNavMenu Width="250">
-        <FluentNavLink Icon="@(new Icons.Regular.Size24.Home())">Item 1</FluentNavLink>
-        <FluentNavLink Icon="@(new Icons.Regular.Size24.Cloud())">Item 2</FluentNavLink>
-        <FluentNavGroup Title="Item 3">
-            <FluentNavLink Icon="@(new Icons.Regular.Size24.LeafOne())">Item 3.1</FluentNavLink>
-            <FluentNavLink Icon="@(new Icons.Regular.Size24.LeafTwo())">Item 3.2</FluentNavLink>
-        </FluentNavGroup>
-        <FluentNavLink Icon="@(new Icons.Regular.Size24.CalendarAgenda())" Disabled="true">Item 4</FluentNavLink>
-    </FluentNavMenu>
+        <div>
+            
+                    <h3>System Message</h3>
+                    <textarea class="textarea-fluent-ui"></textarea>
+        </div>
 
-    
-    <FluentBodyContent>
-        @Body
-    </FluentBodyContent>
-</FluentStack>
 
+
+        <FluentBodyContent>
+            @Body
+        </FluentBodyContent>
+    </FluentStack>
+</FluentLayout>
 
 <FluentToastProvider />
 <FluentDialogProvider />
 <FluentTooltipProvider />
 <FluentMessageBarProvider />
+
+
+@code{
+
+    public static bool Expanded { get; set; } = true;
+
+}
