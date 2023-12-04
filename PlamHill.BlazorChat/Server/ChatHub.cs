@@ -11,8 +11,6 @@ namespace PlamHill.BlazorChat.Server
 {
     public class ChatHub : Hub
     {
-        private static SemaphoreSlim inferenceLock = new SemaphoreSlim(1, 1);
-
         LLamaWeights LLamaWeights;
         ModelParams ModelParams;
         public ChatHub(LLamaWeights model, ModelParams modelParams)
@@ -25,7 +23,7 @@ namespace PlamHill.BlazorChat.Server
 
         public async Task SendPrompt(Guid messageId, ChatConversation chatConversation)
         {
-            await inferenceLock.WaitAsync();
+            await ThreadLock.InferenceLock.WaitAsync();
 
             try
             {
@@ -38,7 +36,7 @@ namespace PlamHill.BlazorChat.Server
             }
             finally
             {
-                inferenceLock.Release();
+                ThreadLock.InferenceLock.Release();
             }
         }
 

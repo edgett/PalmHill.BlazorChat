@@ -17,7 +17,7 @@ namespace PalmHill.BlazorChat.Shared
         public const string USER_MESSAGE_START = MESSAGE_START + "user" + "\n";
         public const string ASSISTANT_MESSAGE_START = MESSAGE_START + "assistant";
 
-        public static string ToLlamaPromptString(this ChatConversation chatConversation)
+        public static string ToOrcaPromptString(this ChatConversation chatConversation)
         {
             var promptString = new StringBuilder();
 
