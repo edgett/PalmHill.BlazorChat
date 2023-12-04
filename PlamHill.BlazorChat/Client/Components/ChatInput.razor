@@ -1,9 +1,9 @@
 ﻿@inject IJSRuntime JSRuntime
 
 <FluentFooter Class="w-100">
-    <FluentStack>
+    <FluentStack style="max-width:768px; margin-left:auto; margin-right:auto;">
         <div style="flex-grow:1;">
-            <textarea @ref="textAreaElement" @bind="messageInput" class="textarea-fluent-ui main-textarea" @onkeydown="HandleKeyPress" @bind:event="oninput"  ></textarea>
+            <textarea rows="1" onkeyup="textAreaAdjust(this)" @ref="textAreaElement" @bind="messageInput" class="textarea-fluent-ui main-textarea" @onkeydown="HandleKeyPress" @bind:event="oninput"></textarea>
         </div>
         <div>
             <FluentButton @ref="sendButton" OnClick="Send" Appearance="Appearance.Accent">Send</FluentButton>

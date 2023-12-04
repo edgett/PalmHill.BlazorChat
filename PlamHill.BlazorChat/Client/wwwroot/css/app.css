@@ -56,6 +56,7 @@ h1:focus {
     width:100%;
     height:46px;
     border-radius: 10px 10px;
+    overflow:hidden;
 }
 
 .body-content {
