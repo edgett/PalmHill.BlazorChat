@@ -11,20 +11,43 @@ namespace PlamHill.BlazorChat.Server
 {
     public class ChatHub : Hub
     {
+        private static SemaphoreSlim inferenceLock = new SemaphoreSlim(1, 1);
 
-        LLamaContext LlamaContext;
-        public ChatHub(LLamaContext llamaContext) 
+        LLamaWeights LLamaWeights;
+        ModelParams ModelParams;
+        public ChatHub(LLamaWeights model, ModelParams modelParams)
         {
-          LlamaContext = llamaContext;
-            
+            LLamaWeights = model;
+            ModelParams = modelParams;
         }
 
-  
+
 
         public async Task SendPrompt(Guid messageId, ChatConversation chatConversation)
         {
+            await inferenceLock.WaitAsync();
 
-            var session = LlamaContext.CreateChatSession(chatConversation);
+            try
+            {
+                await DoInfrenceAndRespondToClient(Clients.Caller, messageId, chatConversation);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            finally
+            {
+                inferenceLock.Release();
+            }
+        }
+
+        private async Task DoInfrenceAndRespondToClient(ISingleClientProxy respondToClient, Guid messageId, ChatConversation chatConversation)
+        {
+
+
+            LLamaContext modelContext = LLamaWeights.CreateContext(ModelParams);
+            var session = modelContext.CreateChatSession(chatConversation);
             var inferenceParams = chatConversation.GetInferenceParams();
 
             var cancelGeneration = new CancellationTokenSource();
@@ -34,12 +57,12 @@ namespace PlamHill.BlazorChat.Server
             var inferenceStopwatch = new Stopwatch();
 
             inferenceStopwatch.Start();
-            await foreach (var text in session.ChatAsync(session.History,
+            var asyncResponse = session.ChatAsync(session.History,
                                                         inferenceParams,
-                                                        cancelGeneration.Token)
-                          )
+                                                        cancelGeneration.Token);
+            await foreach (var text in asyncResponse)
             {
-                
+
                 totalTokens++;
                 fullResponse += text;
                 textBuffer += text;
@@ -47,28 +70,29 @@ namespace PlamHill.BlazorChat.Server
 
                 if (shouldSendBuffer)
                 {
-                    await Clients.Caller.SendAsync("ReceiveModelString", messageId, textBuffer);
+                    await respondToClient.SendAsync("ReceiveModelString", messageId, textBuffer);
                     textBuffer = "";
                 }
 
-               
+
             }
+            modelContext.Dispose();
+
             inferenceStopwatch.Stop();
 
             if (textBuffer.Length > 0)
             {
-                await Clients.Caller.SendAsync("ReceiveModelString", messageId, textBuffer);
+                await respondToClient.SendAsync("ReceiveModelString", messageId, textBuffer);
             }
 
-            await Clients.Caller.SendAsync("MessageComplete", messageId, "success");
-            Console.WriteLine($"Inference took {inferenceStopwatch.ElapsedMilliseconds}ms and generated {totalTokens} tokens. {((float)totalTokens/((float)inferenceStopwatch.ElapsedMilliseconds / (float)1000)).ToString("F2")} tokens/second.");
+            await respondToClient.SendAsync("MessageComplete", messageId, "success");
+            Console.WriteLine($"Inference took {inferenceStopwatch.ElapsedMilliseconds}ms and generated {totalTokens} tokens. {((float)totalTokens / ((float)inferenceStopwatch.ElapsedMilliseconds / (float)1000)).ToString("F2")} tokens/second.");
             Console.WriteLine(fullResponse);
         }
 
-
         private bool ShouldSendBuffer(string textBuffer)
         {
-          
+
             if (string.IsNullOrEmpty(textBuffer))
             {
                 return false;

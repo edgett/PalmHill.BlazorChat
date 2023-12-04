@@ -71,7 +71,7 @@ namespace PalmHill.Llama
 
         public static InferenceParams GetInferenceParams(this ChatConversation chatConversation)
         {
-            var inferenceParams = new InferenceParams() { Temperature = .1f, AntiPrompts = ["User:"] };
+            var inferenceParams = new InferenceParams() { Temperature = .3f, AntiPrompts = ["User:"] };
             return inferenceParams;
         }
     }

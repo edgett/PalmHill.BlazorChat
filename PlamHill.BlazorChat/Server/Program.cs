@@ -25,8 +25,8 @@ ModelParams parameters = new ModelParams(modelPath)
     GpuLayerCount = 90, 
 };
 LLamaWeights model = LLamaWeights.LoadFromFile(parameters);
-LLamaContext modelContext = model.CreateContext(parameters);
-builder.Services.AddSingleton<LLamaContext>(modelContext);
+builder.Services.AddSingleton(model);
+builder.Services.AddSingleton(parameters);
 
 
 var app = builder.Build();

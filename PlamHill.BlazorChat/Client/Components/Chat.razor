@@ -55,7 +55,7 @@
     private HubConnection? hubConnection;
     private List<ModelResponse> modelResponses = new List<ModelResponse>();
     private string? userInput = "edgett";
-    
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,7 +75,7 @@
         {
             var currentModelResponse = modelResponses.Single(mr => mr.PromptId == messageId);
             currentModelResponse.CompleteResponse();
-            
+
             InvokeAsync(StateHasChanged);
         });
 
@@ -93,10 +93,9 @@
         {
             var newMessage = new ModelResponse() { Prompt = message };
             modelResponses.Add(newMessage);
+            StateHasChanged();
 
             var chatConversation = GetChatConversation(modelResponses);
-
-
             await hubConnection.SendAsync("SendPrompt", newMessage.PromptId, chatConversation);
         }
     }
