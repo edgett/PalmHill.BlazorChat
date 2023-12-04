@@ -9,11 +9,11 @@ using System.Diagnostics;
 
 namespace PlamHill.BlazorChat.Server
 {
-    public class ChatHub : Hub
+    public class WebSocketChat : Hub
     {
         LLamaWeights LLamaWeights;
         ModelParams ModelParams;
-        public ChatHub(LLamaWeights model, ModelParams modelParams)
+        public WebSocketChat(LLamaWeights model, ModelParams modelParams)
         {
             LLamaWeights = model;
             ModelParams = modelParams;
@@ -27,7 +27,7 @@ namespace PlamHill.BlazorChat.Server
 
             try
             {
-                await DoInfrenceAndRespondToClient(Clients.Caller, messageId, chatConversation);
+                await DoInferenceAndRespondToClient(Clients.Caller, messageId, chatConversation);
 
             }
             catch (Exception ex)
@@ -40,7 +40,7 @@ namespace PlamHill.BlazorChat.Server
             }
         }
 
-        private async Task DoInfrenceAndRespondToClient(ISingleClientProxy respondToClient, Guid messageId, ChatConversation chatConversation)
+        private async Task DoInferenceAndRespondToClient(ISingleClientProxy respondToClient, Guid messageId, ChatConversation chatConversation)
         {
 
 
