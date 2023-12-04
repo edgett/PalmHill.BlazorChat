@@ -60,10 +60,6 @@ h1:focus {
     margin-bottom:10px;
 }
 
-.body-content {
-    padding-right:10px;
-}
-
 #app, html, body {
     height:100%;
     overflow:hidden;
@@ -86,3 +82,12 @@ h1:focus {
     .chat-messages fluent-card:not(:first-child) {
         margin-top:10px;
     }
+
+@media (max-width: 1000px) {
+    .chat-messages {
+        width: 100%;
+        max-width: none;
+        padding-left:10px;
+        padding-right:10px;
+    }
+}
