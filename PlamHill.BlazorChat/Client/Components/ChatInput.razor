@@ -2,6 +2,9 @@
 
 <FluentFooter Class="w-100">
     <FluentStack style="max-width:768px; margin-left:auto; margin-right:auto;">
+        <div>
+            <FluentButton IconStart="(new Icons.Regular.Size24.SettingsChat())" Style="margin-top:6px;"></FluentButton>
+        </div>
         <div style="flex-grow:1;">
             <textarea rows="1" @ref="textAreaElement" @bind="messageInput" class="textarea-fluent-ui main-textarea" @onkeyup="HandleKeyPress" @bind:event="oninput"></textarea>
         </div>
@@ -12,50 +15,48 @@
 </FluentFooter>
 
 @code {
-    @code {
-        private ElementReference textAreaElement;
-        private string messageInput = string.Empty;
-        private FluentButton? sendButton;
-        private Chat? _chatRenderer;
-        public Chat? ChatRenderer { get { return _chatRenderer; } }
+    private ElementReference textAreaElement;
+    private string messageInput = string.Empty;
+    private FluentButton? sendButton;
+    private Chat? _chatRenderer;
+    public Chat? ChatRenderer { get { return _chatRenderer; } }
 
-        public void AttachToChat(Chat chat)
-        {
-            _chatRenderer = chat;
-        }
-
-        private async Task Send()
-        {
-            if (ChatRenderer == null)
-            {
-                return;
-            }
-
-            await ChatRenderer.Send(messageInput);
-            messageInput = string.Empty;
-            StateHasChanged();
-            await SizeTextArea();
-
-        }
-
-        private async Task HandleKeyPress(KeyboardEventArgs e)
-        {
-            if (ChatRenderer == null)
-            {
-                return;
-            }
-
-            if (e.Key == "Enter" && !e.ShiftKey)
-            {
-                await Send();
-            }
-
-            await SizeTextArea();
-        }
-
-        private async Task SizeTextArea()
-        {
-            await JSRuntime.InvokeVoidAsync("textAreaAdjust", textAreaElement);
-        }
+    public void AttachToChat(Chat chat)
+    {
+        _chatRenderer = chat;
     }
-}
+
+    private async Task Send()
+    {
+        if (ChatRenderer == null)
+        {
+            return;
+        }
+
+        await ChatRenderer.Send(messageInput);
+        messageInput = string.Empty;
+        StateHasChanged();
+        await SizeTextArea();
+
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (ChatRenderer == null)
+        {
+            return;
+        }
+
+        if (e.Key == "Enter" && !e.ShiftKey)
+        {
+            await Send();
+        }
+
+        await SizeTextArea();
+    }
+
+    private async Task SizeTextArea()
+    {
+        await JSRuntime.InvokeVoidAsync("textAreaAdjust", textAreaElement);
+    }
+    }
