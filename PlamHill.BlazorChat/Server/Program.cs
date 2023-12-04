@@ -10,17 +10,22 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//Make Swagger use enums.
 builder.Services.AddControllers().AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddSignalR();
+
+//Compress websockets traffic.
 builder.Services.AddResponseCompression(opts =>
 {
     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
           new[] { "application/octet-stream" });
 });
 
+//Configure swagger.
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Blazor Chat", Version = "v1" });
@@ -56,17 +61,16 @@ else
 app.UseHttpsRedirection();
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
-
 app.UseResponseCompression();
-
 app.UseRouting();
 
-
+//Configure WebSocket URI.
 app.MapHub<WebSocketChat>("/chathub");
 
-app.UseSwagger();
 // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
 // specifying the Swagger JSON endpoint.
+app.UseSwagger();
+
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Chat"));
 
 app.MapRazorPages();
