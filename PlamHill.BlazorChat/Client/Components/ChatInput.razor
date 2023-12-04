@@ -3,10 +3,10 @@
 <FluentFooter Class="w-100">
     <FluentStack style="max-width:768px; margin-left:auto; margin-right:auto;">
         <div style="flex-grow:1;">
-            <textarea rows="1" onkeyup="textAreaAdjust(this)" @ref="textAreaElement" @bind="messageInput" class="textarea-fluent-ui main-textarea" @onkeydown="HandleKeyPress" @bind:event="oninput"></textarea>
+            <textarea rows="1" @ref="textAreaElement" @bind="messageInput" class="textarea-fluent-ui main-textarea" @onkeyup="HandleKeyPress" @bind:event="oninput"></textarea>
         </div>
         <div>
-            <FluentButton @ref="sendButton" OnClick="Send" Appearance="Appearance.Accent">Send</FluentButton>
+            <FluentButton @ref="sendButton" OnClick="Send" Appearance="Appearance.Accent" IconStart="(new Icons.Regular.Size24.Send())" Style="margin-top:6px;">Send</FluentButton>
         </div>
     </FluentStack>
 </FluentFooter>
@@ -24,7 +24,7 @@
             _chatRenderer = chat;
         }
 
-        private async void Send()
+        private async Task Send()
         {
             if (ChatRenderer == null)
             {
@@ -34,6 +34,7 @@
             await ChatRenderer.Send(messageInput);
             messageInput = string.Empty;
             StateHasChanged();
+            await SizeTextArea();
 
         }
 
@@ -46,10 +47,15 @@
 
             if (e.Key == "Enter" && !e.ShiftKey)
             {
-                Send();
-                await InvokeAsync(StateHasChanged);
+                await Send();
             }
 
+            await SizeTextArea();
+        }
+
+        private async Task SizeTextArea()
+        {
+            await JSRuntime.InvokeVoidAsync("textAreaAdjust", textAreaElement);
         }
     }
 }
