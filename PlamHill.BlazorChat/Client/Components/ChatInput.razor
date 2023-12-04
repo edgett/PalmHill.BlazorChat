@@ -6,7 +6,7 @@
             <FluentButton IconStart="(new Icons.Regular.Size24.SettingsChat())" Style="margin-top:6px;"></FluentButton>
         </div>
         <div style="flex-grow:1;">
-            <textarea rows="1" @ref="textAreaElement" @bind="messageInput" class="textarea-fluent-ui main-textarea" @onkeyup="HandleKeyPress" @bind:event="oninput"></textarea>
+            <textarea placeholder="Enter a prompt. Use Shift+Enter for a new line." rows="1" @ref="textAreaElement" @bind="messageInput" class="textarea-fluent-ui main-textarea" @onkeyup="HandleKeyPress" @bind:event="oninput"></textarea>
         </div>
         <div>
             <FluentButton @ref="sendButton" OnClick="Send" Appearance="Appearance.Accent" IconStart="(new Icons.Regular.Size24.Send())" Style="margin-top:6px;">Send</FluentButton>
