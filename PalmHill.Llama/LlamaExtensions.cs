@@ -2,12 +2,13 @@
 using LLama;
 using PalmHill.BlazorChat.Shared.Models;
 using static LLama.Common.ChatHistory;
+using PalmHill.BlazorChat.Shared;
 
 namespace PalmHill.Llama
 {
     public static class LlamaExtensions
     {
-        public static void LoadChatHistory(this ChatSession chatSession, ChatConversation chatConversation, bool lastMessageContainsPrompt = true)
+        public static void LoadChatHistory(this ChatSession chatSession, ChatConversation chatConversation)
         { 
 
             if (!string.IsNullOrWhiteSpace(chatConversation.SystemMessage))
@@ -26,11 +27,7 @@ namespace PalmHill.Llama
                     continue;
                 }
 
-                if (lastMessageContainsPrompt && lastMessage == chatMessage)
-                {
-                    return;
-                }
-
+          
                 switch (chatMessage.Role)
                 {
                     case ChatMessageRole.User:
@@ -45,6 +42,37 @@ namespace PalmHill.Llama
 
                 messageIndex++;
             }
+        }
+
+
+        public static ChatSession CreateChatSession(this LLamaContext lLamaContext, ChatConversation chatConversation)
+        {
+            var ex = new InteractiveExecutor(lLamaContext);
+            ChatSession session = new ChatSession(ex);
+
+            var specialTokensToIgnore = new string[] { "Assistant:", "User:"};
+            session = session.WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(specialTokensToIgnore, redundancyLength: 8));
+            session.LoadChatHistory(chatConversation);
+            var promptMessage = chatConversation.ChatMessages.Last();
+
+            if (promptMessage.Role != ChatMessageRole.User)
+            {
+                throw new ArgumentOutOfRangeException(nameof(chatConversation.ChatMessages), "For inference the last message in the conversation must be a User message.");
+            }
+
+            if (string.IsNullOrWhiteSpace(promptMessage.Message))
+            {
+                throw new ArgumentNullException(nameof(chatConversation.ChatMessages), "No prompt supplied.");
+            }
+
+            return session;
+        }
+
+
+        public static InferenceParams GetInferenceParams(this ChatConversation chatConversation)
+        {
+            var inferenceParams = new InferenceParams() { Temperature = .1f, AntiPrompts = ["User:"] };
+            return inferenceParams;
         }
     }
 }

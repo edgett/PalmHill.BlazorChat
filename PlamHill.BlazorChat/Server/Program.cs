@@ -21,9 +21,8 @@ string modelPath = @"C:\models\orca-2-13b.Q6_K.gguf"; // change it to your own m
                                                                           // Load a model
 ModelParams parameters = new ModelParams(modelPath)
 {
-    ContextSize = 1024,
-    Seed = 1337,
-    GpuLayerCount = 50,
+    ContextSize = 4096,
+    GpuLayerCount = 90, 
 };
 LLamaWeights model = LLamaWeights.LoadFromFile(parameters);
 LLamaContext modelContext = model.CreateContext(parameters);

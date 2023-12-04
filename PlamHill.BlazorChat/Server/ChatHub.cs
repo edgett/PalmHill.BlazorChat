@@ -5,6 +5,7 @@ using PalmHill.BlazorChat.Shared;
 using PalmHill.BlazorChat.Shared.Models;
 using System.Web;
 using PalmHill.Llama;
+using System.Diagnostics;
 
 namespace PlamHill.BlazorChat.Server
 {
@@ -18,95 +19,56 @@ namespace PlamHill.BlazorChat.Server
             
         }
 
+  
+
         public async Task SendPrompt(Guid messageId, ChatConversation chatConversation)
         {
-            var context = LlamaContext;
-            var ex = new InteractiveExecutor(context);
-            ChatSession session = new ChatSession(ex);
 
-            session.WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(new string[] { "Assistant:", ChatExtensions.MESSAGE_END }, redundancyLength: 15));
-            session.LoadChatHistory(chatConversation);
+            var session = LlamaContext.CreateChatSession(chatConversation);
+            var inferenceParams = chatConversation.GetInferenceParams();
 
-            var promptMessage = chatConversation.ChatMessages.Last();
-
-            if (promptMessage.Role != ChatMessageRole.User)
-            {
-                throw new ArgumentOutOfRangeException(nameof(chatConversation.ChatMessages), "For inference the last message in the conversation must be a User message.");
-            }
-
-            if (string.IsNullOrWhiteSpace(promptMessage.Message))
-            { 
-                throw new ArgumentNullException(nameof(chatConversation.ChatMessages), "No prompt supplied.");
-            }
-            var inferenceParams = new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { ChatExtensions.MESSAGE_END, "User:" }, MaxTokens = -1 };
             var cancelGeneration = new CancellationTokenSource();
             var textBuffer = "";
             var fullResponse = "";
-            // run the inference in a loop to chat with LLM
-            await foreach (var text in session.ChatAsync(promptMessage.Message,
+            var totalTokens = 0;
+            var inferenceStopwatch = new Stopwatch();
+
+            inferenceStopwatch.Start();
+            await foreach (var text in session.ChatAsync(session.History,
                                                         inferenceParams,
                                                         cancelGeneration.Token)
                           )
             {
-                await Clients.Caller.SendAsync("ReceiveModelString", messageId, text);
+                
+                totalTokens++;
+                fullResponse += text;
+                textBuffer += text;
+                var shouldSendBuffer = ShouldSendBuffer(textBuffer);
 
-                //fullResponse += text;
-                //textBuffer += text;
-                //var shouldSendBuffer = ShouldSendBuffer(textBuffer);
+                if (shouldSendBuffer)
+                {
+                    await Clients.Caller.SendAsync("ReceiveModelString", messageId, textBuffer);
+                    textBuffer = "";
+                }
 
+               
+            }
+            inferenceStopwatch.Stop();
 
-                //if (shouldSendBuffer)
-                //{
-                //    var shouldCancelGeneration = ShouldCancelGeneration(textBuffer);
-                //    var textToSend = PreProcessResponse(textBuffer, shouldCancelGeneration);
-                //    await Clients.Caller.SendAsync("ReceiveModelString", messageId, textToSend);
-                //    textBuffer = "";
-
-                //    if (shouldCancelGeneration)
-                //    {
-                //        cancelGeneration.Cancel();
-                //        break;
-                //    }
-                //}
+            if (textBuffer.Length > 0)
+            {
+                await Clients.Caller.SendAsync("ReceiveModelString", messageId, textBuffer);
             }
 
             await Clients.Caller.SendAsync("MessageComplete", messageId, "success");
-
+            Console.WriteLine($"Inference took {inferenceStopwatch.ElapsedMilliseconds}ms and generated {totalTokens} tokens. {((float)totalTokens/((float)inferenceStopwatch.ElapsedMilliseconds / (float)1000)).ToString("F2")} tokens/second.");
             Console.WriteLine(fullResponse);
         }
 
-        public string PreProcessResponse(string response, bool removeMessageStart = false)
-        {
-            var preProcessedResponse = response.Replace(ChatExtensions.MESSAGE_END, "");
-            if (removeMessageStart)
-            {
-                var messageStartIndex = preProcessedResponse.IndexOf(ChatExtensions.MESSAGE_START);
-                preProcessedResponse = preProcessedResponse.Substring(messageStartIndex, response.Length - messageStartIndex);
-            }
-
-
-            return preProcessedResponse;
-        }
-
-        private bool ShouldCancelGeneration(string textBuffer)
-        {
-            if (textBuffer.Contains(ChatExtensions.MESSAGE_START))
-            {
-                return true;
-            }
-
-            return false;
-        }
 
         private bool ShouldSendBuffer(string textBuffer)
         {
-            // Check if the end of the text is ChatExtensions.MESSAGE_END
-            if (textBuffer.EndsWith(ChatExtensions.MESSAGE_END))
-            {
-                return true;
-            }
-
-
+          
             if (string.IsNullOrEmpty(textBuffer))
             {
                 return false;
@@ -116,11 +78,6 @@ namespace PlamHill.BlazorChat.Server
             char lastChar = textBuffer[^1]; // Using ^1 to get the last character
             if (char.IsPunctuation(lastChar) || char.IsWhiteSpace(lastChar))
             {
-                if (textBuffer.Contains("<")) 
-                {
-                    return false;
-                }
-
                 return true;
             }
 
