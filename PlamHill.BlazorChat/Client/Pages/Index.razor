@@ -1,6 +1,43 @@
 ﻿@page "/"
 
+<FluentStack Orientation="Orientation.Horizontal" Width="100%" Class="chat-box">
 
-<Chat>
 
-</Chat>
+    <div>
+
+        <h3>System Message</h3>
+        <textarea class="textarea-fluent-ui"></textarea>
+    </div>
+
+
+    <FluentStack Orientation="Orientation.Vertical" Width="100%" Class="chat-box">
+
+        <FluentBodyContent>
+            <Chat @ref="ChatRenderer">
+            </Chat>
+        </FluentBodyContent>
+
+
+        <ChatInput @ref="ChatInput">
+
+        </ChatInput>
+
+    </FluentStack>
+
+</FluentStack>
+
+@code
+{
+    private Chat? ChatRenderer { get; set; }
+    private ChatInput? ChatInput { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ChatInput?.AttachToChat(ChatRenderer);
+        }
+    }
+}
+
+

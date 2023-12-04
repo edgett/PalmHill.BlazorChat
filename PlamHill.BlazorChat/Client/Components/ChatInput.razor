@@ -1,0 +1,55 @@
+﻿@inject IJSRuntime JSRuntime
+
+<FluentFooter Class="w-100">
+    <FluentStack>
+        <div style="flex-grow:1;">
+            <textarea @ref="textAreaElement" @bind="messageInput" class="textarea-fluent-ui main-textarea" @onkeydown="HandleKeyPress" @bind:event="oninput"  ></textarea>
+        </div>
+        <div>
+            <FluentButton @ref="sendButton" OnClick="Send" Appearance="Appearance.Accent">Send</FluentButton>
+        </div>
+    </FluentStack>
+</FluentFooter>
+
+@code {
+    @code {
+        private ElementReference textAreaElement;
+        private string messageInput = string.Empty;
+        private FluentButton? sendButton;
+        private Chat? _chatRenderer;
+        public Chat? ChatRenderer { get { return _chatRenderer; } }
+
+        public void AttachToChat(Chat chat)
+        {
+            _chatRenderer = chat;
+        }
+
+        private async void Send()
+        {
+            if (ChatRenderer == null)
+            {
+                return;
+            }
+
+            await ChatRenderer.Send(messageInput);
+            messageInput = string.Empty;
+            StateHasChanged();
+
+        }
+
+        private async Task HandleKeyPress(KeyboardEventArgs e)
+        {
+            if (ChatRenderer == null)
+            {
+                return;
+            }
+
+            if (e.Key == "Enter" && !e.ShiftKey)
+            {
+                Send();
+                await InvokeAsync(StateHasChanged);
+            }
+
+        }
+    }
+}

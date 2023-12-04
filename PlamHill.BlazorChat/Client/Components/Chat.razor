@@ -9,7 +9,7 @@
 
 <div>
     <div>
-        <h3>Messages</h3>
+        <h3>Chat</h3>
 
         <div>
             @foreach (var mr in modelResponses)
@@ -45,14 +45,7 @@
         </div>
     </div>
     <div>
-        <FluentStack>
-            <div style="flex-grow:1;">
-                <textarea @bind="messageInput" class="textarea-fluent-ui main-textarea" @onkeydown="HandleKeyPress" @bind:event="oninput"></textarea>
-            </div>
-            <div>
-                <FluentButton OnClick="()=>Send(messageInput)" Appearance="Appearance.Accent">Send</FluentButton>
-            </div>
-        </FluentStack>
+        
     </div>
 </div>
 
@@ -62,7 +55,7 @@
     private HubConnection? hubConnection;
     private List<ModelResponse> modelResponses = new List<ModelResponse>();
     private string? userInput = "edgett";
-    private string messageInput = string.Empty;
+    
 
     protected override async Task OnInitializedAsync()
     {
@@ -89,7 +82,7 @@
         await hubConnection.StartAsync();
     }
 
-    private async Task Send(string message)
+    public async Task Send(string message)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
@@ -143,13 +136,5 @@
         }
     }
 
-    private async Task HandleKeyPress(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter" && !e.ShiftKey)
-        {
-            await Send(messageInput);
-            await InvokeAsync(StateHasChanged);
-        }
 
-    }
 }
