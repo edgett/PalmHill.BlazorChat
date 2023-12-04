@@ -72,11 +72,11 @@ namespace PalmHill.Llama
         public static InferenceParams GetInferenceParams(this ChatConversation chatConversation)
         {
             var inferenceParams = new InferenceParams() { 
-                Temperature = chatConversation.ChatSettings.Temperature,
-                MaxTokens = chatConversation.ChatSettings.MaxLength,
-                TopP = chatConversation.ChatSettings.TopP,
-                FrequencyPenalty = chatConversation.ChatSettings.FrequencyPenalty,
-                PresencePenalty = chatConversation.ChatSettings.PresencePenalty,
+                Temperature = chatConversation.Settings.Temperature,
+                MaxTokens = chatConversation.Settings.MaxLength,
+                TopP = chatConversation.Settings.TopP,
+                FrequencyPenalty = chatConversation.Settings.FrequencyPenalty,
+                PresencePenalty = chatConversation.Settings.PresencePenalty,
                 AntiPrompts = ["User:"] };
             return inferenceParams;
         }

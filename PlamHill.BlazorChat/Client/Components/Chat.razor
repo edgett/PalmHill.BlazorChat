@@ -3,6 +3,7 @@
 @implements IAsyncDisposable
 @using Markdig
 @using PalmHill.BlazorChat.Shared.Models
+@using PlamHill.BlazorChat.Shared.Models
 @inherits FluentComponentBase
 
 
@@ -50,6 +51,7 @@
 @code
 {
 
+
     private HubConnection? hubConnection;
     private List<ModelResponse> modelResponses = new List<ModelResponse>();
 
@@ -78,7 +80,7 @@
         await hubConnection.StartAsync();
     }
 
-    public async Task Send(string message)
+    public async Task Send(string message, InferenceSettings inferenceSettings)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
@@ -92,6 +94,7 @@
             StateHasChanged();
 
             var chatConversation = GetChatConversation(modelResponses);
+            chatConversation.Settings = inferenceSettings;
             await hubConnection.SendAsync("SendPrompt", newMessage.PromptId, chatConversation);
         }
     }
@@ -99,6 +102,7 @@
     public ChatConversation GetChatConversation(List<ModelResponse> modelResponses)
     {
         var chatConversation = new ChatConversation();
+
         foreach (var mr in modelResponses)
         {
             var userMessage = new ChatMessage();

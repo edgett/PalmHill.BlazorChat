@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PlamHill.BlazorChat.Shared.Models
 {
-    public class ChatSettings
+    public class InferenceSettings
     {
         [DefaultValue(0.7f)]
         public float Temperature { get; set; } = 0.7f;

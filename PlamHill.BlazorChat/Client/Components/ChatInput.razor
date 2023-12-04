@@ -1,9 +1,11 @@
-﻿@inject IJSRuntime JSRuntime
+﻿@using PlamHill.BlazorChat.Shared.Models
+@inject IDialogService DialogService
+@inject IJSRuntime JSRuntime
 
 <FluentFooter Class="w-100">
     <FluentStack Class="chat-messages">
         <div>
-            <FluentButton IconStart="(new Icons.Regular.Size24.SettingsChat())" Style="margin-top:6px;"></FluentButton>
+            <FluentButton OnClick="ShowSettings" IconStart="(new Icons.Regular.Size24.SettingsChat())" Style="margin-top:6px;"></FluentButton>
         </div>
         <div style="flex-grow:1;">
             <textarea placeholder="Enter a prompt. Use Shift+Enter for a new line." rows="1" @ref="textAreaElement" @bind="messageInput" class="textarea-fluent-ui main-textarea" @onkeyup="HandleKeyPress" @bind:event="oninput"></textarea>
@@ -20,10 +22,38 @@
     private FluentButton? sendButton;
     private Chat? _chatRenderer;
     public Chat? ChatRenderer { get { return _chatRenderer; } }
+    public InferenceSettings InferenceSettings { get; set; } = new InferenceSettings();
 
     public void AttachToChat(Chat chat)
     {
         _chatRenderer = chat;
+    }
+
+    private async Task ShowSettings()
+    {
+
+        DialogParameters<InferenceSettings> parameters = new()
+            {
+
+                Title = $"Settings",
+                PrimaryAction = "Save",
+                PrimaryActionEnabled = true,
+                SecondaryAction = "No",
+                Width = "500px",
+                TrapFocus = true,
+                Modal = true,
+                PreventScroll = true,
+                //Content = new InferenceSettings { FrequencyPenalty = InferenceSettings.FrequencyPenalty, MaxLength = InferenceSettings.MaxLength, PresencePenalty = InferenceSettings.PresencePenalty, Temperature = InferenceSettings.Temperature, TopP = InferenceSettings.TopP }
+            };
+        var currentSettingsCopy = new InferenceSettings { FrequencyPenalty = InferenceSettings.FrequencyPenalty, MaxLength = InferenceSettings.MaxLength, PresencePenalty = InferenceSettings.PresencePenalty, Temperature = InferenceSettings.Temperature, TopP = InferenceSettings.TopP };
+        var dialog = await DialogService.ShowDialogAsync<ChatSettings>(currentSettingsCopy, parameters);
+        var dialogResult = await dialog.Result;
+
+        if (dialogResult?.Data != null)
+        {
+            InferenceSettings = (InferenceSettings)dialogResult.Data;
+        }
+
     }
 
     private async Task Send()
@@ -33,7 +63,7 @@
             return;
         }
 
-        await ChatRenderer.Send(messageInput);
+        await ChatRenderer.Send(messageInput, InferenceSettings);
         messageInput = string.Empty;
         StateHasChanged();
         await SizeTextArea();
@@ -59,4 +89,4 @@
     {
         await JSRuntime.InvokeVoidAsync("textAreaAdjust", textAreaElement);
     }
-    }
+}

@@ -17,7 +17,7 @@ namespace PalmHill.BlazorChat.Shared.Models
         [DefaultValue("You are a helpful assistant. Repsond in valid markdown only.")]
         public string SystemMessage { get; set; } = "You are a helpful assistant. Repsond in valid markdown only.";
         public List<ChatMessage> ChatMessages { get; set; } = new List<ChatMessage>();
-        public ChatSettings ChatSettings { get; set; } = new ChatSettings();
+        public InferenceSettings Settings { get; set; } = new InferenceSettings();
 
     }
 }

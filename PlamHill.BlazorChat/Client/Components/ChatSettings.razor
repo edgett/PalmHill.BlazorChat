@@ -1,0 +1,40 @@
+﻿@implements IDialogContentComponent<InferenceSettings>
+
+@using PlamHill.BlazorChat.Shared.Models
+
+
+<FluentStack Orientation="Orientation.Vertical">
+
+    <FluentSlider Label="Temperature" Min="(float)0.1" Max="(float)1" Step="(float)0.1" @bind-Value="Content.Temperature">
+    </FluentSlider>
+
+    <FluentSlider Label="Max Length" Min="1" Max="4096" Step="1" @bind-Value="Content.MaxLength">
+    </FluentSlider>
+
+    <FluentSlider Label="Top P" Min="(float)0.1" Max="(float)1" Step="(float)0.1" @bind-Value="Content.TopP">
+    </FluentSlider>
+
+    <FluentSlider Label="Frequency penalty" Min="(float)0.1" Max="(float)1" Step="(float)0.1" @bind-Value="Content.FrequencyPenalty">
+    </FluentSlider>
+
+    <FluentSlider Label="Presence penalty" Min="(float)0.1" Max="(float)1" Step="(float)0.1" @bind-Value="Content.FrequencyPenalty">
+    </FluentSlider>
+
+</FluentStack>
+
+@code {
+    
+
+    [Parameter]
+    public InferenceSettings? Content { 
+        get; 
+        set; 
+    } 
+        = new InferenceSettings();
+
+    [CascadingParameter]
+    public FluentDialog? Dialog { get; set; }
+
+
+
+}
