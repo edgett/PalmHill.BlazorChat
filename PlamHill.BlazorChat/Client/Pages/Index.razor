@@ -1,20 +1,20 @@
 ﻿@page "/"
 
+<div class="chat-box">
+    <FluentStack Orientation="Orientation.Vertical" Width="100%">
 
-<FluentStack Orientation="Orientation.Vertical" Width="100%" Class="chat-box">
-
-    <FluentBodyContent>
-        <Chat @ref="ChatRenderer">
-        </Chat>
-    </FluentBodyContent>
+        <FluentBodyContent>
+            <Chat @ref="ChatRenderer">
+            </Chat>
+        </FluentBodyContent>
 
 
-    <ChatInput @ref="ChatInput">
+        <ChatInput @ref="ChatInput">
 
-    </ChatInput>
+        </ChatInput>
 
-</FluentStack>
-
+    </FluentStack>
+</div>
 
 @code
 {

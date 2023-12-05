@@ -62,11 +62,12 @@ h1:focus {
 
 #app, html, body {
     height:100%;
-    overflow:hidden;
+    /*overflow:hidden;*/
 }
 
 .chat-box {
-    height:calc(100vh - 135px);
+    height:calc(100vh - 125px);
+    margin-top:60px;
 }
 
 .w-100 {
@@ -94,4 +95,14 @@ h1:focus {
         padding-left:10px;
         padding-right:10px;
     }
+}
+
+.nolabel label {
+    display: none !important;
+}
+
+.chat-header {
+    position:fixed;
+    left:0px;
+    right:0px;
 }

@@ -6,47 +6,40 @@
 @using PlamHill.BlazorChat.Shared.Models
 @inherits FluentComponentBase
 
+<div class="chat-messages">
+    @foreach (var mr in modelResponses)
+    {
+        <FluentCard>
+            <FluentStack>
+                <div>
+                    <FluentIcon Value="@(new Icons.Regular.Size24.PersonChat())" />
+                </div>
 
+                <div>
+                    <span>@mr.Prompt</span>
+                </div>
+            </FluentStack>
 
-<div>
-    <div>
-        <div class="chat-messages">
-            @foreach (var mr in modelResponses)
-            {
-                <FluentCard>
-                    <FluentStack>
-                        <div>
-                            <FluentIcon Value="@(new Icons.Regular.Size24.PersonChat())" />
-                        </div>
+        </FluentCard>
 
-                        <div>
-                            <span>@mr.Prompt</span>
-                        </div>
-                    </FluentStack>
+        <FluentCard>
+            <FluentStack>
+                <div style="position:relative;">
+                    <FluentIcon Value="@(new Icons.Regular.Size24.LightbulbPerson())" />
 
-                </FluentCard>
+                    <FluentProgressRing Visible="!mr.IsComplete" Style="height:24px; width:24px; position:absolute; top:0px; left:0px;"></FluentProgressRing>
+                </div>
 
-                <FluentCard>
-                    <FluentStack>
-                        <div style="position:relative;">
-                            <FluentIcon Value="@(new Icons.Regular.Size24.LightbulbPerson())" />
+                <div>
+                    <ModelMarkdown ModelResponse="@mr"></ModelMarkdown>
+                </div>
+            </FluentStack>
 
-                            <FluentProgressRing Visible="!mr.IsComplete" Style="height:24px; width:24px; position:absolute; top:0px; left:0px;" ></FluentProgressRing>
-                        </div>
-
-                        <div>
-                            <ModelMarkdown ModelResponse="@mr"></ModelMarkdown>
-                        </div>
-                    </FluentStack>
-
-                </FluentCard>
-            }
-        </div>
-    </div>
-    <div>
-        
-    </div>
+        </FluentCard>
+    }
 </div>
+
+
 
 @code
 {
