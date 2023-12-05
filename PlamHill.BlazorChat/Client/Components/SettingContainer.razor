@@ -6,11 +6,11 @@
         <FluentLabel>@Label</FluentLabel>
         
         <div class="nolabel">
-            <FluentNumberField Class="no-lable" @bind-Value="Value" Style="width:75px;" HideStep="true" TValue="TValue" @oninput="OnValueChanged"></FluentNumberField>
+            <FluentNumberField Class="no-lable" @bind-Value="Value" Style="width:75px;" HideStep="true" TValue="TValue" @oninput="OnTextChanged" ></FluentNumberField>
         </div>
     </FluentStack>
 
-    <FluentSlider Min="Min" Max="Max" Step="Step" @bind-Value="Value" TValue="TValue" @oninput="OnValueChanged">
+    <FluentSlider Min="Min" Max="Max" Step="Step" @bind-Value="Value" TValue="TValue" @oninput="OnSliderChanged">
     </FluentSlider>
 </FluentStack>
 
@@ -35,7 +35,7 @@
     [Parameter]
     public EventCallback<TValue> ValueChanged { get; set; }
 
-    private async Task OnValueChanged(ChangeEventArgs e)
+    private async Task OnSliderChanged(ChangeEventArgs e)
     {
         if (e.Value == null)
         {
@@ -46,6 +46,20 @@
         {
            var changedVal = TValue.Parse((string)e.Value, null);
            await ValueChanged.InvokeAsync(changedVal);
+        }
+    }
+
+    private async Task OnTextChanged(ChangeEventArgs e)
+    {
+        if (e.Value == null)
+        {
+            await ValueChanged.InvokeAsync(default);
+        }
+
+        if (e.Value is string)
+        {
+            var changedVal = TValue.Parse((string)e.Value, null);
+            await ValueChanged.InvokeAsync(changedVal);
         }
     }
 }
