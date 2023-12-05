@@ -66,7 +66,7 @@ h1:focus {
 }
 
 .chat-box {
-    height:calc(100vh - 60px);
+    height:calc(100vh - 135px);
 }
 
 .w-100 {
@@ -81,6 +81,10 @@ h1:focus {
 
     .chat-messages fluent-card:not(:first-child) {
         margin-top:10px;
+    }
+
+    .chat-messages fluent-card:last-child {
+        margin-bottom: 10px;
     }
 
 @media (max-width: 1000px) {
