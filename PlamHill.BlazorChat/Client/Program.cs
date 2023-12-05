@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.FluentUI.AspNetCore.Components;
+using Microsoft.FluentUI.AspNetCore.Components.DesignTokens;
 using PlamHill.BlazorChat.Client;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -11,5 +12,9 @@ builder.Services.AddHttpClient("PlamHill.BlazorChat.ServerAPI", client => client
 builder.Services.AddFluentUIComponents();
 // Supply HttpClient instances that include access tokens when making requests to the server project
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("PlamHill.BlazorChat.ServerAPI"));
+
+//Add ThemeControler
+builder.Services.AddSingleton<ThemeControl>();
+
 
 await builder.Build().RunAsync();

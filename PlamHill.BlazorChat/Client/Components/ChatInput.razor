@@ -1,6 +1,8 @@
 ﻿@using PlamHill.BlazorChat.Shared.Models
 @inject IDialogService DialogService
 @inject IJSRuntime JSRuntime
+@inject ThemeControl ThemeControl
+
 
 <FluentFooter Class="w-100" Style="position:fixed; bottom:0px;">
     <FluentStack Class="chat-messages">
@@ -22,7 +24,7 @@
     private FluentButton? sendButton;
     private Chat? _chatRenderer;
     public Chat? ChatRenderer { get { return _chatRenderer; } }
-    public UISettings InferenceSettings { get; set; } = new UISettings();
+    public UISettings UISettings { get; set; } = new UISettings();
 
     public void AttachToChat(Chat chat)
     {
@@ -38,19 +40,33 @@
                 Title = $"Settings",
                 PrimaryAction = "Save",
                 PrimaryActionEnabled = true,
-                SecondaryAction = "Cancel",
                 Width = "500px",
                 TrapFocus = true,
                 Modal = true,
                 PreventScroll = true,
             };
-        var currentSettingsCopy = new UISettings { FrequencyPenalty = InferenceSettings.FrequencyPenalty, MaxLength = InferenceSettings.MaxLength, PresencePenalty = InferenceSettings.PresencePenalty, Temperature = InferenceSettings.Temperature, TopP = InferenceSettings.TopP, SystemMessage = InferenceSettings.SystemMessage };
+        var currentSettingsCopy = new UISettings
+            {
+                FrequencyPenalty = UISettings.FrequencyPenalty,
+                MaxLength = UISettings.MaxLength,
+                PresencePenalty = UISettings.PresencePenalty,
+                Temperature = UISettings.Temperature,
+                TopP = UISettings.TopP,
+                SystemMessage = UISettings.SystemMessage,
+                DarkMode = UISettings.DarkMode
+            };
         var dialog = await DialogService.ShowDialogAsync<ChatSettings>(currentSettingsCopy, parameters);
         var dialogResult = await dialog.Result;
 
-        if (dialogResult?.Data != null)
+        if (dialogResult?.Cancelled == true)
         {
-            InferenceSettings = (UISettings)dialogResult.Data;
+            //Reset the theme if cancel.
+            await ThemeControl.ChangeTheme(UISettings.DarkMode);
+        }
+        else
+        {
+            //Save the settings.
+            UISettings = (UISettings?)dialogResult?.Data ?? new UISettings();
         }
 
     }
@@ -62,7 +78,7 @@
             return;
         }
 
-        await ChatRenderer.Send(messageInput, InferenceSettings);
+        await ChatRenderer.Send(messageInput, UISettings);
         messageInput = string.Empty;
         StateHasChanged();
         await SizeTextArea();
