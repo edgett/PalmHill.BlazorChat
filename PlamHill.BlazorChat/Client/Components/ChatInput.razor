@@ -38,12 +38,11 @@
                 Title = $"Settings",
                 PrimaryAction = "Save",
                 PrimaryActionEnabled = true,
-                SecondaryAction = "No",
+                SecondaryAction = "Cancel",
                 Width = "500px",
                 TrapFocus = true,
                 Modal = true,
                 PreventScroll = true,
-                //Content = new InferenceSettings { FrequencyPenalty = InferenceSettings.FrequencyPenalty, MaxLength = InferenceSettings.MaxLength, PresencePenalty = InferenceSettings.PresencePenalty, Temperature = InferenceSettings.Temperature, TopP = InferenceSettings.TopP }
             };
         var currentSettingsCopy = new InferenceSettings { FrequencyPenalty = InferenceSettings.FrequencyPenalty, MaxLength = InferenceSettings.MaxLength, PresencePenalty = InferenceSettings.PresencePenalty, Temperature = InferenceSettings.Temperature, TopP = InferenceSettings.TopP };
         var dialog = await DialogService.ShowDialogAsync<ChatSettings>(currentSettingsCopy, parameters);

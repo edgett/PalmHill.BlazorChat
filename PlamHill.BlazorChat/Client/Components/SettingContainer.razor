@@ -1,0 +1,51 @@
+﻿@typeparam TValue where TValue : struct, System.Numerics.INumber<TValue>
+
+
+<FluentStack Orientation="Orientation.Vertical">
+    <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center">
+        <FluentLabel>@Label</FluentLabel>
+
+        <div style="flex-grow:1;"></div>
+
+        <FluentNumberField @bind-Value="Value" Style="width:75px;" HideStep="true" TValue="TValue" @oninput="OnValueChanged"></FluentNumberField>
+    </FluentStack>
+
+    <FluentSlider Min="Min" Max="Max" Step="Step" @bind-Value="Value" TValue="TValue" @oninput="OnValueChanged">
+    </FluentSlider>
+</FluentStack>
+
+
+
+    @code {
+    [Parameter]
+    public string Label { get; set; } = string.Empty;
+
+    [Parameter]
+    public TValue Min { get; set; }
+
+    [Parameter]
+    public TValue Max { get; set; }
+
+    [Parameter]
+    public TValue Step { get; set; }
+
+    [Parameter]
+    public TValue Value { get; set; }
+
+    [Parameter]
+    public EventCallback<TValue> ValueChanged { get; set; }
+
+    private async Task OnValueChanged(ChangeEventArgs e)
+    {
+        if (e.Value == null)
+        {
+            await ValueChanged.InvokeAsync(default);
+        }
+
+        if (e.Value is string)
+        {
+           var changedVal = TValue.Parse((string)e.Value, null);
+           await ValueChanged.InvokeAsync(changedVal);
+        }
+    }
+}

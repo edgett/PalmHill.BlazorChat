@@ -2,39 +2,39 @@
 
 @using PlamHill.BlazorChat.Shared.Models
 
+<style>
+    .fluent-input-label {
+        display: none !important;
+    }
+
+</style>
+
+
 
 <FluentStack Orientation="Orientation.Vertical">
 
-    <FluentSlider Label="Temperature" Min="(float)0.1" Max="(float)1" Step="(float)0.1" @bind-Value="Content.Temperature">
-    </FluentSlider>
+    <SettingContainer Label="Temperature" TValue="float" Min="(float)0.1" Max="1" Step="(float)0.1" @bind-Value="Content.Temperature"></SettingContainer>
 
-    <FluentSlider Label="Max Length" Min="1" Max="4096" Step="1" @bind-Value="Content.MaxLength">
-    </FluentSlider>
+    <SettingContainer Label="Max Length" Min="1" Max="4096" Step="1" @bind-Value="Content.MaxLength">
+    </SettingContainer>
 
-    <FluentSlider Label="Top P" Min="(float)0.1" Max="(float)1" Step="(float)0.1" @bind-Value="Content.TopP">
-    </FluentSlider>
+    <SettingContainer Label="Top P" Min="(float)0.1" Max="(float)1" Step="(float)0.1" @bind-Value="Content.TopP">
+    </SettingContainer>
 
-    <FluentSlider Label="Frequency penalty" Min="(float)0.1" Max="(float)1" Step="(float)0.1" @bind-Value="Content.FrequencyPenalty">
-    </FluentSlider>
+    <SettingContainer Label="Frequency penalty" Min="(float)0" Max="(float)1" Step="(float)0.1" @bind-Value="Content.FrequencyPenalty">
+    </SettingContainer>
 
-    <FluentSlider Label="Presence penalty" Min="(float)0.1" Max="(float)1" Step="(float)0.1" @bind-Value="Content.FrequencyPenalty">
-    </FluentSlider>
+    <SettingContainer Label="Presence penalty" Min="(float)0" Max="(float)1" Step="(float)0.1" @bind-Value="Content.PresencePenalty">
+    </SettingContainer>
 
 </FluentStack>
 
 @code {
-    
+
 
     [Parameter]
-    public InferenceSettings? Content { 
-        get; 
-        set; 
-    } 
-        = new InferenceSettings();
-
+    public InferenceSettings Content { get; set; } = new InferenceSettings();
     [CascadingParameter]
     public FluentDialog? Dialog { get; set; }
-
-
 
 }
