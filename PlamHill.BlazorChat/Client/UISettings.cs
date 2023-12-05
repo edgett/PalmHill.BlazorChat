@@ -4,6 +4,6 @@ namespace PlamHill.BlazorChat.Client
 {
     public class UISettings : InferenceSettings
     {
-        public string SystemMessage { get; set; } = "You are a helpful assistant. Repsond in valid markdown only.";
+        public string SystemMessage { get; set; } = "You are a helpful assistant.";
     }
 }
