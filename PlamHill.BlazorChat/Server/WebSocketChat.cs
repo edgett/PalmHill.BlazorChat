@@ -9,6 +9,10 @@ using System.Diagnostics;
 
 namespace PlamHill.BlazorChat.Server
 {
+
+    /// <summary>
+    /// The WebSocketChat class is a SignalR Hub that handles real-time chat communication. It uses a LLamaWeights model and ModelParams to process chat conversations and perform inference.
+    /// </summary>
     public class WebSocketChat : Hub
     {
         LLamaWeights LLamaWeights;
@@ -21,6 +25,14 @@ namespace PlamHill.BlazorChat.Server
 
 
 
+
+        /// <summary>
+        /// Sends a chat prompt to the client and waits for a response. The method performs inference on the chat conversation and sends the result back to the client.
+        /// </summary>
+        /// <param name="messageId">The unique identifier for the message.</param>
+        /// <param name="chatConversation">The chat conversation to send.</param>
+        /// <returns>A Task that represents the asynchronous operation.</returns>
+        /// <exception cref="System.Exception">Thrown when an error occurs during the inference process.</exception>
         public async Task SendPrompt(Guid messageId, ChatConversation chatConversation)
         {
             await ThreadLock.InferenceLock.WaitAsync();
@@ -40,10 +52,18 @@ namespace PlamHill.BlazorChat.Server
             }
         }
 
+
+        /// <summary>
+        /// Performs inference on a chat conversation and sends the response to the client. The inference is performed using the LLamaWeights model and ModelParams.
+        /// </summary>
+        /// <param name="respondToClient">The client to respond to.</param>
+        /// <param name="messageId">The unique identifier for the message.</param>
+        /// <param name="chatConversation">The chat conversation to use for inference.</param>
+        /// <returns>A Task that represents the asynchronous operation.</returns>
         private async Task DoInferenceAndRespondToClient(ISingleClientProxy respondToClient, Guid messageId, ChatConversation chatConversation)
         {
 
-
+            // Create a context for the model and a chat session for the conversation
             LLamaContext modelContext = LLamaWeights.CreateContext(ModelParams);
             var session = modelContext.CreateChatSession(chatConversation);
             var inferenceParams = chatConversation.GetInferenceParams();
@@ -58,6 +78,7 @@ namespace PlamHill.BlazorChat.Server
             var asyncResponse = session.ChatAsync(session.History,
                                                         inferenceParams,
                                                         cancelGeneration.Token);
+            // Perform inference and send the response to the client
             await foreach (var text in asyncResponse)
             {
 
@@ -88,6 +109,11 @@ namespace PlamHill.BlazorChat.Server
             Console.WriteLine(fullResponse);
         }
 
+        /// <summary>
+        /// Determines whether the text buffer should be sent to the client. The buffer is sent if it is not empty and the last character is a punctuation mark or whitespace.
+        /// </summary>
+        /// <param name="textBuffer">The text buffer to check.</param>
+        /// <returns>True if the text buffer should be sent; otherwise, false.</returns>
         private bool ShouldSendBuffer(string textBuffer)
         {
 
@@ -97,6 +123,7 @@ namespace PlamHill.BlazorChat.Server
             }
 
             // Check if the last character is a punctuation mark or whitespace
+            // This is done to ensure that the buffer is sent only when a sentence or phrase is complete
             char lastChar = textBuffer[^1]; // Using ^1 to get the last character
             if (char.IsPunctuation(lastChar) || char.IsWhiteSpace(lastChar))
             {

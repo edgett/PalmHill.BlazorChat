@@ -9,19 +9,41 @@ using System.Diagnostics;
 
 namespace PlamHill.BlazorChat.Server
 {
+
+    /// <summary>
+    /// The ApiChat class is responsible for handling chat API requests.
+    /// </summary>
     [Route("api/chat", Name = "Chat")]
     [ApiController]
     public class ApiChat : ControllerBase
     {
+        /// <summary>
+        /// The LLamaWeights instance used for model weights.
+        /// </summary>
         LLamaWeights LLamaWeights;
+
+        /// <summary>
+        /// The ModelParams instance used for model parameters.
+        /// </summary>
         ModelParams ModelParams;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApiChat"/> class.
+        /// </summary>
+        /// <param name="model">The LLamaWeights model.</param>
+        /// <param name="modelParams">The model parameters.</param>
         public ApiChat(LLamaWeights model, ModelParams modelParams)
         {
             LLamaWeights = model;
             ModelParams = modelParams;
         }
 
- 
+        /// <summary>
+        /// Handles a chat API request.
+        /// </summary>
+        /// <param name="conversation">The chat conversation.</param>
+        /// <returns>Returns a string response from the chat model inference.</returns>
+        /// <exception cref="System.Exception">Thrown when there is an error during the chat model inference.</exception>
         [HttpPost(Name = "Chat")]
         public async Task<ActionResult<string>> Chat([FromBody] ChatConversation conversation)
         {
@@ -47,6 +69,11 @@ namespace PlamHill.BlazorChat.Server
             return StatusCode(500, errorText);
         }
 
+        /// <summary>
+        /// Performs inference for a chat conversation.
+        /// </summary>
+        /// <param name="conversation">The chat conversation for which to perform inference.</param>
+        /// <returns>Returns the inference result as a string.</returns>
         private async Task<string> DoInference(ChatConversation conversation)
         {
             LLamaContext modelContext = LLamaWeights.CreateContext(ModelParams);
