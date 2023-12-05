@@ -6,8 +6,16 @@ using PalmHill.BlazorChat.Shared;
 
 namespace PalmHill.Llama
 {
+    /// <summary>
+    /// Provides extension methods for the <see cref="LLamaContext"/> class.
+    /// </summary>
     public static class LlamaExtensions
     {
+        /// <summary>
+        /// Loads the chat history into a <see cref="ChatSession"/>.
+        /// </summary>
+        /// <param name="chatSession">The <see cref="ChatSession"/> to load the history into.</param>
+        /// <param name="chatConversation">The <see cref="ChatConversation"/> containing the chat history.</param>
         public static void LoadChatHistory(this ChatSession chatSession, ChatConversation chatConversation)
         { 
 
@@ -44,7 +52,12 @@ namespace PalmHill.Llama
             }
         }
 
-
+        /// <summary>
+        /// Creates a new <see cref="ChatSession"/> from a <see cref="ChatConversation"/>.
+        /// </summary>
+        /// <param name="lLamaContext">The <see cref="LLamaContext"/> to use for the session.</param>
+        /// <param name="chatConversation">The <see cref="ChatConversation"/> to create the session from.</param>
+        /// <returns>A new <see cref="ChatSession"/>.</returns>
         public static ChatSession CreateChatSession(this LLamaContext lLamaContext, ChatConversation chatConversation)
         {
             var ex = new InteractiveExecutor(lLamaContext);
@@ -68,7 +81,11 @@ namespace PalmHill.Llama
             return session;
         }
 
-
+        /// <summary>
+        /// Gets the inference parameters from a <see cref="ChatConversation"/>.
+        /// </summary>
+        /// <param name="chatConversation">The <see cref="ChatConversation"/> to get the parameters from.</param>
+        /// <returns>The <see cref="InferenceParams"/> for the conversation.</returns>
         public static InferenceParams GetInferenceParams(this ChatConversation chatConversation)
         {
             var inferenceParams = new InferenceParams() { 

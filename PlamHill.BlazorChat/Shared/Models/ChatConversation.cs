@@ -6,18 +6,37 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace PalmHill.BlazorChat.Shared.Models
 {
+    /// <summary>
+    /// Represents a chat conversation.
+    /// </summary>
     public class ChatConversation
     {
         /// <summary>
-        /// Controls the persona of the model.
+        /// Gets or sets the system message for the chat conversation.
         /// </summary>
-        /// <example>You are a helpful assistant. Repsond in valid markdown only.</example>
+        /// <value>
+        /// The system message for the chat conversation.
+        /// </value>
         [DefaultValue("You are a helpful assistant.")]
         public string SystemMessage { get; set; } = "You are a helpful assistant.";
-        public List<ChatMessage> ChatMessages { get; set; } = new List<ChatMessage>();
-        public InferenceSettings Settings { get; set; } = new InferenceSettings();
 
+        /// <summary>
+        /// Gets or sets the chat messages for the chat conversation.
+        /// </summary>
+        /// <value>
+        /// The chat messages for the chat conversation.
+        /// </value>
+        public List<ChatMessage> ChatMessages { get; set; } = new List<ChatMessage>();
+
+        /// <summary>
+        /// Gets or sets the inference settings for the chat conversation.
+        /// </summary>
+        /// <value>
+        /// The inference settings for the chat conversation.
+        /// </value>
+        public InferenceSettings Settings { get; set; } = new InferenceSettings();
     }
 }

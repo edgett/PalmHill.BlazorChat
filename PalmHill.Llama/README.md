@@ -1,0 +1,7 @@
+The [\`LlamaExtensions.cs\`](PalmHill.Llama/LlamaExtensions.cs) file is a part of the \`PalmHill.Llama\` namespace and contains extension methods for the \`ChatSession\` and \`ChatConversation\` classes.
+
+The [\`LoadChatHistory\`](PalmHill.Llama/LlamaExtensions.cs#L11-L45) method is an extension method for the \`ChatSession\` class. It takes a \`ChatConversation\` object as an argument and loads the chat history into the \`ChatSession\` object. It iterates over the \`ChatMessages\` in the \`ChatConversation\` and adds them to the \`ChatSession\`'s history. If a message is from the user, it is added as a \`User\` message, and if it is from the assistant, it is added as an \`Assistant\` message.
+
+The [\`CreateChatSession\`](PalmHill.Llama/LlamaExtensions.cs#L48-L69) method is an extension method for the \`LLamaContext\` class. It takes a \`ChatConversation\` object as an argument and creates a new \`ChatSession\` object. It also sets up an output transform to ignore certain special tokens and loads the chat history into the session. It then checks if the last message in the conversation is a user message and if it is not empty.
+
+The [\`GetInferenceParams\`](PalmHill.Llama/LlamaExtensions.cs#L72-L82) method is an extension method for the \`ChatConversation\` class. It extracts the inference parameters from the \`ChatConversation\`'s settings and returns them as an \`InferenceParams\` object.
