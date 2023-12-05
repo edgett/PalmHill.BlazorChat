@@ -78,6 +78,7 @@ h1:focus {
     max-width: 768px;
     margin-left: auto;
     margin-right: auto;
+    
 }
 
     .chat-messages fluent-card:not(:first-child) {
@@ -85,7 +86,7 @@ h1:focus {
     }
 
     .chat-messages fluent-card:last-child {
-        margin-bottom: 10px;
+        margin-bottom: 80px;
     }
 
 @media (max-width: 1000px) {

@@ -23,6 +23,7 @@
 
     protected override void OnAfterRender(bool firstRender)
     {
+
         if (firstRender && ChatRenderer != null)
         {
             ChatInput?.AttachToChat(ChatRenderer);

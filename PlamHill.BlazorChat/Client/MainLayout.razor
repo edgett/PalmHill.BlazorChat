@@ -1,4 +1,8 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.FluentUI.AspNetCore.Components.DesignTokens
+@inherits LayoutComponentBase
+@inject BaseLayerLuminance BaseLayerLuminance
+
+
 <FluentLayout Class="overflow-block">
     <FluentHeader Class="chat-header">
         Blazor Chat
@@ -13,10 +17,19 @@
 <FluentDialogProvider />
 <FluentTooltipProvider />
 <FluentMessageBarProvider />
+<FluentDesignSystemProvider></FluentDesignSystemProvider>
 
-
-@code{
+@code {
 
     public static bool Expanded { get; set; } = true;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await BaseLayerLuminance.WithDefault((float)0.1);
+
+            StateHasChanged();
+        }
+    }
 
 }
