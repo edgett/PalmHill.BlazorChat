@@ -10,7 +10,7 @@
         </div>
     </FluentStack>
 
-    <FluentSlider Min="Min" Max="Max" Step="Step" @bind-Value="Value" TValue="TValue" @oninput="OnSliderChanged">
+    <FluentSlider Min="Min" Max="Max" Step="Step" @bind-Value="Value" TValue="TValue">
     </FluentSlider>
 </FluentStack>
 
@@ -35,19 +35,7 @@
     [Parameter]
     public EventCallback<TValue> ValueChanged { get; set; }
 
-    private async Task OnSliderChanged(ChangeEventArgs e)
-    {
-        if (e.Value == null)
-        {
-            await ValueChanged.InvokeAsync(default);
-        }
-
-        if (e.Value is string)
-        {
-           var changedVal = TValue.Parse((string)e.Value, null);
-           await ValueChanged.InvokeAsync(changedVal);
-        }
-    }
+ 
 
     private async Task OnTextChanged(ChangeEventArgs e)
     {
@@ -58,8 +46,10 @@
 
         if (e.Value is string)
         {
-            var changedVal = TValue.Parse((string)e.Value, null);
-            await ValueChanged.InvokeAsync(changedVal);
+            if (TValue.TryParse((string)e.Value, null, out var result))
+            {
+               await ValueChanged.InvokeAsync(result);
+            }
         }
     }
 }
