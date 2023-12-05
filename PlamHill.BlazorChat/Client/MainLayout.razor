@@ -1,13 +1,13 @@
 ﻿@using Microsoft.FluentUI.AspNetCore.Components.DesignTokens
 @inherits LayoutComponentBase
 @inject BaseLayerLuminance BaseLayerLuminance
-
+@inject AccentBaseColor AccentBaseColor
 
 <FluentLayout Class="overflow-block">
-    <FluentHeader Class="chat-header">
+    <FluentHeader Class="chat-header" Style="background-color: #FF69B4;">
         Blazor Chat
         <FluentSpacer />
-        <a href="/swagger" target="_blank">API</a>
+        <FluentAnchor Href="/swagger" Target="_blank">API</FluentAnchor>
     </FluentHeader>
 
     @Body
@@ -17,7 +17,6 @@
 <FluentDialogProvider />
 <FluentTooltipProvider />
 <FluentMessageBarProvider />
-<FluentDesignSystemProvider></FluentDesignSystemProvider>
 
 @code {
 
@@ -27,6 +26,7 @@
         if (firstRender)
         {
             await BaseLayerLuminance.WithDefault((float)0.1);
+            await AccentBaseColor.WithDefault("#0000FF".ToSwatch());
 
             StateHasChanged();
         }
