@@ -61,7 +61,12 @@ else
 app.UseHttpsRedirection();
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
-app.UseResponseCompression();
+
+//Disable compression for development.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseResponseCompression();
+}
 app.UseRouting();
 
 //Configure WebSocket URI.
