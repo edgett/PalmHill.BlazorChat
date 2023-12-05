@@ -14,7 +14,7 @@ The Client folder contains the Blazor WebAssembly client application for the Pla
 3. [Key Components](#key-components)
     - [Chat.razor](#chatrazor)
     - [ChatInput.razor](#chatinputrazor)
-    - [MarkdownSection.razor.cs](#markdownsectionrazorcs)
+    - [MarkdownSection.razor](#markdownsectionrazorcs)
 
 ## Project Structure
 Here's an overview of the main files and folders in the Client folder:
@@ -30,13 +30,11 @@ Here are some of the key components in the Components folder:
 
 - `Chat.razor`: This is the main chat component of the application. It establishes a connection with a SignalR hub, listens for incoming messages from the server, and sends messages to the server when a user sends a chat message. The chat messages are displayed in a list, with each message being represented by a ModelResponse object.
 - `ChatInput.razor`:  This component handles the input area for the chat. It includes a text area for the user to type their message and a send button to send the message. It also has a button to show the chat settings. The ChatInput component is attached to the Chat component after the first render, allowing it to send messages to the chat.
-- `MarkdownSection.razor.cs`: This component is responsible for converting Markdown content to HTML for rendering in the Blazor application. It is used in the Chat component to display the chat messages in a user-friendly format.
-
+- `MarkdownSection.razor`: This component is responsible for converting Markdown content to HTML for rendering in the Blazor application. It is used in the Chat component to display the chat messages in a user-friendly format.
+- `ModelMarkdown.razor`This component is used to display the response from the model in markdown format. It takes a ModelResponse object as a parameter and listens for changes in the response. When the response changes, it updates the markdown content to be rendered.
 ## Key Pages
 Here's a key page in the Pages folder:
 
-- `Index.razor`: The main page of the application.
+
 - `Index.razor`: This is the main page of the application. It includes the Chat and ChatInput components, providing the main interface for the chat application. The Chat component is responsible for displaying the chat messages, and the ChatInput component is used for entering and sending new messages.
 - `MainLayout.razor`: This is the main layout of the application. It includes a header with the application title and a body where the current page is rendered. The layout is defined using the FluentContainer and FluentRow components from the Fluent UI library, providing a consistent look and feel across the application.
-- `Error.razor`: This page is displayed when an unhandled error occurs in the application. It displays a generic error message and provides a button to reload the application, helping to ensure a good user experience even when things go wrong.
-- `NotFound.razor`: This page is displayed when the user navigates to a non-existent route. It displays a 404 error message and provides a link to return to the home page, helping to guide users back to the main application when they get lost
