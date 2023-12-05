@@ -22,13 +22,13 @@ namespace PlamHill.BlazorChat.Client
 
             if (darkMode)
             {
-                await BaseLayerLuminance!.WithDefault(0f);
+                await BaseLayerLuminance!.WithDefault(.1f);
                 await AccentBaseColor!.WithDefault(new Swatch(255, 105, 180));
 
             }
             else
             {
-                await BaseLayerLuminance!.WithDefault(1f);
+                await BaseLayerLuminance!.WithDefault(.9f);
                 await AccentBaseColor!.WithDefault(new Swatch(255, 105, 180));
             }
 

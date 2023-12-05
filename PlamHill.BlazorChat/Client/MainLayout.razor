@@ -1,7 +1,6 @@
 ﻿@using Microsoft.FluentUI.AspNetCore.Components.DesignTokens
 @inherits LayoutComponentBase
-@inject BaseLayerLuminance BaseLayerLuminance
-@inject AccentBaseColor AccentBaseColor
+@inject ThemeControl ThemeControl
 
 <FluentLayout Class="overflow-block">
     
@@ -30,18 +29,7 @@
         if (firstRender)
         {
 
-            if (darkMode == true)
-            {
-                await BaseLayerLuminance.WithDefault(0f);
-                await AccentBaseColor.WithDefault(new Swatch(255, 105, 180));
-            }
-            else
-            {
-                await BaseLayerLuminance.WithDefault(1f);
-                await AccentBaseColor.WithDefault(new Swatch(255, 105, 180));
-
-            }
-
+            await ThemeControl.ChangeTheme(darkMode);
             StateHasChanged();
         }
     }
