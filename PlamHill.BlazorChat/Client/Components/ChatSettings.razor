@@ -1,17 +1,14 @@
-﻿@implements IDialogContentComponent<InferenceSettings>
+﻿@implements IDialogContentComponent<UISettings>
 
 @using PlamHill.BlazorChat.Shared.Models
 
-<style>
-    .fluent-input-label {
-        display: none !important;
-    }
 
-</style>
 
 
 
 <FluentStack Orientation="Orientation.Vertical">
+    <FluentTextArea Label="System Prompt" @bind-Value="Content.SystemMessage" Rows="10" Class="w-100"></FluentTextArea>
+
 
     <SettingContainer Label="Temperature" TValue="float" Min="(float)0.1" Max="1" Step="(float)0.1" @bind-Value="Content.Temperature"></SettingContainer>
 
@@ -33,7 +30,7 @@
 
 
     [Parameter]
-    public InferenceSettings Content { get; set; } = new InferenceSettings();
+    public UISettings Content { get; set; } = new UISettings();
     [CascadingParameter]
     public FluentDialog? Dialog { get; set; }
 

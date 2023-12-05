@@ -80,7 +80,7 @@
         await hubConnection.StartAsync();
     }
 
-    public async Task Send(string message, InferenceSettings inferenceSettings)
+    public async Task Send(string message, UISettings inferenceSettings)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
@@ -95,6 +95,7 @@
 
             var chatConversation = GetChatConversation(modelResponses);
             chatConversation.Settings = inferenceSettings;
+            chatConversation.SystemMessage = inferenceSettings.SystemMessage;
             await hubConnection.SendAsync("SendPrompt", newMessage.PromptId, chatConversation);
         }
     }

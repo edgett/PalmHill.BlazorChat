@@ -22,7 +22,7 @@
     private FluentButton? sendButton;
     private Chat? _chatRenderer;
     public Chat? ChatRenderer { get { return _chatRenderer; } }
-    public InferenceSettings InferenceSettings { get; set; } = new InferenceSettings();
+    public UISettings InferenceSettings { get; set; } = new UISettings();
 
     public void AttachToChat(Chat chat)
     {
@@ -32,7 +32,7 @@
     private async Task ShowSettings()
     {
 
-        DialogParameters<InferenceSettings> parameters = new()
+        DialogParameters<UISettings> parameters = new()
             {
 
                 Title = $"Settings",
@@ -44,13 +44,13 @@
                 Modal = true,
                 PreventScroll = true,
             };
-        var currentSettingsCopy = new InferenceSettings { FrequencyPenalty = InferenceSettings.FrequencyPenalty, MaxLength = InferenceSettings.MaxLength, PresencePenalty = InferenceSettings.PresencePenalty, Temperature = InferenceSettings.Temperature, TopP = InferenceSettings.TopP };
+        var currentSettingsCopy = new UISettings { FrequencyPenalty = InferenceSettings.FrequencyPenalty, MaxLength = InferenceSettings.MaxLength, PresencePenalty = InferenceSettings.PresencePenalty, Temperature = InferenceSettings.Temperature, TopP = InferenceSettings.TopP, SystemMessage = InferenceSettings.SystemMessage };
         var dialog = await DialogService.ShowDialogAsync<ChatSettings>(currentSettingsCopy, parameters);
         var dialogResult = await dialog.Result;
 
         if (dialogResult?.Data != null)
         {
-            InferenceSettings = (InferenceSettings)dialogResult.Data;
+            InferenceSettings = (UISettings)dialogResult.Data;
         }
 
     }

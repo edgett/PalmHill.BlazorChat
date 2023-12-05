@@ -1,13 +1,19 @@
 ﻿@typeparam TValue where TValue : struct, System.Numerics.INumber<TValue>
 
-
-<FluentStack Orientation="Orientation.Vertical">
+<style>
+    .nolabel label {
+        display: none !important;
+    }
+</style>
+<FluentStack Orientation="Orientation.Vertical" >
     <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center">
         <FluentLabel>@Label</FluentLabel>
 
         <div style="flex-grow:1;"></div>
 
-        <FluentNumberField @bind-Value="Value" Style="width:75px;" HideStep="true" TValue="TValue" @oninput="OnValueChanged"></FluentNumberField>
+        <div class="nolabel">
+            <FluentNumberField Class="no-lable" @bind-Value="Value" Style="width:75px;" HideStep="true" TValue="TValue" @oninput="OnValueChanged"></FluentNumberField>
+        </div>
     </FluentStack>
 
     <FluentSlider Min="Min" Max="Max" Step="Step" @bind-Value="Value" TValue="TValue" @oninput="OnValueChanged">
