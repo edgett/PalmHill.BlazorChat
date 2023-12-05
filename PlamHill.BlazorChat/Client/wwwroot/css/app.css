@@ -33,7 +33,7 @@ h1:focus {
 
 
 .textarea-fluent-ui {
-    border: 1px solid #ccc;
+    border: 3px solid var(--accent-fill-rest);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 10px;
     font-size: 16px;
@@ -47,7 +47,7 @@ h1:focus {
 
     .textarea-fluent-ui:focus {
         outline: none;
-        border-color: #0078d4;
+        border-color: #FF69B4;
         box-shadow: 0 0 5px rgba(0, 120, 212, 0.5);
     }
 
@@ -67,7 +67,7 @@ h1:focus {
 
 .chat-box {
     height:calc(100vh - 125px);
-    margin-top:60px;
+    margin-top:80px;
 }
 
 .w-100 {
@@ -89,12 +89,27 @@ h1:focus {
         margin-bottom: 80px;
     }
 
+.chat-header {
+    position: fixed;
+    left: 50%; /* Move it to the middle horizontally */
+    transform: translateX(-50%);
+    top: 15px;
+    border-radius: 10px 10px;
+    max-width: 768px;
+    display: flex;
+    width: 100%;
+}
+
 @media (max-width: 1000px) {
     .chat-messages {
         width: 100%;
         max-width: none;
-        padding-left:10px;
-        padding-right:10px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .chat-header {
+        width:calc(100vw - 30px);
     }
 }
 
@@ -102,8 +117,3 @@ h1:focus {
     display: none !important;
 }
 
-.chat-header {
-    position:fixed;
-    left:0px;
-    right:0px;
-}

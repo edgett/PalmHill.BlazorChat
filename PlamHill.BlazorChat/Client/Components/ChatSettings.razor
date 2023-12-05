@@ -1,5 +1,7 @@
-﻿@implements IDialogContentComponent<UISettings>
+﻿@inject ThemeControl ThemeControl
+@implements IDialogContentComponent<UISettings>
 
+@using Microsoft.FluentUI.AspNetCore.Components.DesignTokens
 @using PlamHill.BlazorChat.Shared.Models
 
 
@@ -7,6 +9,9 @@
 
 
 <FluentStack Orientation="Orientation.Vertical">
+
+    <FluentSwitch ValueChanged="ChangeThemeChecked" Value="Content.DarkMode" Label="Dark Mode"></FluentSwitch>
+
     <FluentTextArea Label="System Prompt" @bind-Value="Content.SystemMessage" Rows="10" Class="w-100"></FluentTextArea>
 
 
@@ -33,5 +38,14 @@
     public UISettings Content { get; set; } = new UISettings();
     [CascadingParameter]
     public FluentDialog? Dialog { get; set; }
+
+    public async Task ChangeThemeChecked(bool darkModeChecked)
+    {
+        Content.DarkMode = darkModeChecked;
+        await ThemeControl.ChangeTheme(darkModeChecked);
+
+    }
+
+
 
 }

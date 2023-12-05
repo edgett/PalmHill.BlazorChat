@@ -4,9 +4,13 @@
 @inject AccentBaseColor AccentBaseColor
 
 <FluentLayout Class="overflow-block">
-    <FluentHeader Class="chat-header" Style="background-color: #FF69B4;">
+    
+
+    <FluentHeader Class="chat-header">
         Blazor Chat
         <FluentSpacer />
+
+        
         <FluentAnchor Href="/swagger" Target="_blank">API</FluentAnchor>
     </FluentHeader>
 
@@ -19,17 +23,29 @@
 <FluentMessageBarProvider />
 
 @code {
-
+    private bool darkMode = false;
     public static bool Expanded { get; set; } = true;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await BaseLayerLuminance.WithDefault((float)0.1);
-            await AccentBaseColor.WithDefault("#0000FF".ToSwatch());
+
+            if (darkMode == true)
+            {
+                await BaseLayerLuminance.WithDefault(0f);
+                await AccentBaseColor.WithDefault(new Swatch(255, 105, 180));
+            }
+            else
+            {
+                await BaseLayerLuminance.WithDefault(1f);
+                await AccentBaseColor.WithDefault(new Swatch(255, 105, 180));
+
+            }
 
             StateHasChanged();
         }
     }
+
+
 
 }
