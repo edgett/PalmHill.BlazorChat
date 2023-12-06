@@ -1,6 +1,6 @@
 ﻿# PalmHill.BlazorChat
 
-
+[<img src="https://github.com/edgett/PalmHill.BlazorChat/raw/main/Documentation/settings-light-mode.png" alt="Click to watch the video" height="360">](https://github.com/edgett/PalmHill.BlazorChat/raw/main/Documentation/palmhill-chat-demo.mp4)
 
 
 ## Table of Contents
