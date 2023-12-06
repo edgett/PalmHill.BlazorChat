@@ -1,5 +1,6 @@
 ﻿# PalmHill.BlazorChat
 
+![Demo](Documentation/demo-gif.gif)
 
 
 
