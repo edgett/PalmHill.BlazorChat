@@ -18,12 +18,12 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddSignalR();
 
-//Compress websockets traffic.
-builder.Services.AddResponseCompression(opts =>
-{
-    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-          new[] { "application/octet-stream" });
-});
+////Compress websockets traffic.
+//builder.Services.AddResponseCompression(opts =>
+//{
+//    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+//          new[] { "application/octet-stream" });
+//});
 
 //Configure swagger.
 builder.Services.AddSwaggerGen(c =>
