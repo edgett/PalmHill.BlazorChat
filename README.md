@@ -1,6 +1,9 @@
 ﻿# PalmHill.BlazorChat
 
-[<img src="https://github.com/edgett/PalmHill.BlazorChat/raw/main/Documentation/settings-light-mode.png" alt="Click to watch the video" height="360">](https://github.com/edgett/PalmHill.BlazorChat/raw/main/Documentation/palmhill-chat-demo.mp4)
+<video width="720" height="480" controls>
+  <source src="https://github.com/edgett/PalmHill.BlazorChat/raw/main/Documentation/palmhill-chat-demo.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
 
 
 ## Table of Contents
