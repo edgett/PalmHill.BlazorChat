@@ -2,8 +2,6 @@
 
 ![Demo](Documentation/demo-gif.gif)
 
-
-
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Features](#features)
