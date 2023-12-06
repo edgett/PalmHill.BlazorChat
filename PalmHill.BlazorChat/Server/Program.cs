@@ -33,13 +33,28 @@ builder.Services.AddSwaggerGen(c =>
     c.UseAllOfToExtendReferenceSchemas();
 });
 
+//get model path from appsettings.json
+string? modelPath = builder.Configuration["DefaultModelPath"]; ; // change in appsettings.json
+
+//check if model is present
+var modelExsists = System.IO.File.Exists(modelPath);
+if (!modelExsists)
+{
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine($"Model at path {modelPath} does not exsist.");
+    Console.ResetColor();
+    Console.WriteLine("Press any key to exit.");
+    Console.Read();
+    return;
+}
+
 //Initlize Llama
-string modelPath = @"C:\models\orca-2-13b.Q6_K.gguf"; // change it to your own model path
-ModelParams parameters = new ModelParams(modelPath)
+ModelParams parameters = new ModelParams(modelPath ?? "")
 {
     ContextSize = 4096,
     GpuLayerCount = 90,
 };
+
 LLamaWeights model = LLamaWeights.LoadFromFile(parameters);
 builder.Services.AddSingleton(model);
 builder.Services.AddSingleton(parameters);
