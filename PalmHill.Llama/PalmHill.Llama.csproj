@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PlamHill.BlazorChat\Shared\PlamHill.BlazorChat.Shared.csproj" />
+    <ProjectReference Include="..\PlamHill.BlazorChat\Shared\PalmHill.BlazorChat.Shared.csproj" />
   </ItemGroup>
 
 </Project>

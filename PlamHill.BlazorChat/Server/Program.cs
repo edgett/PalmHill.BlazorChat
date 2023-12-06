@@ -2,11 +2,11 @@ using LLama.Common;
 using LLama;
 using Microsoft.AspNetCore.ResponseCompression;
 using PalmHill.Llama;
-using PlamHill.BlazorChat.Server;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
+using PalmHill.BlazorChat.Server;
 
 var builder = WebApplication.CreateBuilder(args);
 

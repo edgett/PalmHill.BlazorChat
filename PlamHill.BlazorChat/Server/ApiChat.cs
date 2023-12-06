@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace PlamHill.BlazorChat.Server
+namespace PalmHill.BlazorChat.Server
 {
 
     /// <summary>
@@ -43,7 +43,7 @@ namespace PlamHill.BlazorChat.Server
         /// </summary>
         /// <param name="conversation">The chat conversation.</param>
         /// <returns>Returns a string response from the chat model inference.</returns>
-        /// <exception cref="System.Exception">Thrown when there is an error during the chat model inference.</exception>
+        /// <exception cref="Exception">Thrown when there is an error during the chat model inference.</exception>
         [HttpPost(Name = "Chat")]
         public async Task<ActionResult<string>> Chat([FromBody] ChatConversation conversation)
         {
@@ -97,7 +97,7 @@ namespace PlamHill.BlazorChat.Server
             modelContext.Dispose();
             inferenceStopwatch.Stop();
 
-            Console.WriteLine($"Inference took {inferenceStopwatch.ElapsedMilliseconds}ms and generated {totalTokens} tokens. {((float)totalTokens / ((float)inferenceStopwatch.ElapsedMilliseconds / (float)1000)).ToString("F2")} tokens/second.");
+            Console.WriteLine($"Inference took {inferenceStopwatch.ElapsedMilliseconds}ms and generated {totalTokens} tokens. {(totalTokens / (inferenceStopwatch.ElapsedMilliseconds / (float)1000)).ToString("F2")} tokens/second.");
             Console.WriteLine(fullResponse);
 
             return fullResponse;

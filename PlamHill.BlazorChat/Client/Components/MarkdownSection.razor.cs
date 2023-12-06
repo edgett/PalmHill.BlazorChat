@@ -5,7 +5,7 @@ using Microsoft.FluentUI.AspNetCore.Components;
 using Microsoft.FluentUI.AspNetCore.Components.Infrastructure;
 using static Microsoft.FluentUI.AspNetCore.Components.Icons.Filled.Size20;
 
-namespace PlamHill.BlazorChat.Client.Components;
+namespace PalmHill.BlazorChat.Client.Components;
 
 
 public partial class MarkdownSection : FluentComponentBase
@@ -55,7 +55,7 @@ public partial class MarkdownSection : FluentComponentBase
 
     protected override void OnInitialized()
     {
-        if (Content is null )
+        if (Content is null)
             throw new ArgumentException("You need to provide either Content or FromAsset parameter");
 
         InternalContent = Content;
@@ -80,7 +80,8 @@ public partial class MarkdownSection : FluentComponentBase
         }
     }
 
-    public void RefreshContent () {
+    public void RefreshContent()
+    {
 
         InternalContent = Content;
 

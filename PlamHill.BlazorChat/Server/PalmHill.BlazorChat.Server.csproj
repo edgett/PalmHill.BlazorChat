@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -13,8 +13,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\PalmHill.Llama\PalmHill.Llama.csproj" />
-    <ProjectReference Include="..\Client\PlamHill.BlazorChat.Client.csproj" />
-    <ProjectReference Include="..\Shared\PlamHill.BlazorChat.Shared.csproj" />
+    <ProjectReference Include="..\Client\PalmHill.BlazorChat.Client.csproj" />
+    <ProjectReference Include="..\Shared\PalmHill.BlazorChat.Shared.csproj" />
   </ItemGroup>
 
 </Project>

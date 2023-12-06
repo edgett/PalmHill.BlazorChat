@@ -3,18 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34316.72
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlamHill.BlazorChat.Server", "PlamHill.BlazorChat\Server\PlamHill.BlazorChat.Server.csproj", "{ED5039BC-4E5C-4D5C-B275-B93E7B9DB137}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalmHill.BlazorChat.Server", "PlamHill.BlazorChat\Server\PalmHill.BlazorChat.Server.csproj", "{ED5039BC-4E5C-4D5C-B275-B93E7B9DB137}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlamHill.BlazorChat.Client", "PlamHill.BlazorChat\Client\PlamHill.BlazorChat.Client.csproj", "{57CC6DA8-B569-4C6E-BE19-E851D106B0B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalmHill.BlazorChat.Client", "PlamHill.BlazorChat\Client\PalmHill.BlazorChat.Client.csproj", "{57CC6DA8-B569-4C6E-BE19-E851D106B0B7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlamHill.BlazorChat.Shared", "PlamHill.BlazorChat\Shared\PlamHill.BlazorChat.Shared.csproj", "{2E1F73CE-DD5D-4F4D-B78B-B4CA4BCE1831}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalmHill.BlazorChat.Shared", "PlamHill.BlazorChat\Shared\PalmHill.BlazorChat.Shared.csproj", "{2E1F73CE-DD5D-4F4D-B78B-B4CA4BCE1831}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalmHill.Llama", "PalmHill.Llama\PalmHill.Llama.csproj", "{D444068E-160D-49FE-9438-20BC046ECFE1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8CEDD233-5D6B-4CCB-B2DA-9680A385A275}"
-	ProjectSection(SolutionItems) = preProject
-		README.md = README.md
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

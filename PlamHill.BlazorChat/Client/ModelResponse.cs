@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace PlamHill.BlazorChat.Client
+namespace PalmHill.BlazorChat.Client
 {
     /// <summary>
     /// Represents a response from the chat model.

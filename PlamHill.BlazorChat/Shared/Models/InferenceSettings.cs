@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PlamHill.BlazorChat.Shared.Models
+namespace PalmHill.BlazorChat.Shared.Models
 {
     /// <summary>
     /// Represents the settings for inference.

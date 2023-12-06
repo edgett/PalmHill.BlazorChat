@@ -1,4 +1,4 @@
-﻿namespace PlamHill.BlazorChat.Server
+﻿namespace PalmHill.BlazorChat.Server
 {
     public static class ThreadLock
     {

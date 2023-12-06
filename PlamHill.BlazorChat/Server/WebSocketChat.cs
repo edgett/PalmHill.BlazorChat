@@ -7,7 +7,7 @@ using System.Web;
 using PalmHill.Llama;
 using System.Diagnostics;
 
-namespace PlamHill.BlazorChat.Server
+namespace PalmHill.BlazorChat.Server
 {
 
     /// <summary>
@@ -32,7 +32,7 @@ namespace PlamHill.BlazorChat.Server
         /// <param name="messageId">The unique identifier for the message.</param>
         /// <param name="chatConversation">The chat conversation to send.</param>
         /// <returns>A Task that represents the asynchronous operation.</returns>
-        /// <exception cref="System.Exception">Thrown when an error occurs during the inference process.</exception>
+        /// <exception cref="Exception">Thrown when an error occurs during the inference process.</exception>
         public async Task SendPrompt(Guid messageId, ChatConversation chatConversation)
         {
             await ThreadLock.InferenceLock.WaitAsync();
@@ -105,7 +105,7 @@ namespace PlamHill.BlazorChat.Server
             }
 
             await respondToClient.SendAsync("MessageComplete", messageId, "success");
-            Console.WriteLine($"Inference took {inferenceStopwatch.ElapsedMilliseconds}ms and generated {totalTokens} tokens. {((float)totalTokens / ((float)inferenceStopwatch.ElapsedMilliseconds / (float)1000)).ToString("F2")} tokens/second.");
+            Console.WriteLine($"Inference took {inferenceStopwatch.ElapsedMilliseconds}ms and generated {totalTokens} tokens. {(totalTokens / (inferenceStopwatch.ElapsedMilliseconds / (float)1000)).ToString("F2")} tokens/second.");
             Console.WriteLine(fullResponse);
         }
 

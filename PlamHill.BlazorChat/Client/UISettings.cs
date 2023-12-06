@@ -1,6 +1,6 @@
-﻿using PlamHill.BlazorChat.Shared.Models;
+﻿using PalmHill.BlazorChat.Shared.Models;
 
-namespace PlamHill.BlazorChat.Client
+namespace PalmHill.BlazorChat.Client
 {
     public class UISettings : InferenceSettings
     {
