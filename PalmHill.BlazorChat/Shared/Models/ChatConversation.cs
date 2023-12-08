@@ -13,6 +13,8 @@ namespace PalmHill.BlazorChat.Shared.Models
     /// </summary>
     public class ChatConversation
     {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+
         /// <summary>
         /// Gets or sets the system message for the chat conversation.
         /// </summary>
@@ -37,5 +39,11 @@ namespace PalmHill.BlazorChat.Shared.Models
         /// The inference settings for the chat conversation.
         /// </value>
         public InferenceSettings Settings { get; set; } = new InferenceSettings();
+
+
+        /// <summary>
+        /// List of attachments that are part of the conversation.
+        /// </summary>
+        public List<AttachmentInfo> Attachments { get; set; } = new List<AttachmentInfo>();
     }
 }

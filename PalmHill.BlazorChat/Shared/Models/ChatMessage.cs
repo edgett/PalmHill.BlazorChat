@@ -22,6 +22,11 @@ public class ChatMessage
     /// </value>
     [DefaultValue("What are cats?")]
     public string? Message { get; set; }
+
+    /// <summary>
+    /// The user can add attachments to the message, the attachment will becom part of the context.
+    /// </summary>
+    public List<string> AttachmentIds { get; set; } = new List<string>();
 }
 
 /// <summary>

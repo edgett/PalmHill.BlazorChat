@@ -15,9 +15,8 @@ var memory = new KernelMemoryBuilder()
 .WithLLamaSharpDefaults(modelWeights)
 .Build<MemoryServerless>();
 
+var x = await memory.ImportDocumentAsync(@"C:\Users\localadmin\OneDrive\Documents\Creative Outfit CRM.docx", index: "test");
 
-var x = await memory.ImportDocumentAsync(@"C:\Users\localadmin\OneDrive\Documents\Creative Outfit CRM.docx");
-
-var r = await memory.SearchAsync("CRM");
+var r = await memory.SearchAsync("CRM", "test");
 
 Console.WriteLine(r.ToJson(true));
