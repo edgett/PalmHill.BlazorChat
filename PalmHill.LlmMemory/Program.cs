@@ -10,13 +10,13 @@ using Microsoft.KernelMemory.AppBuilders;
 
 
 
-var modelWeights = new LLamaSharpConfig(@"C:\models\orca-2-13b.Q6_K.gguf");
+var modelWeights = new LLamaSharpConfig(@"C:\models\orca-2-7b.Q4_K_M.gguf");
 var memory = new KernelMemoryBuilder()
 .WithLLamaSharpDefaults(modelWeights)
 .Build<MemoryServerless>();
 
-var x = await memory.ImportDocumentAsync(@"C:\Users\localadmin\OneDrive\Documents\Creative Outfit CRM.docx", index: "test");
+var x = await memory.ImportDocumentAsync(@"C:\Users\localadmin\Desktop\constitution.pdf", index: "test");
 
-var r = await memory.SearchAsync("CRM", "test");
+var r = await memory.AskAsync("Free speech", "test");
 
 Console.WriteLine(r.ToJson(true));
