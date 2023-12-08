@@ -14,6 +14,7 @@ namespace PalmHill.BlazorChat.Shared.Models
         public string ContentType { get; set; } = "";
         public long Size { get; set; } = 0;
         public AttachmentStatus Status { get; set; } = AttachmentStatus.Pending;
+        public string ConversationId { get; set; } = "";
     }
 
     public enum AttachmentStatus
