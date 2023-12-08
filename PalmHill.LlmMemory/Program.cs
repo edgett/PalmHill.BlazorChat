@@ -23,16 +23,9 @@ var memory = new KernelMemoryBuilder()
 
 var x = await memory.ImportDocumentAsync(@"C:\Users\localadmin\Desktop\constitution.pdf", index: "test");
 
-var docIsReady = false;
-while (!docIsReady)
-{
-    docIsReady = await memory.IsDocumentReadyAsync(x, "test");
-    Console.WriteLine($"DocId {x} ready state: {docIsReady}");
-    if (!docIsReady)
-    { 
-        System.Threading.Thread.Sleep(1000);
-    }
-}
+
+var docIsReady = await memory.IsDocumentReadyAsync(x, "test");
+Console.WriteLine($"DocId {x} ready state: {docIsReady}");
 
 var ar = await memory.AskAsync("Free speech", "test");
 
