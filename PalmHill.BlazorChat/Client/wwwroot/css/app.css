@@ -110,7 +110,8 @@ h1:focus {
     }
 
     .chat-header {
-        width:calc(100vw - 30px);
+        width: calc(100vw - 30px);
+        max-width: auto;
     }
 }
 
