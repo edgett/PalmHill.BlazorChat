@@ -66,6 +66,10 @@ namespace PalmHill.BlazorChat.Server.WebApi
         {
             var file = fileUpload.File;
 
+            if (file == null)
+            {
+                return BadRequest("No file provided.");
+            }
 
             var attachmentInfo = new AttachmentInfo()
             {
@@ -77,12 +81,12 @@ namespace PalmHill.BlazorChat.Server.WebApi
                 FileBytes = file.OpenReadStream().ReadAllBytes()
             };
             var userId = Request.Headers["UserId"].SingleOrDefault();
-            DoImport(userId, attachmentInfo);
+            _ = DoImport(userId, attachmentInfo);
             
             return attachmentInfo;
         }
 
-        private async Task DoImport(string userId, AttachmentInfo attachmentInfo)
+        private async Task DoImport(string? userId, AttachmentInfo attachmentInfo)
         {
             await ConversationMemory.ImportDocumentAsync(attachmentInfo);
 

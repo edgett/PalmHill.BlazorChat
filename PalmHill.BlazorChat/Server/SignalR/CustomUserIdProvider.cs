@@ -6,9 +6,19 @@ namespace PalmHill.BlazorChat.Server.SignalR
     {
         public string GetUserId(HubConnectionContext connection)
         {
-            // Your custom logic to determine the UserId
-            // For example, using a query string parameter
-            return connection.GetHttpContext().Request.Query["customUserId"];
+            var httpContext = connection.GetHttpContext();
+
+            if (httpContext == null)
+            {
+                return "";
+            }
+
+            if (httpContext.Request.Query.ContainsKey("customUserId"))
+            { 
+                return httpContext.Request.Query["customUserId"].SingleOrDefault() ?? "";
+            }
+
+            return "";
         }
     }
 }
