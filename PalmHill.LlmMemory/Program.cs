@@ -10,15 +10,15 @@ using Microsoft.KernelMemory.AppBuilders;
 
 
 
-var modelConfig = new LLamaSharpConfig(@"C:\models\mistral-7b-openorca.Q4_K_M.gguf");
-modelConfig.DefaultInferenceParams = new LLama.Common.InferenceParams();
-modelConfig.DefaultInferenceParams.AntiPrompts = new List<string> { "Question:" };
-modelConfig.ContextSize = 2048;
-modelConfig.GpuLayerCount = 50;
+var memoryModelConfig = new LLamaSharpConfig(@"C:\models\mistral-7b-openorca.Q4_K_M.gguf");
+memoryModelConfig.DefaultInferenceParams = new LLama.Common.InferenceParams();
+memoryModelConfig.DefaultInferenceParams.AntiPrompts = new List<string> { "Question:" };
+memoryModelConfig.ContextSize = 2048;
+memoryModelConfig.GpuLayerCount = 50;
 
 
 var memory = new KernelMemoryBuilder()
-.WithLLamaSharpDefaults(modelConfig)
+.WithLLamaSharpDefaults(memoryModelConfig)
 .Build<MemoryServerless>();
 
 var x = await memory.ImportDocumentAsync(@"C:\Users\localadmin\Desktop\constitution.pdf", index: "test");

@@ -7,6 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
 using PalmHill.BlazorChat.Server.SignalR;
+using Microsoft.AspNetCore.SignalR;
+using LLamaSharp.KernelMemory;
+using Microsoft.KernelMemory;
+using PalmHill.LlmMemory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +21,9 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddSignalR();
+
+//Add signalR custom user id provider.
+builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
 
 ////Compress websockets traffic.
 //builder.Services.AddResponseCompression(opts =>
@@ -59,6 +66,23 @@ LLamaWeights model = LLamaWeights.LoadFromFile(parameters);
 builder.Services.AddSingleton(model);
 builder.Services.AddSingleton(parameters);
 //End Initlize Llama
+
+//Initialize Memory
+var memoryModelConfig = new LLamaSharpConfig(@"C:\models\mistral-7b-openorca.Q4_K_M.gguf");
+memoryModelConfig.DefaultInferenceParams = new LLama.Common.InferenceParams();
+memoryModelConfig.DefaultInferenceParams.AntiPrompts = new List<string> { "Question:" };
+memoryModelConfig.ContextSize = 2048;
+memoryModelConfig.GpuLayerCount = 50;
+
+
+var memory = new KernelMemoryBuilder()
+.WithLLamaSharpDefaults(memoryModelConfig)
+.Build<MemoryServerless>();
+
+builder.Services.AddSingleton<IKernelMemory>(memory);
+builder.Services.AddSingleton<ConversationMemory>();
+
+//End Initiaize Memory
 
 var app = builder.Build();
 

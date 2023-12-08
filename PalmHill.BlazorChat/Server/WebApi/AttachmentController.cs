@@ -1,6 +1,8 @@
 ﻿using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.KernelMemory.FileSystem.DevTools;
+using PalmHill.BlazorChat.Server.SignalR;
 using PalmHill.BlazorChat.Shared.Models;
 using PalmHill.LlmMemory;
 
@@ -13,10 +15,12 @@ namespace PalmHill.BlazorChat.Server.WebApi
     public class AttachmentController : ControllerBase
     {
         private ConversationMemory ConversationMemory { get; }
+        private IHubContext<WebSocketChat> WebSocketChat { get; }
 
-        public AttachmentController(ConversationMemory conversationMemory)
+        public AttachmentController(ConversationMemory conversationMemory, IHubContext<WebSocketChat> webSocketChat)
         {
             ConversationMemory = conversationMemory;
+            WebSocketChat = webSocketChat;
         }
 
         [HttpGet("{conversationId}")]
@@ -51,10 +55,18 @@ namespace PalmHill.BlazorChat.Server.WebApi
 
         }
 
+        public class FileUpload
+        {
+            public IFormFile? File { get; set; }
+        }
+
         // POST api/<AttachmentController>
         [HttpPost("{conversationId}")]
-        public ActionResult<AttachmentInfo> Post([FromForm] IFormFile file, string conversationId)
+        public ActionResult<AttachmentInfo> Post([FromForm] FileUpload fileUpload, string conversationId)
         {
+            var file = fileUpload.File;
+
+
             var attachmentInfo = new AttachmentInfo()
             {
                 Name = file.FileName,
@@ -64,8 +76,23 @@ namespace PalmHill.BlazorChat.Server.WebApi
                 ConversationId = conversationId,
                 FileBytes = file.OpenReadStream().ReadAllBytes()
             };
-            ConversationMemory.ImportDocumentAsync(attachmentInfo);
+            var userId = Request.Headers["UserId"].SingleOrDefault();
+            DoImport(userId, attachmentInfo);
+            
             return attachmentInfo;
+        }
+
+        private async Task DoImport(string userId, AttachmentInfo attachmentInfo)
+        {
+            await ConversationMemory.ImportDocumentAsync(attachmentInfo);
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                Console.WriteLine($"UserId is null/empty. AttachmentId: {attachmentInfo.Id}");
+                return;
+            }
+
+            await WebSocketChat.Clients.User(userId).SendCoreAsync("AttachmetStatusUpdate", [attachmentInfo]);
         }
 
         // DELETE api/<AttachmentController>/5

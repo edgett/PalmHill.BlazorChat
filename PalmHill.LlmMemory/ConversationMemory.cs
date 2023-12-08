@@ -50,11 +50,7 @@ namespace PalmHill.LlmMemory
                 attachmentInfo.Status = AttachmentStatus.Failed;
             }
 
-            attachmentInfo.Size = stream.Length;
             attachmentInfo.Status = AttachmentStatus.Uploaded;
-
-            
-
 
             return attachmentInfo;
         }

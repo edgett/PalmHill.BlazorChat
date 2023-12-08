@@ -54,7 +54,7 @@
     {
 
         hubConnection = new HubConnectionBuilder()
-            .WithUrl(Navigation.ToAbsoluteUri("/chathub"))
+            .WithUrl(Navigation.ToAbsoluteUri("/chathub?customUserId=user1"))
             .Build();
 
         hubConnection.On<Guid, string>("ReceiveModelString", (messageId, message) =>
