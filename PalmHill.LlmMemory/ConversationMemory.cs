@@ -22,10 +22,23 @@ namespace PalmHill.LlmMemory
 
         public async Task<AttachmentInfo> ImportDocumentAsync(
             AttachmentInfo attachmentInfo,
-            Stream stream,
             TagCollection? tagCollection = null
             )
         {
+            if (attachmentInfo.FileBytes == null)
+            { 
+                throw new InvalidOperationException("FileBytes is null");
+            }
+
+            if (!AttachmentInfos.TryAdd(attachmentInfo.Id, attachmentInfo))
+            {
+                throw new Exception("Failed to add attachment to memory");
+            };
+
+            attachmentInfo.Size = attachmentInfo.FileBytes.LongLength;
+
+
+            var stream = new MemoryStream(attachmentInfo.FileBytes);
             var documentId = await KernelMemory.ImportDocumentAsync(stream,
                 attachmentInfo.Name,
                 attachmentInfo.Id,
@@ -34,15 +47,13 @@ namespace PalmHill.LlmMemory
 
             if (documentId == null)
             {
-                throw new Exception("Failed to import document");
+                attachmentInfo.Status = AttachmentStatus.Failed;
             }
 
             attachmentInfo.Size = stream.Length;
+            attachmentInfo.Status = AttachmentStatus.Uploaded;
 
-            if (!AttachmentInfos.TryAdd(attachmentInfo.Id, attachmentInfo))
-            { 
-                throw new Exception("Failed to add attachment to memory");
-            };
+            
 
 
             return attachmentInfo;
@@ -51,8 +62,12 @@ namespace PalmHill.LlmMemory
         public async Task<bool> IsAttachmetReady(string conversationId, string attachmentId)
         {
             var isDocReady = await KernelMemory.IsDocumentReadyAsync(conversationId, attachmentId);
-            var attachmentInfo =  AttachmentInfos[attachmentId];
-            attachmentInfo.Status = isDocReady ? AttachmentStatus.Uploaded : AttachmentStatus.Pending;
+            var attachmetExists =  AttachmentInfos.TryGetValue(attachmentId, out var attachmentInfo);
+
+            if (attachmentInfo != null && attachmentInfo?.Status != AttachmentStatus.Failed)
+            { 
+                attachmentInfo!.Status = isDocReady ? AttachmentStatus.Uploaded : AttachmentStatus.Pending;
+            }
             
             return isDocReady;
         }

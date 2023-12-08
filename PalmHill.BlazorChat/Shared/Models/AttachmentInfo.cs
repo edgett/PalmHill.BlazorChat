@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace PalmHill.BlazorChat.Shared.Models
@@ -10,7 +11,8 @@ namespace PalmHill.BlazorChat.Shared.Models
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string Name { get; set; } = "";
-        public byte? FileBytes { get; set; }
+        [JsonIgnore]
+        public byte[]? FileBytes { get; set; }
         public string ContentType { get; set; } = "";
         public long Size { get; set; } = 0;
         public AttachmentStatus Status { get; set; } = AttachmentStatus.Pending;

@@ -7,7 +7,7 @@ using System.Web;
 using PalmHill.Llama;
 using System.Diagnostics;
 
-namespace PalmHill.BlazorChat.Server
+namespace PalmHill.BlazorChat.Server.SignalR
 {
 
     /// <summary>

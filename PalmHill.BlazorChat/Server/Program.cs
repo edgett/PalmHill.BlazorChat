@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
-using PalmHill.BlazorChat.Server;
+using PalmHill.BlazorChat.Server.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
