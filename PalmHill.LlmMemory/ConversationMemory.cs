@@ -48,7 +48,7 @@ namespace PalmHill.LlmMemory
             return attachmentInfo;
         }
 
-        public async Task<bool> GetAttachmentSatus(string conversationId, string attachmentId)
+        public async Task<bool> IsAttachmetReady(string conversationId, string attachmentId)
         {
             var isDocReady = await KernelMemory.IsDocumentReadyAsync(conversationId, attachmentId);
             var attachmentInfo =  AttachmentInfos[attachmentId];

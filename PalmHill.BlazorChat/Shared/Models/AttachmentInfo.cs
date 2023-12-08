@@ -10,7 +10,7 @@ namespace PalmHill.BlazorChat.Shared.Models
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string Name { get; set; } = "";
-        public string Url { get; set; } = "";
+        public byte? FileBytes { get; set; }
         public string ContentType { get; set; } = "";
         public long Size { get; set; } = 0;
         public AttachmentStatus Status { get; set; } = AttachmentStatus.Pending;
