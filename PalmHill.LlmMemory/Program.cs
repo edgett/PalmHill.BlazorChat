@@ -10,13 +10,30 @@ using Microsoft.KernelMemory.AppBuilders;
 
 
 
-var modelWeights = new LLamaSharpConfig(@"C:\models\orca-2-7b.Q4_K_M.gguf");
+var modelConfig = new LLamaSharpConfig(@"C:\models\mistral-7b-openorca.Q4_K_M.gguf");
+modelConfig.DefaultInferenceParams = new LLama.Common.InferenceParams();
+modelConfig.DefaultInferenceParams.AntiPrompts = new List<string> { "Question:" };
+modelConfig.ContextSize = 2048;
+modelConfig.GpuLayerCount = 50;
+
+
 var memory = new KernelMemoryBuilder()
-.WithLLamaSharpDefaults(modelWeights)
+.WithLLamaSharpDefaults(modelConfig)
 .Build<MemoryServerless>();
 
 var x = await memory.ImportDocumentAsync(@"C:\Users\localadmin\Desktop\constitution.pdf", index: "test");
 
-var r = await memory.AskAsync("Free speech", "test");
+var docIsReady = false;
+while (!docIsReady)
+{
+    docIsReady = await memory.IsDocumentReadyAsync(x, "test");
+    Console.WriteLine($"DocId {x} ready state: {docIsReady}");
+    if (!docIsReady)
+    { 
+        System.Threading.Thread.Sleep(1000);
+    }
+}
 
-Console.WriteLine(r.ToJson(true));
+var ar = await memory.AskAsync("Free speech", "test");
+
+Console.WriteLine(ar.ToJson(true));
