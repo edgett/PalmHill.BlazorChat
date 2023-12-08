@@ -4,10 +4,18 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="LLamaSharp.kernel-memory" Version="0.8.1" />
+    <PackageReference Include="Microsoft.KernelMemory.Abstractions" Version="0.12.231123.1-preview" />
+    <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.12.231123.1-preview" />
+    <PackageReference Include="Microsoft.KernelMemory.SemanticKernelPlugin" Version="0.12.231123.1-preview" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PalmHill.Llama\PalmHill.Llama.csproj" />
   </ItemGroup>
 
 </Project>
