@@ -18,7 +18,7 @@
 
 <FluentFooter Class="w-100" Style="position:fixed; bottom:15px;">
     <FluentStack Class="chat-messages input-area">
-        <div class="file-input-area">
+        <div class="file-input-area" @onclick="ShowAttachmentPanel">
             @*Not wrapping this in an if block. Use css to hide. FluentInputFile won't work if the element disappears from the DOM. *@
 
             @{
@@ -38,7 +38,7 @@
             >
                 <FluentButton 
                     Id="uploadButton" 
-                    OnClick="ShowAttachmentPanel"
+                    
                     Class="@isProgressCssClass" 
                     IconStart="(new Icons.Regular.Size24.Attach())" 
                     Style="margin-top:6px;"
