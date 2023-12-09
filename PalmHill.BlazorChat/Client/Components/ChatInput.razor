@@ -2,32 +2,48 @@
 @using PalmHill.BlazorChat.ApiClient
 @using PalmHill.BlazorChat.Shared.Models
 @using Refit
+@using System.Collections.Concurrent
 @inject IDialogService DialogService
 @inject IJSRuntime JSRuntime
 @inject ThemeControl ThemeControl
 @inject BlazorChatApi BlazorChatApi
 
+<style>
+    .counterbadge-container
+    {
+        display:block !important;
+    }
+
+</style>
+
 <FluentFooter Class="w-100" Style="position:fixed; bottom:15px;">
     <FluentStack Class="chat-messages input-area">
-        <div>
-
+        <div class="file-input-area">
             @*Not wrapping this in an if block. Use css to hide. FluentInputFile won't work if the element disappears from the DOM. *@
-            <FluentButton 
-                Id="uploadButton" 
-                Class="@((progressPercent == 0 || progressPercent == 100) ? string.Empty : "hidden")" 
-                IconStart="(new Icons.Regular.Size24.Attach())" 
-                Style="margin-top:6px;"
-            ></FluentButton>
+
+            @{
+                var isProgressCssClass = ((progressPercent == 0 || progressPercent == 100) ? string.Empty : "hidden");
+            }
 
             @if (progressPercent > 0 && progressPercent < 100)
             {
-                <FluentProgressRing 
-                    @bind-Value="@progressPercent" 
-                    Label="@progressTitle" 
-                    Style="height:32px; margin-top:6px" 
-                />
-
+                <FluentProgressRing Style="height:32px; margin-top:6px" />
             }
+
+            <FluentCounterBadge 
+                Count="attachments.Count" 
+                ShowZero="true" 
+                BottomPosition="-10" 
+                Class="@isProgressCssClass"
+            >
+                <FluentButton 
+                    Id="uploadButton" 
+                    Class="@isProgressCssClass" 
+                    IconStart="(new Icons.Regular.Size24.Attach())" 
+                    Style="margin-top:6px;"
+                ></FluentButton>
+            </FluentCounterBadge>
+            
 
         </div>
         <div style="flex-grow:1;" class="min-h-100">
@@ -60,6 +76,7 @@
     private FluentButton? sendButton;
     private int progressPercent = 0;
     private string progressTitle = string.Empty;
+    private ConcurrentDictionary<string, AttachmentInfo> attachments = new ConcurrentDictionary<string, AttachmentInfo>();
 
     private Chat? _chatRenderer;
     public Chat? ChatRenderer { get { return _chatRenderer; } }
@@ -72,7 +89,7 @@
 
     public async Task ShowSettings()
     {
- 
+
         DialogParameters<UISettings> parameters = new()
             {
 
@@ -157,9 +174,17 @@
         {
             var stream = file.OpenReadStream();
             var streamPart = new StreamPart(stream, file.Name, file.ContentType);
-            var attachmentInfo = await BlazorChatApi.Attachment.AddAttachment(ChatRenderer.ConversationId.ToString(), streamPart);
+            var apiResponse = await BlazorChatApi.Attachment.AddAttachment(ChatRenderer.ConversationId.ToString(), streamPart);
             uploadedCount++;
             progressPercent = (int)((uploadedCount / (double)files.Count()) * 100);
+            var attachmentInfo = apiResponse.Content;
+
+            if (attachmentInfo == null)
+            {
+                continue;
+            }
+
+            attachments.TryAdd(attachmentInfo.Id, attachmentInfo);
         }
     }
 }
