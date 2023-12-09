@@ -48,15 +48,13 @@ namespace PalmHill.LlmMemory
 
             while (attachmentInfo.Status == AttachmentStatus.Pending)
             { 
-                var status = await GetAttachmentStatus(attachmentInfo.ConversationId, attachmentInfo.Id);
+                await UpdateAttachmentStatus(attachmentInfo);
 
-                if (status == null)
-                { 
-                    attachmentInfo.Status = AttachmentStatus.Failed;
-                    break;
-                }
-
-                if (attachmentInfo.Status == AttachmentStatus.Uploaded || attachmentInfo.Status == AttachmentStatus.Failed)
+                if (
+                    attachmentInfo.Status == AttachmentStatus.Uploaded
+                    || 
+                    attachmentInfo.Status == AttachmentStatus.Failed
+                   )
                 {
                     break;
                 }
@@ -67,17 +65,14 @@ namespace PalmHill.LlmMemory
             return attachmentInfo;
         }
 
-        public async Task<AttachmentStatus?> GetAttachmentStatus(string conversationId, string attachmentId)
+        public async Task UpdateAttachmentStatus(AttachmentInfo attachmentInfo)
         {
-            var AttachmentExists =  AttachmentInfos.TryGetValue(attachmentId, out var attachmentInfo);
-           var isDocReady = await KernelMemory.IsDocumentReadyAsync(attachmentId, conversationId);
+           var isDocReady = await KernelMemory.IsDocumentReadyAsync(attachmentInfo.Id, attachmentInfo.ConversationId);
 
             if (attachmentInfo != null && attachmentInfo?.Status != AttachmentStatus.Failed)
             { 
                 attachmentInfo!.Status = isDocReady ? AttachmentStatus.Uploaded : AttachmentStatus.Pending;
             }
-
-            return attachmentInfo?.Status;
         }
 
         public async Task<bool> DeleteDocument(string conversationId, string attachmentId)
