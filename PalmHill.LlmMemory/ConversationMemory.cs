@@ -1,11 +1,6 @@
 ﻿using Microsoft.KernelMemory;
 using PalmHill.BlazorChat.Shared.Models;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PalmHill.LlmMemory
 {
@@ -50,22 +45,39 @@ namespace PalmHill.LlmMemory
                 attachmentInfo.Status = AttachmentStatus.Failed;
             }
 
-            attachmentInfo.Status = await IsAttachmentReady(attachmentInfo.ConversationId, attachmentInfo.Id) ? AttachmentStatus.Uploaded : AttachmentStatus.Pending;
+
+            while (attachmentInfo.Status == AttachmentStatus.Pending)
+            { 
+                var status = await GetAttachmentStatus(attachmentInfo.ConversationId, attachmentInfo.Id);
+
+                if (status == null)
+                { 
+                    attachmentInfo.Status = AttachmentStatus.Failed;
+                    break;
+                }
+
+                if (attachmentInfo.Status == AttachmentStatus.Uploaded || attachmentInfo.Status == AttachmentStatus.Failed)
+                {
+                    break;
+                }
+
+                System.Threading.Thread.Sleep(100);
+            }
 
             return attachmentInfo;
         }
 
-        public async Task<bool> IsAttachmentReady(string conversationId, string attachmentId)
+        public async Task<AttachmentStatus?> GetAttachmentStatus(string conversationId, string attachmentId)
         {
-            var isDocReady = await KernelMemory.IsDocumentReadyAsync(conversationId, attachmentId);
             var AttachmentExists =  AttachmentInfos.TryGetValue(attachmentId, out var attachmentInfo);
+           var isDocReady = await KernelMemory.IsDocumentReadyAsync(attachmentId, conversationId);
 
             if (attachmentInfo != null && attachmentInfo?.Status != AttachmentStatus.Failed)
             { 
                 attachmentInfo!.Status = isDocReady ? AttachmentStatus.Uploaded : AttachmentStatus.Pending;
             }
-            
-            return isDocReady;
+
+            return attachmentInfo?.Status;
         }
 
         public async Task<bool> DeleteDocument(string conversationId, string attachmentId)

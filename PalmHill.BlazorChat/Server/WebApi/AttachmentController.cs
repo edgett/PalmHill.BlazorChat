@@ -17,7 +17,10 @@ namespace PalmHill.BlazorChat.Server.WebApi
         private ConversationMemory ConversationMemory { get; }
         private IHubContext<WebSocketChat> WebSocketChat { get; }
 
-        public AttachmentController(ConversationMemory conversationMemory, IHubContext<WebSocketChat> webSocketChat)
+        public AttachmentController(
+            ConversationMemory conversationMemory,
+            IHubContext<WebSocketChat> webSocketChat
+            )
         {
             ConversationMemory = conversationMemory;
             WebSocketChat = webSocketChat;
@@ -99,6 +102,24 @@ namespace PalmHill.BlazorChat.Server.WebApi
         {
             var attachmentConversation = ConversationMemory.AttachmentInfos.SingleOrDefault(a => a.Value.ConversationId == conversationId);
             await ConversationMemory.DeleteDocument(attachmentConversation.Value.ConversationId, attachmentId);
+        }
+
+        [HttpGet("{attachmentId}/file")]
+        public ActionResult GetAttachmentFile(string attachmentId)
+        { 
+            var attachmentInfo = ConversationMemory.AttachmentInfos[attachmentId];
+            if (attachmentInfo == null)
+            {
+                   return NotFound();
+            }
+
+            if (attachmentInfo.FileBytes == null || attachmentInfo.Status != AttachmentStatus.Uploaded)
+            { 
+                return BadRequest("File not ready.");
+            }
+
+            return File(attachmentInfo.FileBytes, attachmentInfo.ContentType, attachmentInfo.Name);
+
         }
     }
 }
