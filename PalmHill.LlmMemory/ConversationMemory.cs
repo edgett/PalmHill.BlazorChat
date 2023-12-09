@@ -78,7 +78,9 @@ namespace PalmHill.LlmMemory
         public async Task<bool> DeleteDocument(string conversationId, string attachmentId)
         {
             await KernelMemory.DeleteDocumentAsync(attachmentId, conversationId);
-            AttachmentInfos.Remove(attachmentId, out _);
+            var removed = AttachmentInfos.Remove(attachmentId, out _);
+
+
             return true;
         }   
 

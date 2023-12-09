@@ -97,11 +97,16 @@ namespace PalmHill.BlazorChat.Server.WebApi
         }
 
         // DELETE api/<AttachmentController>/5
-        [HttpDelete("{AttachmentId}")]
-        public async Task DeleteAttachment(string conversationId, string attachmentId)
+        [HttpDelete("{attachmentId}")]
+        public async Task DeleteAttachment(string attachmentId)
         {
-            var attachmentConversation = ConversationMemory.AttachmentInfos.SingleOrDefault(a => a.Value.ConversationId == conversationId);
-            await ConversationMemory.DeleteDocument(attachmentConversation.Value.ConversationId, attachmentId);
+            var exists = ConversationMemory.AttachmentInfos.TryGetValue(attachmentId, out var attachmentInfo);
+            if (!exists)
+            {
+                return;
+            }
+
+            await ConversationMemory.DeleteDocument(attachmentInfo?.ConversationId ?? string.Empty, attachmentId);
         }
 
         [HttpGet("{attachmentId}/file")]
