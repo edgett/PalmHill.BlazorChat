@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PalmHill.BlazorChat.Shared.Models;
 using PalmHill.Llama;
 using System.Diagnostics;
+using PalmHill.Llama.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,25 +19,16 @@ namespace PalmHill.BlazorChat.Server.WebApi
     public class ApiChat : ControllerBase
     {
         /// <summary>
-        /// The LLamaWeights instance used for model weights.
-        /// </summary>
-        LLamaWeights LLamaWeights;
-
-        /// <summary>
-        /// The ModelParams instance used for model parameters.
-        /// </summary>
-        ModelParams ModelParams;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ApiChat"/> class.
         /// </summary>
         /// <param name="model">The LLamaWeights model.</param>
         /// <param name="modelParams">The model parameters.</param>
-        public ApiChat(LLamaWeights model, ModelParams modelParams)
+        public ApiChat(InjectedModel injectedModel)
         {
-            LLamaWeights = model;
-            ModelParams = modelParams;
+            InjectedModel = injectedModel;
         }
+
+        private InjectedModel InjectedModel { get; }
 
         /// <summary>
         /// Handles a chat API request.
@@ -76,9 +68,9 @@ namespace PalmHill.BlazorChat.Server.WebApi
         /// <returns>Returns the inference result as a string.</returns>
         private async Task<string> DoInference(ChatConversation conversation)
         {
-            LLamaContext modelContext = LLamaWeights.CreateContext(ModelParams);
+            LLamaContext modelContext = InjectedModel.Model.CreateContext(InjectedModel.ModelParams);
             var session = modelContext.CreateChatSession(conversation);
-            var inferenceParams = conversation.GetInferenceParams();
+            var inferenceParams = conversation.GetInferenceParams(InjectedModel.DefaultAntiPrompts);
 
             var cancelGeneration = new CancellationTokenSource();
             var fullResponse = "";

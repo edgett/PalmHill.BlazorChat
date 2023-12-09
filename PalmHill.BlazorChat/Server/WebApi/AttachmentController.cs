@@ -10,7 +10,7 @@ using PalmHill.LlmMemory;
 
 namespace PalmHill.BlazorChat.Server.WebApi
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]", Name = "Attachment")]
     [ApiController]
     public class AttachmentController : ControllerBase
     {
@@ -34,10 +34,10 @@ namespace PalmHill.BlazorChat.Server.WebApi
             return conversationAttachments;
         }
 
-        [HttpGet("{conversationId}/{attachmetId}")]
-        public ActionResult<AttachmentInfo> GetAttachmentById(string conversationId, string attachmetId)
+        [HttpGet("{conversationId}/{attachmentId}")]
+        public ActionResult<AttachmentInfo> GetAttachmentById(string conversationId, string attachmentId)
         {
-            var attchmentFound = ConversationMemory.AttachmentInfos.TryGetValue(attachmetId, out var attachmentInfo);
+            var attchmentFound = ConversationMemory.AttachmentInfos.TryGetValue(attachmentId, out var attachmentInfo);
 
             if (!attchmentFound)
             {
@@ -96,14 +96,14 @@ namespace PalmHill.BlazorChat.Server.WebApi
                 return;
             }
 
-            await WebSocketChat.Clients.User(userId).SendCoreAsync("AttachmetStatusUpdate", [attachmentInfo]);
+            await WebSocketChat.Clients.User(userId).SendCoreAsync("AttachmentStatusUpdate", [attachmentInfo]);
         }
 
         // DELETE api/<AttachmentController>/5
-        [HttpDelete("{conversationId}/{attachmetId}")]
-        public async Task Delete(string conversationId, string attachmetId)
+        [HttpDelete("{conversationId}/{AttachmentId}")]
+        public async Task Delete(string conversationId, string attachmentId)
         {
-            await ConversationMemory.DeleteDocument(conversationId, attachmetId);
+            await ConversationMemory.DeleteDocument(conversationId, attachmentId);
         }
 
     }

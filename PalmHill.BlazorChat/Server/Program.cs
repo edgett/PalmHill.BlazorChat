@@ -11,12 +11,24 @@ using Microsoft.AspNetCore.SignalR;
 using LLamaSharp.KernelMemory;
 using Microsoft.KernelMemory;
 using PalmHill.LlmMemory;
+using PalmHill.Llama.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//Make Swagger use enums.
+// Initlize Llama
+builder.AddLlamaModel();
+// End Initlize Llama
+
+
+// Initiaize Memory
+builder.AddConversationMemory();
+// End Initiaize Memory
+
+
 builder.Services.AddControllers().AddJsonOptions(options =>
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+        //Make Swagger use enums.
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter())
+    );
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
@@ -40,49 +52,9 @@ builder.Services.AddSwaggerGen(c =>
     c.UseAllOfToExtendReferenceSchemas();
 });
 
-//get model path from appsettings.json
-string? modelPath = builder.Configuration["DefaultModelPath"]; ; // change in appsettings.json
-
-//check if model is present
-var modelExsists = System.IO.File.Exists(modelPath);
-if (!modelExsists)
-{
-    Console.ForegroundColor = ConsoleColor.Red;
-    Console.WriteLine($"Model at path {modelPath} does not exsist.");
-    Console.ResetColor();
-    Console.WriteLine("Press any key to exit.");
-    Console.Read();
-    return;
-}
-
-//Initlize Llama
-ModelParams parameters = new ModelParams(modelPath ?? "")
-{
-    ContextSize = 4096,
-    GpuLayerCount = 90,
-};
-
-LLamaWeights model = LLamaWeights.LoadFromFile(parameters);
-builder.Services.AddSingleton(model);
-builder.Services.AddSingleton(parameters);
-//End Initlize Llama
-
-//Initialize Memory
-var memoryModelConfig = new LLamaSharpConfig(@"C:\models\mistral-7b-openorca.Q4_K_M.gguf");
-memoryModelConfig.DefaultInferenceParams = new LLama.Common.InferenceParams();
-memoryModelConfig.DefaultInferenceParams.AntiPrompts = new List<string> { "Question:" };
-memoryModelConfig.ContextSize = 2048;
-memoryModelConfig.GpuLayerCount = 50;
 
 
-var memory = new KernelMemoryBuilder()
-.WithLLamaSharpDefaults(memoryModelConfig)
-.Build<MemoryServerless>();
 
-builder.Services.AddSingleton<IKernelMemory>(memory);
-builder.Services.AddSingleton<ConversationMemory>();
-
-//End Initiaize Memory
 
 var app = builder.Build();
 

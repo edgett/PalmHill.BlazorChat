@@ -6,6 +6,7 @@ using PalmHill.BlazorChat.Shared.Models;
 using System.Web;
 using PalmHill.Llama;
 using System.Diagnostics;
+using PalmHill.Llama.Models;
 
 namespace PalmHill.BlazorChat.Server.SignalR
 {
@@ -15,16 +16,11 @@ namespace PalmHill.BlazorChat.Server.SignalR
     /// </summary>
     public class WebSocketChat : Hub
     {
-        LLamaWeights LLamaWeights;
-        ModelParams ModelParams;
-        public WebSocketChat(LLamaWeights model, ModelParams modelParams)
+        public WebSocketChat(InjectedModel injectedModel)
         {
-            LLamaWeights = model;
-            ModelParams = modelParams;
+            InjectedModel = injectedModel;
         }
-
-
-
+        private InjectedModel InjectedModel { get; }
 
         /// <summary>
         /// Sends a chat prompt to the client and waits for a response. The method performs inference on the chat conversation and sends the result back to the client.
@@ -64,9 +60,9 @@ namespace PalmHill.BlazorChat.Server.SignalR
         {
 
             // Create a context for the model and a chat session for the conversation
-            LLamaContext modelContext = LLamaWeights.CreateContext(ModelParams);
+            LLamaContext modelContext = InjectedModel.Model.CreateContext(InjectedModel.ModelParams);
             var session = modelContext.CreateChatSession(chatConversation);
-            var inferenceParams = chatConversation.GetInferenceParams();
+            var inferenceParams = chatConversation.GetInferenceParams(InjectedModel.DefaultAntiPrompts);
 
             var cancelGeneration = new CancellationTokenSource();
             var textBuffer = "";

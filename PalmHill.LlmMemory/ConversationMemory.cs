@@ -50,15 +50,15 @@ namespace PalmHill.LlmMemory
                 attachmentInfo.Status = AttachmentStatus.Failed;
             }
 
-            attachmentInfo.Status = AttachmentStatus.Uploaded;
+            attachmentInfo.Status = await IsAttachmentReady(attachmentInfo.ConversationId, attachmentInfo.Id) ? AttachmentStatus.Uploaded : AttachmentStatus.Pending;
 
             return attachmentInfo;
         }
 
-        public async Task<bool> IsAttachmetReady(string conversationId, string attachmentId)
+        public async Task<bool> IsAttachmentReady(string conversationId, string attachmentId)
         {
             var isDocReady = await KernelMemory.IsDocumentReadyAsync(conversationId, attachmentId);
-            var attachmetExists =  AttachmentInfos.TryGetValue(attachmentId, out var attachmentInfo);
+            var AttachmentExists =  AttachmentInfos.TryGetValue(attachmentId, out var attachmentInfo);
 
             if (attachmentInfo != null && attachmentInfo?.Status != AttachmentStatus.Failed)
             { 

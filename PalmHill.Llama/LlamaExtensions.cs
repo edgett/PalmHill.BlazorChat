@@ -3,6 +3,10 @@ using LLama;
 using PalmHill.BlazorChat.Shared.Models;
 using static LLama.Common.ChatHistory;
 using PalmHill.BlazorChat.Shared;
+using Microsoft.Extensions.DependencyInjection;
+using PalmHill.Llama.Models;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 
 namespace PalmHill.Llama
 {
@@ -17,10 +21,10 @@ namespace PalmHill.Llama
         /// <param name="chatSession">The <see cref="ChatSession"/> to load the history into.</param>
         /// <param name="chatConversation">The <see cref="ChatConversation"/> containing the chat history.</param>
         public static void LoadChatHistory(this ChatSession chatSession, ChatConversation chatConversation)
-        { 
+        {
 
             if (!string.IsNullOrWhiteSpace(chatConversation.SystemMessage))
-            { 
+            {
                 chatSession.History.AddMessage(AuthorRole.System, chatConversation.SystemMessage);
             }
 
@@ -35,7 +39,7 @@ namespace PalmHill.Llama
                     continue;
                 }
 
-          
+
                 switch (chatMessage.Role)
                 {
                     case ChatMessageRole.User:
@@ -63,7 +67,7 @@ namespace PalmHill.Llama
             var ex = new InteractiveExecutor(lLamaContext);
             ChatSession session = new ChatSession(ex);
 
-            var specialTokensToIgnore = new string[] { "Assistant:", "User:"};
+            var specialTokensToIgnore = new string[] { "Assistant:", "User:" };
             session = session.WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(specialTokensToIgnore, redundancyLength: 8));
             session.LoadChatHistory(chatConversation);
             var promptMessage = chatConversation.ChatMessages.Last();
@@ -86,16 +90,74 @@ namespace PalmHill.Llama
         /// </summary>
         /// <param name="chatConversation">The <see cref="ChatConversation"/> to get the parameters from.</param>
         /// <returns>The <see cref="InferenceParams"/> for the conversation.</returns>
-        public static InferenceParams GetInferenceParams(this ChatConversation chatConversation)
+        public static InferenceParams GetInferenceParams(this ChatConversation chatConversation, string[]? defaultAntiPrompts = null)
         {
-            var inferenceParams = new InferenceParams() { 
+            var inferenceParams = new InferenceParams()
+            {
                 Temperature = chatConversation.Settings.Temperature,
                 MaxTokens = chatConversation.Settings.MaxLength,
                 TopP = chatConversation.Settings.TopP,
                 FrequencyPenalty = chatConversation.Settings.FrequencyPenalty,
                 PresencePenalty = chatConversation.Settings.PresencePenalty,
-                AntiPrompts = ["User:"] };
+                AntiPrompts = defaultAntiPrompts ?? []
+            };
             return inferenceParams;
+        }
+
+
+        /// <summary>
+        /// Add Llama to the service collection.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="modelConfig"></param>
+        /// <exception cref="FileNotFoundException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>"
+        public static InjectedModel AddLlamaModel(this IHostApplicationBuilder builder, ModelConfig? modelConfig = null)
+        {
+            var defaultModelConfigSection = "InferenceModelConfig";
+
+                //Attemt to get model config from config
+            modelConfig = builder?.GetModelConfigFromConfigSection(defaultModelConfigSection);
+
+            if (modelConfig == null)
+            { 
+                throw new ArgumentNullException(nameof(modelConfig), $"The argument {modelConfig} must be supplied if there is no {defaultModelConfigSection} section in app configuartion.");
+            }
+
+            //check if model is present
+            var modelExsists = System.IO.File.Exists(modelConfig.ModelPath);
+            if (!modelExsists)
+            {
+                throw new FileNotFoundException($"Model file does not exsist.", modelConfig.ModelPath);
+            }
+
+            //Initlize Llama
+            ModelParams parameters = new ModelParams(modelConfig.ModelPath ?? "")
+            {
+                ContextSize = modelConfig.ContextSize,
+                GpuLayerCount = modelConfig.GpuLayerCount,
+                MainGpu = modelConfig.Gpu
+            };
+
+            LLamaWeights model = LLamaWeights.LoadFromFile(parameters);
+            //End Initlize Llama
+
+            var injectedModel = new InjectedModel(model, parameters, modelConfig.AntiPrompts);
+
+            //Add to services
+            builder?.Services.AddSingleton(injectedModel);
+
+            return injectedModel;
+        }
+
+
+        
+
+
+        public static ModelConfig? GetModelConfigFromConfigSection(this IHostApplicationBuilder builder, string configSection)
+        {
+            var appSettingsConfig = builder?.Configuration.GetSection(configSection).Get<ModelConfig>();
+            return appSettingsConfig;
         }
     }
 }
