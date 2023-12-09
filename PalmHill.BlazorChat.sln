@@ -18,7 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalmHill.BlazorChat.Shared"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalmHill.LlmMemory", "PalmHill.LlmMemory\PalmHill.LlmMemory.csproj", "{A3075AF8-E520-4B62-8D47-564D9C88E52A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PalmHill.BlazorChat.ApiClient", "PalmHill.BlazorChat.ApiClient\PalmHill.BlazorChat.ApiClient.csproj", "{434FEDF0-2AD0-4276-AC06-E26126EEF237}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalmHill.BlazorChat.ApiClient", "PalmHill.BlazorChat.ApiClient\PalmHill.BlazorChat.ApiClient.csproj", "{434FEDF0-2AD0-4276-AC06-E26126EEF237}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

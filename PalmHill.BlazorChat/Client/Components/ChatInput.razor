@@ -38,13 +38,12 @@
             >
                 <FluentButton 
                     Id="uploadButton" 
+                    OnClick="ShowAttachmentPanel"
                     Class="@isProgressCssClass" 
                     IconStart="(new Icons.Regular.Size24.Attach())" 
                     Style="margin-top:6px;"
                 ></FluentButton>
             </FluentCounterBadge>
-            
-
         </div>
         <div style="flex-grow:1;" class="min-h-100">
             <textarea 
@@ -63,13 +62,13 @@
     </FluentStack>
 </FluentFooter>
 
-<FluentInputFile DragDropZoneVisible="false"
+@* <FluentInputFile DragDropZoneVisible="false"
                  Mode="InputFileMode.Stream"
                  Multiple="true"
                  AnchorId="uploadButton"
                  MaximumFileSize="@(100 * 1024 * 1024)"
                  OnInputFileChange="UploadFiles" />
-
+ *@
 @code {
     private ElementReference textAreaElement;
     private string messageInput = string.Empty;
@@ -186,5 +185,20 @@
 
             attachments.TryAdd(attachmentInfo.Id, attachmentInfo);
         }
+    }
+
+    private async Task ShowAttachmentPanel()
+    {
+        var _dialog = await DialogService.ShowPanelAsync<AttachmentPanel>(attachments, new DialogParameters<ConcurrentDictionary<string, AttachmentInfo>>()
+            {
+                Content = attachments,
+                Alignment = HorizontalAlignment.Right,
+                Title = $"Attachments",
+                PrimaryAction = "Yes",
+                SecondaryAction = "No",
+            });
+        DialogResult result = await _dialog.Result;
+
+
     }
 }

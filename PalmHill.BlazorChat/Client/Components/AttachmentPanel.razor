@@ -1,0 +1,22 @@
+﻿@using System.Collections.Concurrent
+@using PalmHill.BlazorChat.Shared.Models
+@implements IDialogContentComponent<ConcurrentDictionary<string, AttachmentInfo>>
+
+<FluentDialogBody>
+    <h3>Hello @Content.Count </h3>
+    
+    <div>
+        <ul>
+            @foreach (var item in Content)
+            {
+                <li>@item.Key</li>
+            }
+        </ul>
+
+    </div>
+</FluentDialogBody>
+
+@code {
+    [Parameter]
+    public ConcurrentDictionary<string, AttachmentInfo> Content { get; set; } = new ConcurrentDictionary<string, AttachmentInfo>();
+}
