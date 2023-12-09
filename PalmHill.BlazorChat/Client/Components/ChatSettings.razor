@@ -10,23 +10,60 @@
 
 <FluentStack Orientation="Orientation.Vertical">
 
-    <FluentSwitch ValueChanged="ChangeThemeChecked" Value="Content.DarkMode" Label="Dark Mode"></FluentSwitch>
+    <FluentSwitch 
+        ValueChanged="ChangeThemeChecked"
+        Value="Content.DarkMode"
+        Label="Dark Mode"
+    ></FluentSwitch>
 
-    <FluentTextArea Label="System Prompt" @bind-Value="Content.SystemMessage" Rows="10" Class="w-100"></FluentTextArea>
+    <FluentTextArea 
+        Label="System Prompt"
+        @bind-Value="Content.SystemMessage"
+        Rows="10"
+        Class="w-100"
+    ></FluentTextArea>
 
+    <SettingContainer
+        Label="Temperature" 
+        Min="0.1f" 
+        Max="1f" 
+        Step="0.1f" 
+        @bind-Value="Content.Temperature"
+    ></SettingContainer>
 
-    <SettingContainer Label="Temperature" TValue="float" Min="(float)0.1" Max="1" Step="(float)0.1" @bind-Value="Content.Temperature"></SettingContainer>
-
-    <SettingContainer Label="Max Length" Min="1" Max="4096" Step="1" @bind-Value="Content.MaxLength">
+    <SettingContainer 
+        Label="Max Length" 
+        Min="1" 
+        Max="4096" 
+        Step="1" 
+        @bind-Value="Content.MaxLength">
     </SettingContainer>
 
-    <SettingContainer Label="Top P" Min="(float)0.1" Max="(float)1" Step="(float)0.1" @bind-Value="Content.TopP">
+    <SettingContainer
+        Label="Top P" 
+        Min="0.1f" 
+        Max="1f" 
+        Step="0.1f" 
+        @bind-Value="Content.TopP"
+    >
     </SettingContainer>
 
-    <SettingContainer Label="Frequency penalty" Min="(float)0" Max="(float)1" Step="(float)0.1" @bind-Value="Content.FrequencyPenalty">
+    <SettingContainer 
+        Label="Frequency penalty"
+        Min="0f" 
+        Max="1f" 
+        Step="0.1f"
+        @bind-Value="Content.FrequencyPenalty"
+    >
     </SettingContainer>
 
-    <SettingContainer Label="Presence penalty" Min="(float)0" Max="(float)1" Step="(float)0.1" @bind-Value="Content.PresencePenalty">
+    <SettingContainer 
+        Label="Presence penalty" 
+        Min="0f"
+        Max="1f" 
+        Step="0.1f"
+        @bind-Value="Content.PresencePenalty"
+    >
     </SettingContainer>
 
 </FluentStack>

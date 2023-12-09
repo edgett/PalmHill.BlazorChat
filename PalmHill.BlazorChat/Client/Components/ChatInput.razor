@@ -12,17 +12,34 @@
         <div>
 
             @*Not wrapping this in an if block. Use css to hide. FluentInputFile won't work if the element disappears from the DOM. *@
-            <FluentButton Id="uploadButton" Class="@((progressPercent == 0 || progressPercent == 100) ? string.Empty : "hidden")" IconStart="(new Icons.Regular.Size24.Attach())" Style="margin-top:6px;"></FluentButton>
+            <FluentButton 
+                Id="uploadButton" 
+                Class="@((progressPercent == 0 || progressPercent == 100) ? string.Empty : "hidden")" 
+                IconStart="(new Icons.Regular.Size24.Attach())" 
+                Style="margin-top:6px;"
+            ></FluentButton>
 
             @if (progressPercent > 0 && progressPercent < 100)
             {
-                <FluentProgressRing @bind-Value="@progressPercent" Label="@progressTitle" Style="height:32px; margin-top:6px" />
+                <FluentProgressRing 
+                    @bind-Value="@progressPercent" 
+                    Label="@progressTitle" 
+                    Style="height:32px; margin-top:6px" 
+                />
 
             }
 
         </div>
         <div style="flex-grow:1;" class="min-h-100">
-            <textarea placeholder="Shift+Enter for new line" rows="1" @ref="textAreaElement" @bind="messageInput" class="main-textarea" @onkeyup="HandleKeyPress" @bind:event="oninput"></textarea>
+            <textarea 
+                placeholder="Shift+Enter for new line" 
+                rows="1" 
+                @ref="textAreaElement" 
+                @bind="messageInput" 
+                class="main-textarea" 
+                @onkeyup="HandleKeyPress" 
+                @bind:event="oninput"
+            ></textarea>
         </div>
         <div>
             <FluentButton @ref="sendButton" OnClick="Send" Appearance="Appearance.Accent" IconStart="(new Icons.Regular.Size24.Send())" Style="margin-top:6px;"></FluentButton>
@@ -55,7 +72,7 @@
 
     public async Task ShowSettings()
     {
-
+ 
         DialogParameters<UISettings> parameters = new()
             {
 

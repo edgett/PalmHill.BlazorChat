@@ -2,9 +2,6 @@ using Markdig;
 using Microsoft.AspNetCore.Components;
 
 using Microsoft.FluentUI.AspNetCore.Components;
-using Microsoft.FluentUI.AspNetCore.Components.Infrastructure;
-using static Microsoft.FluentUI.AspNetCore.Components.Icons.Filled.Size20;
-
 namespace PalmHill.BlazorChat.Client.Components;
 
 
