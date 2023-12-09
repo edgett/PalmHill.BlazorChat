@@ -152,10 +152,16 @@ h1:focus {
    
 }
 
-@media (min-width: 1345px) {
+@media (min-width: 1300px) {
     .info-panel {
         right: 50%;
         transform: translateX(256%);
+    }
+}
+
+@media (max-width: 1300px) {
+    .info-panel {
+        right: 15px;
     }
 }
 
