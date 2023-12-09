@@ -55,7 +55,7 @@ h1:focus {
 .main-textarea {
     width: 100%;
     height: 100%;
-    min-height:40px;
+    min-height: 40px;
     border-radius: 10px 10px;
     overflow: hidden;
     margin-bottom: 10px;
@@ -76,12 +76,12 @@ h1:focus {
 }
 
 .chat-box {
-    height:calc(100vh - 125px);
-    margin-top:80px;
+    height: calc(100vh - 125px);
+    margin-top: 80px;
 }
 
 .w-100 {
-    width:100%;
+    width: 100%;
 }
 
 .min-h-100 {
@@ -92,11 +92,10 @@ h1:focus {
     max-width: 768px;
     margin-left: auto;
     margin-right: auto;
-    
 }
 
     .chat-messages fluent-card:not(:first-child) {
-        margin-top:10px;
+        margin-top: 10px;
     }
 
     .chat-messages fluent-card:last-child {
@@ -139,13 +138,27 @@ h1:focus {
     border-radius: 10px 10px;
     padding-left: 10px;
     padding-right: 10px;
-    
 }
 
 .hidden {
     display: none;
 }
 
-/*.file-input-area {
+.info-panel {
+    position: fixed;
+    top: 75px;
+    bottom: 75px;
+    width: 250px;
+   
+}
+
+@media (min-width: 1345px) {
+    .info-panel {
+        right: 50%;
+        transform: translateX(256%);
+    }
+}
+
+    /*.file-input-area {
     height: 32px;
 }*/
