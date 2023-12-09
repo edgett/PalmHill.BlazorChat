@@ -90,7 +90,7 @@ namespace PalmHill.Llama
         /// </summary>
         /// <param name="chatConversation">The <see cref="ChatConversation"/> to get the parameters from.</param>
         /// <returns>The <see cref="InferenceParams"/> for the conversation.</returns>
-        public static InferenceParams GetInferenceParams(this ChatConversation chatConversation, string[]? defaultAntiPrompts = null)
+        public static InferenceParams GetInferenceParams(this ChatConversation chatConversation, List<string>? defaultAntiPrompts = null)
         {
             var inferenceParams = new InferenceParams()
             {
@@ -156,7 +156,10 @@ namespace PalmHill.Llama
 
         public static ModelConfig? GetModelConfigFromConfigSection(this IHostApplicationBuilder builder, string configSection)
         {
-            var appSettingsConfig = builder?.Configuration.GetSection(configSection).Get<ModelConfig>();
+            var appConfig = builder?.Configuration.GetSection(configSection);
+            var appSettingsConfig = appConfig?.Get<ModelConfig>();
+            appSettingsConfig!.AntiPrompts = appConfig?.GetSection("AntiPrompts").Get<List<string>>() ?? [];
+
             return appSettingsConfig;
         }
     }

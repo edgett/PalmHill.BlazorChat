@@ -12,6 +12,6 @@ namespace PalmHill.Llama.Models
         public int GpuLayerCount { get; set; } = 20;
         public uint ContextSize { get; set; } = 2048;
         public int Gpu { get; set; } = 0;
-        public string[] AntiPrompts = [];
+        public List<string> AntiPrompts = [];
     }
 }

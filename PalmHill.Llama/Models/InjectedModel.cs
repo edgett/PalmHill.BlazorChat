@@ -12,9 +12,9 @@ namespace PalmHill.Llama.Models
     {
         public LLamaWeights Model { get; }
         public ModelParams ModelParams { get;  }
-        public string[] DefaultAntiPrompts { get; set; }
+        public List<string> DefaultAntiPrompts { get; set; }
 
-        public InjectedModel(LLamaWeights model, ModelParams modelParams, string[] defaultAntiPrompts)
+        public InjectedModel(LLamaWeights model, ModelParams modelParams, List<string> defaultAntiPrompts)
         {
             Model = model;
             ModelParams = modelParams;
