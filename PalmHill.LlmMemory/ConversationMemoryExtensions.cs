@@ -18,7 +18,7 @@ namespace PalmHill.LlmMemory
     public static class ConversationMemoryExtensions
     {
 
-        public static ConversationMemory AddConversationMemory(this IHostApplicationBuilder builder, ModelConfig? modelConfig = null)
+        public static ServerlessLlmMemory AddLlmMemory(this IHostApplicationBuilder builder, ModelConfig? modelConfig = null)
         {
             var defaultModelConfigSection = "EmbeddingModelConfig";
 
@@ -51,10 +51,10 @@ namespace PalmHill.LlmMemory
             .Build<MemoryServerless>();
             
             
-            var conversationMemory = new ConversationMemory(memory);
-            builder.Services.AddSingleton(conversationMemory);
+            var llmMemory = new ServerlessLlmMemory(memory);
+            builder.Services.AddSingleton(llmMemory);
 
-            return conversationMemory;
+            return llmMemory;
         }
 
 

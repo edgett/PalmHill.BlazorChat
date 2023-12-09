@@ -4,9 +4,9 @@ using System.Collections.Concurrent;
 
 namespace PalmHill.LlmMemory
 {
-    public class ConversationMemory
+    public class ServerlessLlmMemory
     {
-        public ConversationMemory(IKernelMemory kernelMemory)
+        public ServerlessLlmMemory(IKernelMemory kernelMemory)
         {
             KernelMemory = kernelMemory;
         }
