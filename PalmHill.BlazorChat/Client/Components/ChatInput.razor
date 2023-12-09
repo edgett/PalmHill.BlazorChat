@@ -1,27 +1,49 @@
-﻿@using PalmHill.BlazorChat.Shared.Models
+﻿@using Microsoft.AspNetCore.Components.Forms
+@using PalmHill.BlazorChat.ApiClient
+@using PalmHill.BlazorChat.Shared.Models
+@using Refit
 @inject IDialogService DialogService
 @inject IJSRuntime JSRuntime
 @inject ThemeControl ThemeControl
+@inject BlazorChatApi BlazorChatApi
 
+<FluentFooter Class="w-100" Style="position:fixed; bottom:15px;">
+    <FluentStack Class="chat-messages input-area">
+        <div>
 
-<FluentFooter Class="w-100" Style="position:fixed; bottom:0px;">
-    <FluentStack Class="chat-messages">
-        <div>
-            <FluentButton OnClick="ShowSettings" IconStart="(new Icons.Regular.Size24.SettingsChat())" Style="margin-top:6px;"></FluentButton>
+            @*Not wrapping this in an if block. Use css to hide. FluentInputFile won't work if the element disappears from the DOM. *@
+            <FluentButton Id="uploadButton" Class="@((progressPercent == 0 || progressPercent == 100) ? string.Empty : "hidden")" IconStart="(new Icons.Regular.Size24.Attach())" Style="margin-top:6px;"></FluentButton>
+
+            @if (progressPercent > 0 && progressPercent < 100)
+            {
+                <FluentProgressRing @bind-Value="@progressPercent" Label="@progressTitle" Style="height:32px; margin-top:6px" />
+
+            }
+
         </div>
-        <div style="flex-grow:1;">
-            <textarea placeholder="Enter a prompt. Use Shift+Enter for a new line." rows="1" @ref="textAreaElement" @bind="messageInput" class="textarea-fluent-ui main-textarea" @onkeyup="HandleKeyPress" @bind:event="oninput"></textarea>
+        <div style="flex-grow:1;" class="min-h-100">
+            <textarea placeholder="Enter a prompt. Use Shift+Enter for a new line." rows="1" @ref="textAreaElement" @bind="messageInput" class="main-textarea" @onkeyup="HandleKeyPress" @bind:event="oninput"></textarea>
         </div>
         <div>
-            <FluentButton @ref="sendButton" OnClick="Send" Appearance="Appearance.Accent" IconStart="(new Icons.Regular.Size24.Send())" Style="margin-top:6px;">Send</FluentButton>
+            <FluentButton @ref="sendButton" OnClick="Send" Appearance="Appearance.Accent" IconStart="(new Icons.Regular.Size24.Send())" Style="margin-top:6px;"></FluentButton>
         </div>
     </FluentStack>
 </FluentFooter>
+
+<FluentInputFile DragDropZoneVisible="false"
+                 Mode="InputFileMode.Stream"
+                 Multiple="true"
+                 AnchorId="uploadButton"
+                 MaximumFileSize="@(100 * 1024 * 1024)"
+                 OnInputFileChange="UploadFiles" />
 
 @code {
     private ElementReference textAreaElement;
     private string messageInput = string.Empty;
     private FluentButton? sendButton;
+    private int progressPercent = 0;
+    private string progressTitle = string.Empty;
+
     private Chat? _chatRenderer;
     public Chat? ChatRenderer { get { return _chatRenderer; } }
     public UISettings UISettings { get; set; } = new UISettings();
@@ -31,7 +53,7 @@
         _chatRenderer = chat;
     }
 
-    private async Task ShowSettings()
+    public async Task ShowSettings()
     {
 
         DialogParameters<UISettings> parameters = new()
@@ -103,5 +125,24 @@
     private async Task SizeTextArea()
     {
         await JSRuntime.InvokeVoidAsync("textAreaAdjust", textAreaElement);
+    }
+
+    private async Task UploadFiles(InputFileChangeEventArgs e)
+    {
+        if (ChatRenderer == null)
+        {
+            return;
+        }
+        progressPercent = 10;
+        var files = e.GetMultipleFiles();
+        var uploadedCount = 0;
+        foreach (var file in files)
+        {
+            var stream = file.OpenReadStream();
+            var streamPart = new StreamPart(stream, file.Name, file.ContentType);
+            var attachmentInfo = await BlazorChatApi.Attachment.AddAttachment(ChatRenderer.ConversationId.ToString(), streamPart);
+            uploadedCount++;
+            progressPercent = (int)((uploadedCount / (double)files.Count()) * 100);
+        }
     }
 }

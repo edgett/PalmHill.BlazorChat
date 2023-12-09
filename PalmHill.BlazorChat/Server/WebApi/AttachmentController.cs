@@ -23,8 +23,8 @@ namespace PalmHill.BlazorChat.Server.WebApi
             WebSocketChat = webSocketChat;
         }
 
-        [HttpGet("{conversationId}")]
-        public IEnumerable<AttachmentInfo> GetConversationAttachments(string conversationId)
+        [HttpGet("list/{conversationId}")]
+        public IEnumerable<AttachmentInfo> GetAttachments(string conversationId)
         {
             var conversationAttachments = ConversationMemory
                 .AttachmentInfos
@@ -34,8 +34,8 @@ namespace PalmHill.BlazorChat.Server.WebApi
             return conversationAttachments;
         }
 
-        [HttpGet("{conversationId}/{attachmentId}")]
-        public ActionResult<AttachmentInfo> GetAttachmentById(string conversationId, string attachmentId)
+        [HttpGet("{attachmentId}")]
+        public ActionResult<AttachmentInfo> GetAttachmentById(string attachmentId)
         {
             var attchmentFound = ConversationMemory.AttachmentInfos.TryGetValue(attachmentId, out var attachmentInfo);
 
@@ -44,16 +44,10 @@ namespace PalmHill.BlazorChat.Server.WebApi
                 return NotFound();
             }
 
-            if (attachmentInfo?.ConversationId == conversationId)
-            { 
-                return attachmentInfo;
-            }
-            else
-            {
-                return NotFound();
-            }
-
+            return Ok(attachmentInfo);
         }
+
+
 
         public class FileUpload
         {
@@ -62,7 +56,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
 
         // POST api/<AttachmentController>
         [HttpPost("{conversationId}")]
-        public ActionResult<AttachmentInfo> Post([FromForm] FileUpload fileUpload, string conversationId)
+        public ActionResult<AttachmentInfo> AddAttachment([FromForm] FileUpload fileUpload, string conversationId)
         {
             var file = fileUpload.File;
 
@@ -82,7 +76,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
             };
             var userId = Request.Headers["UserId"].SingleOrDefault();
             _ = DoImport(userId, attachmentInfo);
-            
+
             return attachmentInfo;
         }
 
@@ -100,11 +94,11 @@ namespace PalmHill.BlazorChat.Server.WebApi
         }
 
         // DELETE api/<AttachmentController>/5
-        [HttpDelete("{conversationId}/{AttachmentId}")]
-        public async Task Delete(string conversationId, string attachmentId)
+        [HttpDelete("{AttachmentId}")]
+        public async Task DeleteAttachment(string conversationId, string attachmentId)
         {
-            await ConversationMemory.DeleteDocument(conversationId, attachmentId);
+            var attachmentConversation = ConversationMemory.AttachmentInfos.SingleOrDefault(a => a.Value.ConversationId == conversationId);
+            await ConversationMemory.DeleteDocument(attachmentConversation.Value.ConversationId, attachmentId);
         }
-
     }
 }

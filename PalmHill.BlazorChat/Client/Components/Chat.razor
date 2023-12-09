@@ -49,6 +49,7 @@
 
     private HubConnection? hubConnection;
     private List<ModelResponse> modelResponses = new List<ModelResponse>();
+    public Guid ConversationId { get; set; } = Guid.NewGuid();
 
     protected override async Task OnInitializedAsync()
     {

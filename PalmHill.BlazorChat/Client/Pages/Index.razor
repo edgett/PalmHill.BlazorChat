@@ -1,5 +1,13 @@
 ﻿@page "/"
 
+<FluentHeader Class="chat-header">
+    <FluentButton OnClick="ChatInput!.ShowSettings" IconStart="(new Icons.Regular.Size24.SettingsChat())"></FluentButton>
+    <FluentSpacer />
+    Blazor Chat
+    <FluentSpacer />
+    <FluentAnchor Href="/swagger" Target="_blank">API</FluentAnchor>
+</FluentHeader>
+
 <div class="chat-box">
     <Chat @ref="ChatRenderer">
     </Chat>

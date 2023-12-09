@@ -53,12 +53,21 @@ h1:focus {
 
 
 .main-textarea {
-    width:100%;
-    height:46px;
+    width: 100%;
+    height: 100%;
+    min-height:40px;
     border-radius: 10px 10px;
-    overflow:hidden;
-    margin-bottom:10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    margin: 0px 0px;
+    padding: 0px 0px;
+    border: none;
+    font-size: 16px;
+    outline: none;
+    line-height: 1.5;
 }
+
+
 
 #app, html, body {
     height: 100%;
@@ -73,6 +82,10 @@ h1:focus {
 
 .w-100 {
     width:100%;
+}
+
+.min-h-100 {
+    min-height: 100%;
 }
 
 .chat-messages {
@@ -119,3 +132,16 @@ h1:focus {
     display: none !important;
 }
 
+.input-area {
+    border: 3px solid #FF69B4;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-height: 46px;
+    border-radius: 10px 10px;
+    padding-left:10px;
+    padding-right:10px;
+
+}
+
+.hidden {
+    display: none;
+}
