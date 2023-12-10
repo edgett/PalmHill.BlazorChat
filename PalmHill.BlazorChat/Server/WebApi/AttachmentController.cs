@@ -70,6 +70,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
 
             var attachmentInfo = new AttachmentInfo()
             {
+                Id = attachmentId,
                 Name = file.FileName,
                 ContentType = file.ContentType,
                 Size = file.Length,
@@ -77,13 +78,13 @@ namespace PalmHill.BlazorChat.Server.WebApi
                 ConversationId = conversationId,
                 FileBytes = file.OpenReadStream().ReadAllBytes()
             };
-            var userId = Request.Headers["UserId"].SingleOrDefault();
-            _ = DoImport(userId, attachmentInfo);
+            var userId = "user1";
+            _ = DoImportAsync(userId, attachmentInfo);
 
             return attachmentInfo;
         }
 
-        private async Task DoImport(string? userId, AttachmentInfo attachmentInfo)
+        private async Task DoImportAsync(string? userId, AttachmentInfo attachmentInfo)
         {
             await LlmMemory.ImportDocumentAsync(attachmentInfo);
 

@@ -68,6 +68,8 @@
         progressPercent = 10;
         var files = e.GetMultipleFiles();
         var uploadedCount = 0;
+        var uploadTasks = new List<Task>();
+
         foreach (var file in files)
         {
             var attachmentInfo = new AttachmentInfo();
@@ -78,19 +80,36 @@
             attachmentInfo.Status = AttachmentStatus.Pending;
 
             UiComponents?.ChatInput?.UploadedFiles.Add(attachmentInfo);
-            var stream = file.OpenReadStream(10000000);
-            var streamPart = new StreamPart(stream, file.Name, file.ContentType);
-            var apiResponse = await BlazorChatApi.Attachment.AddAttachment("test1z", attachmentInfo.Id, streamPart);
-            uploadedCount++;
-            progressPercent = (int)((uploadedCount / (double)files.Count()) * 100);
 
-            if (!apiResponse.IsSuccessStatusCode)
+            var uploadTask = new Task(async () =>
             {
-                attachmentInfo.Status = AttachmentStatus.Failed;
-                continue;
-            }
-            // Fake for now. Should be set by websocket. When file is complted processing.
-            attachmentInfo.Status = AttachmentStatus.Uploaded;
+                var stream = file.OpenReadStream(10000000);
+                var streamPart = new StreamPart(stream, file.Name, file.ContentType);
+                var apiResponse = await BlazorChatApi.Attachment.AddAttachment(UiComponents?.ChatRenderer?.ConversationId.ToString() ?? "", attachmentInfo.Id, streamPart);
+                uploadedCount++;
+                progressPercent = (int)((uploadedCount / (double)files.Count()) * 100);
+
+                if (!apiResponse.IsSuccessStatusCode)
+                {
+                    attachmentInfo.Status = AttachmentStatus.Failed;
+                }
+            });
+
+            uploadTasks.Add(uploadTask);
+        }
+
+        foreach (var uploadTask in uploadTasks)
+        {
+            uploadTask.Start();
+            await uploadTask;
         }
     }
+
+    public void UploadStatusChanged(string attachmentId, AttachmentStatus newStatus)
+    {
+        var currentAttachment = UiComponents?.ChatInput?.UploadedFiles.SingleOrDefault(a => a.Id == attachmentId);
+        currentAttachment!.Status = newStatus;
+        StateHasChanged();
+    }
+
 }

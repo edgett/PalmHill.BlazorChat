@@ -8,14 +8,15 @@
 
 
 
-    <FluentPresenceBadge Style="width:100%;" Status="presenceStatus" StatusTitle="presenceLabel">
+    <FluentPresenceBadge Style="width:100%;" Status="presenceStatus" StatusTitle="@presenceLabel">
         <FluentCard Style="width:100%; padding:3px 3px" >
             <div>
                 @Attachment.Name
             </div>
             <FluentButton IconStart="@(new Icons.Regular.Size16.Delete())"
                           Loading="@loading"
-                          OnClick="@DeleteAttachment">
+                          OnClick="@DeleteAttachment" 
+                          Title="Delete">
             </FluentButton>
             
         </FluentCard>
@@ -44,6 +45,7 @@
 
         try
         {
+            loading = true;
             await BlazorChatApi.Attachment.DeleteAttachment(Attachment.Id);
             await OnFileDeleted.InvokeAsync(Attachment);
 
@@ -52,6 +54,8 @@
         {
             Console.WriteLine($"Failed to delete attachment. {ex}");
         }
+
+        loading = false;
     }
 
     public PresenceStatus presenceStatus
@@ -94,8 +98,9 @@
                 _ => "Failed"
             };
 
-            return presenceLabel;
+            return presenceStatus;
         }
     }
+
 
 }

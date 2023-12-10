@@ -16,12 +16,12 @@ using PalmHill.Llama.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Initlize Llama
-//builder.AddLlamaModel();
+builder.AddLlamaModel();
 // End Initlize Llama
 
 
 // Initiaize Memory
-//builder.AddLlmMemory();
+builder.AddLlmMemory();
 // End Initiaize Memory
 
 

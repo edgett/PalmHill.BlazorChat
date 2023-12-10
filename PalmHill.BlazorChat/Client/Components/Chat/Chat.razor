@@ -27,10 +27,8 @@
                 <div style="position:relative;">
                     <FluentIcon Value="@(new Icons.Regular.Size24.LightbulbPerson())" />
 
-                    <FluentProgressRing 
-                        Visible="!mr.IsComplete" 
-                        Style="height:24px; width:24px; position:absolute; top:0px; left:0px;"
-                    ></FluentProgressRing>
+                    <FluentProgressRing Visible="!mr.IsComplete"
+                                        Style="height:24px; width:24px; position:absolute; top:0px; left:0px;"></FluentProgressRing>
                 </div>
 
                 <div>
@@ -49,8 +47,11 @@
 @code
 {
 
+    [Parameter]
+    public ChatComponents? UiComponents { get; set; }
 
-    private HubConnection? hubConnection;
+
+    public HubConnection? hubConnection;
     private List<ModelResponse> modelResponses = new List<ModelResponse>();
     public Guid ConversationId { get; set; } = Guid.NewGuid();
 
@@ -75,6 +76,12 @@
 
             InvokeAsync(StateHasChanged);
         });
+
+        hubConnection.On<AttachmentInfo>("AttachmentStatusUpdate", (attachmentInfo) =>
+             {
+                 UiComponents?.AttachmentManager?.FileInput?.UploadStatusChanged(attachmentInfo.Id, attachmentInfo.Status);
+             });
+
 
         await hubConnection.StartAsync();
     }
