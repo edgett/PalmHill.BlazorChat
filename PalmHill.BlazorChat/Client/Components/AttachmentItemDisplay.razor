@@ -5,16 +5,10 @@
 @if (Attachment != null)
 {
 
-    var presenceStatus = Attachment.Status switch
-    {
-        AttachmentStatus.Pending => PresenceStatus.Away,
-        AttachmentStatus.Uploaded => PresenceStatus.Available,
-        AttachmentStatus.Failed => PresenceStatus.Busy,
-        _ => PresenceStatus.Busy
-    };
 
 
-    <FluentPresenceBadge Style="width:100%;" Status="presenceStatus">
+
+    <FluentPresenceBadge Style="width:100%;" Status="presenceStatus" StatusTitle="presenceLabel">
         <FluentCard Style="width:100%; padding:3px 3px" >
             <div>
                 @Attachment.Name
@@ -37,7 +31,7 @@
     public AttachmentInfo? Attachment { get; set; }
 
     [Parameter]
-    public EventCallback<AttachmentInfo>? OnFileDeleted { get; set; }
+    public EventCallback<AttachmentInfo> OnFileDeleted { get; set; }
 
     bool loading = false;
 
@@ -48,14 +42,60 @@
             return; 
         }
 
-        await BlazorChatApi.Attachment.DeleteAttachment(Attachment.Id);
+        try
+        {
+            await BlazorChatApi.Attachment.DeleteAttachment(Attachment.Id);
+            await OnFileDeleted.InvokeAsync(Attachment);
 
-        if (OnFileDeleted == null) 
-        { 
-            return; 
         }
-        await OnFileDeleted?.InvokeAsync(Attachment);
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to delete attachment. {ex}");
+        }
+    }
 
+    public PresenceStatus presenceStatus
+    {
+        get
+        {
+            if (Attachment == null)
+            {
+                return PresenceStatus.Busy;
+
+            }
+
+            var presenceStatus = Attachment.Status switch
+            {
+                AttachmentStatus.Pending => PresenceStatus.Away,
+                AttachmentStatus.Uploaded => PresenceStatus.Available,
+                AttachmentStatus.Failed => PresenceStatus.Busy,
+                _ => PresenceStatus.Busy
+            };
+
+            return presenceStatus;
+        }
+    }
+
+    public string presenceLabel
+    {
+        get
+        {
+            if (Attachment == null)
+            {
+                return "";
+
+            }
+
+            var presenceStatus = Attachment.Status switch
+            {
+                AttachmentStatus.Pending => "Pending",
+                AttachmentStatus.Uploaded => "Ready",
+                AttachmentStatus.Failed => "Failed",
+                _ => "Failed"
+            };
+
+            return presenceLabel;
+        }
     }
 
 }

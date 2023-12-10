@@ -33,17 +33,12 @@
     </div>
 </FluentInputFile>
 
-
-<FluentLabel Alignment="HorizontalAlignment.Center">
-    @progressTitle
-</FluentLabel>
-
 @if (UiComponents?.ChatInput?.UploadedFiles.Any() ?? false)
 {
     <div>
         @foreach (var file in UiComponents.ChatInput.UploadedFiles)
         {
-                <AttachmentItemDisplay OnFileDeleted="onFileDeleted" Attachment="file"></AttachmentItemDisplay>
+            <AttachmentItemDisplay OnFileDeleted="FileDeletedHandler" Attachment="file"></AttachmentItemDisplay>
         }
     </div>
 }
@@ -57,11 +52,14 @@
 
 
     int? progressPercent;
-    string? progressTitle;
-
-    private void onFileDeleted(AttachmentInfo a)
+    private void FileDeletedHandler(AttachmentInfo deletedAttachment)
     {
-        UiComponents.ChatInput.UploadedFiles.Remove(a);
+        if (UiComponents?.ChatInput == null)
+        {
+            return;
+        }
+
+        UiComponents.ChatInput.UploadedFiles.Remove(deletedAttachment);
     }
 
 
