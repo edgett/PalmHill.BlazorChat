@@ -86,15 +86,17 @@ namespace PalmHill.BlazorChat.Server.WebApi
 
         private async Task DoImportAsync(string? userId, AttachmentInfo attachmentInfo)
         {
-            await LlmMemory.ImportDocumentAsync(attachmentInfo);
-
-            if (string.IsNullOrWhiteSpace(userId))
+            try
             {
-                Console.WriteLine($"UserId is null/empty. AttachmentId: {attachmentInfo.Id}");
-                return;
-            }
+                await LlmMemory.ImportDocumentAsync(attachmentInfo, null, ThreadLock.InferenceLock);
+                await WebSocketChat.Clients.User(userId!).SendCoreAsync("AttachmentStatusUpdate", [attachmentInfo]);
 
-            await WebSocketChat.Clients.User(userId).SendCoreAsync("AttachmentStatusUpdate", [attachmentInfo]);
+            }
+            catch (Exception ex)
+            {
+                attachmentInfo.Status = AttachmentStatus.Failed;
+                await WebSocketChat.Clients.User(userId!).SendCoreAsync("AttachmentStatusUpdate", [attachmentInfo]);
+            }
         }
 
         // DELETE api/<AttachmentController>/5

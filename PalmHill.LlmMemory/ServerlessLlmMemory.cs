@@ -21,11 +21,12 @@ namespace PalmHill.LlmMemory
 
         public async Task<AttachmentInfo> ImportDocumentAsync(
             AttachmentInfo attachmentInfo,
-            TagCollection? tagCollection = null
+            TagCollection? tagCollection = null,
+            SemaphoreSlim? inferenceLock = null
             )
         {
             if (attachmentInfo.FileBytes == null)
-            { 
+            {
                 throw new InvalidOperationException("FileBytes is null");
             }
 
@@ -36,14 +37,32 @@ namespace PalmHill.LlmMemory
 
             attachmentInfo.Size = attachmentInfo.FileBytes.LongLength;
 
+            inferenceLock?.Wait();
             attachmentImportLock.Wait();
+
             var stream = new MemoryStream(attachmentInfo.FileBytes);
-            var documentId = await KernelMemory.ImportDocumentAsync(stream,
-                attachmentInfo.Name,
-                attachmentInfo.Id,
-                tagCollection,
-                attachmentInfo.ConversationId);
-            attachmentImportLock.Release();
+            var documentId = string.Empty;
+            try
+            {
+              documentId   = await KernelMemory.ImportDocumentAsync(stream,
+              attachmentInfo.Name,
+              attachmentInfo.Id,
+              tagCollection,
+              attachmentInfo.ConversationId);
+            }
+            catch (Exception ex)
+            {
+                attachmentInfo.Status = AttachmentStatus.Failed;
+                Console.WriteLine(ex);
+            }
+            finally
+            {
+                inferenceLock?.Release();
+                attachmentImportLock.Release();
+            }
+
+
+
             if (documentId == null)
             {
                 attachmentInfo.Status = AttachmentStatus.Failed;
@@ -51,12 +70,12 @@ namespace PalmHill.LlmMemory
 
 
             while (attachmentInfo.Status == AttachmentStatus.Pending)
-            { 
+            {
                 await UpdateAttachmentStatus(attachmentInfo);
 
                 if (
                     attachmentInfo.Status == AttachmentStatus.Uploaded
-                    || 
+                    ||
                     attachmentInfo.Status == AttachmentStatus.Failed
                    )
                 {
@@ -71,10 +90,10 @@ namespace PalmHill.LlmMemory
 
         public async Task UpdateAttachmentStatus(AttachmentInfo attachmentInfo)
         {
-           var isDocReady = await KernelMemory.IsDocumentReadyAsync(attachmentInfo.Id, attachmentInfo.ConversationId);
+            var isDocReady = await KernelMemory.IsDocumentReadyAsync(attachmentInfo.Id, attachmentInfo.ConversationId);
 
             if (attachmentInfo != null && attachmentInfo?.Status != AttachmentStatus.Failed)
-            { 
+            {
                 attachmentInfo!.Status = isDocReady ? AttachmentStatus.Uploaded : AttachmentStatus.Pending;
             }
         }
@@ -86,7 +105,7 @@ namespace PalmHill.LlmMemory
 
 
             return true;
-        }   
+        }
 
         public async Task<SearchResult> SearchAsync(string conversationId, string query)
         {
@@ -100,7 +119,7 @@ namespace PalmHill.LlmMemory
             var results = await KernelMemory.AskAsync(query, conversationId);
 
             return results;
-        }   
+        }
 
     }
 }
