@@ -21,7 +21,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 // Initiaize Memory
-builder.AddLlmMemory();
+//builder.AddLlmMemory();
 // End Initiaize Memory
 
 

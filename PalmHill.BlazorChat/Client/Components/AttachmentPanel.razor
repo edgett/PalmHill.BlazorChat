@@ -2,10 +2,14 @@
 @using PalmHill.BlazorChat.Shared.Models
 @implements IDialogContentComponent<ConcurrentDictionary<string, AttachmentInfo>>
 
+
 <FluentDialogBody>
     <h3>Hello @Content.Count </h3>
+    <FileInput>
+
+    </FileInput>
     
-    <div>
+    @* <div>
         <ul>
             @foreach (var item in Content)
             {
@@ -13,7 +17,7 @@
             }
         </ul>
 
-    </div>
+    </div> *@
 </FluentDialogBody>
 
 @code {

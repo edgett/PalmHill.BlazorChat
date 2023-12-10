@@ -1,0 +1,138 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@using PalmHill.BlazorChat.ApiClient
+@using PalmHill.BlazorChat.Shared.Models
+@using Refit
+@inject BlazorChatApi BlazorChatApi
+
+
+<FluentInputFile @ref="@myFileByBuffer"
+                 AnchorId="MyUploadBuffer"
+                 DragDropZoneVisible="true"
+                 Mode="InputFileMode.Stream"
+                 Multiple="true"
+                 MaximumFileSize="100000"
+                 OnInputFileChange="UploadFiles"
+                 Class="file-upload-container">
+                 
+    <div>
+        <h5>Drag and Drop Files</h5>
+        <br />
+        <FluentButton Appearance="Appearance.Accent" Id="MyUploadBuffer">
+            Select Files
+        </FluentButton>
+    </div>
+</FluentInputFile>
+
+<style>
+    .file-upload-container {
+        border: 2px dashed #ccc;
+        border-radius: 5px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        position: relative;
+    }
+</style>
+
+<FluentProgress Visible="@(progressPercent > 0)" Min="0" Max="100" Value="@progressPercent" />
+<FluentLabel Alignment="HorizontalAlignment.Center">
+    @progressTitle
+</FluentLabel>
+
+<FluentButton @onclick="@((e) => IsCanceled = true)">
+    Cancel
+</FluentButton>
+
+@if (PendingUploadFiles.Any())
+{
+    <h4>Pending Upload</h4>
+    <ul>
+        @foreach (var file in PendingUploadFiles)
+        {
+            <li>
+                @file.Name
+            </li>
+        }
+    </ul>
+}
+
+@if (UploadedFiles.Any())
+{
+    <h4>Uploaded</h4>
+    <ul>
+        @foreach (var file in UploadedFiles)
+        {
+            <li>
+                @file.Name
+            </li>
+        }
+    </ul>
+}
+
+@code
+{
+    FluentInputFile? myFileByBuffer = default!;
+    int? progressPercent;
+    string? progressTitle;
+    bool IsCanceled;
+    List<AttachmentInfo> UploadedFiles = new List<AttachmentInfo>();
+    List<IBrowserFile> PendingUploadFiles = new List<IBrowserFile>();
+
+    private async Task UploadFiles(InputFileChangeEventArgs e)
+    {
+        progressPercent = 10;
+        var files = e.GetMultipleFiles();
+        var uploadedCount = 0;
+        foreach (var file in files)
+        {
+            PendingUploadFiles.Add(file);
+            var stream = file.OpenReadStream(10000000);
+            var streamPart = new StreamPart(stream, file.Name, file.ContentType);
+            var apiResponse = await BlazorChatApi.Attachment.AddAttachment("test1z", streamPart);
+            uploadedCount++;
+            PendingUploadFiles.Remove(file);
+
+            progressPercent = (int)((uploadedCount / (double)files.Count()) * 100);
+            var attachmentInfo = apiResponse.Content;
+
+            if (attachmentInfo == null)
+            {
+                continue;
+            }
+            UploadedFiles.Add(attachmentInfo);
+
+
+        }
+    }
+
+    // async Task OnProgressChangeAsync(FluentInputFileEventArgs file)
+    // {
+    //     progressPercent = file.ProgressPercent;
+    //     progressTitle = file.ProgressTitle;
+
+    //     // To cancel?
+    //     file.IsCancelled = IsCanceled;
+
+    //     // New file
+    //     if (!Files.ContainsKey(file.Index))
+    //     {
+    //         var localFile = Path.GetTempFileName() + file.Name;
+    //         Files.Add(file.Index, localFile);
+    //     }
+
+    //     // Write to the FileStream
+    //     await file.Buffer.AppendToFileAsync(Files[file.Index]);
+    // }
+
+    // void OnCompleted(IEnumerable<FluentInputFileEventArgs> files)
+    // {
+    //     progressPercent = myFileByBuffer!.ProgressPercent;
+    //     progressTitle = myFileByBuffer!.ProgressTitle;
+
+    //     // For the demo, delete these files.
+    //     foreach (var file in Files)
+    //     {
+    //         File.Delete(file.Value);
+    //     }
+    
+}
