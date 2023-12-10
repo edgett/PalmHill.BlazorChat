@@ -1,18 +1,17 @@
 ﻿@inherits LayoutComponentBase
 
-
-<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Top" Class="info-panel" Width="250px">
-    <div style="width: 100%;">
-        <FluentLabel Typo="Typography.PaneHeader">@Title</FluentLabel>
+<FluentStack Orientation="Orientation.Vertical" Class="info-panel control" Width="250px">
+  <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Top">
+        <div style="width: 100%;">
+            <FluentLabel Typo="Typography.PaneHeader">@Title</FluentLabel>
         </div>
-        <FluentButton Appearance="Appearance.Stealth" IconStart="(new Icons.Regular.Size24.Dismiss())">
+        <FluentButton Appearance="Appearance.Stealth">
+                <FluentIcon Value="(new Icons.Regular.Size24.Dismiss())" T />
         </FluentButton>
     </FluentStack>
 
-    <FluentBodyContent>
-        @Body
-</FluentBodyContent>
-
+    <FluentBodyContent>@Body</FluentBodyContent>
+</FluentStack>
 
 
 @code {
