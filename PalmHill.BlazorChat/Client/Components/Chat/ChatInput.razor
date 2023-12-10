@@ -83,6 +83,7 @@
     public List<AttachmentInfo> SelectedFiles = new List<AttachmentInfo>();
     public List<AttachmentInfo> UploadedFiles = new List<AttachmentInfo>();
     public bool Loading { get; set; } = false;
+    public bool IsAttachmentMode { get; set; } = false;
 
     public async Task ShowSettings()
     {

@@ -116,9 +116,17 @@ namespace PalmHill.LlmMemory
 
         public async Task<MemoryAnswer> Ask(string conversationId, string query)
         {
-            var results = await KernelMemory.AskAsync(query, conversationId);
+            var processedQuery = processQuery(query);
+            var results = await KernelMemory.AskAsync(processedQuery, conversationId);
 
             return results;
+        }
+
+        private string processQuery(string query)
+        {
+            var processedQuery = query.Trim();
+
+            return processedQuery;
         }
 
     }

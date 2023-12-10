@@ -106,6 +106,7 @@
             StateHasChanged();
 
             var chatConversation = GetChatConversation(modelResponses);
+            chatConversation.Id = ConversationId.ToString();
             chatConversation.Settings = inferenceSettings;
             chatConversation.SystemMessage = inferenceSettings.SystemMessage;
             await hubConnection.SendAsync("SendPrompt", newMessage.PromptId, chatConversation);

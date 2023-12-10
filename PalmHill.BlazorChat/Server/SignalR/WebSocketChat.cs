@@ -7,6 +7,7 @@ using System.Web;
 using PalmHill.Llama;
 using System.Diagnostics;
 using PalmHill.Llama.Models;
+using PalmHill.LlmMemory;
 
 namespace PalmHill.BlazorChat.Server.SignalR
 {
@@ -16,11 +17,13 @@ namespace PalmHill.BlazorChat.Server.SignalR
     /// </summary>
     public class WebSocketChat : Hub
     {
-        public WebSocketChat(InjectedModel injectedModel)
+        public WebSocketChat(InjectedModel injectedModel, LlmMemory.ServerlessLlmMemory llmMemory)
         {
             InjectedModel = injectedModel;
+            LlmMemory = llmMemory;
         }
         private InjectedModel InjectedModel { get; }
+        private ServerlessLlmMemory LlmMemory { get; }
 
         /// <summary>
         /// Sends a chat prompt to the client and waits for a response. The method performs inference on the chat conversation and sends the result back to the client.
@@ -35,7 +38,9 @@ namespace PalmHill.BlazorChat.Server.SignalR
 
             try
             {
-                await DoInferenceAndRespondToClient(Clients.Caller, messageId, chatConversation);
+                var answer = await LlmMemory.Ask(chatConversation.Id, chatConversation.ChatMessages.Last().Message);
+                await Clients.Caller.SendAsync("ReceiveModelString", messageId, answer.Result);
+                //await DoInferenceAndRespondToClient(Clients.Caller, messageId, chatConversation);
 
             }
             catch (Exception ex)

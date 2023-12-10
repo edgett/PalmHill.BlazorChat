@@ -1,4 +1,9 @@
 ﻿<InfoPanel @ref="InfoPanel" Title="Attachments">
+    <FluentSwitch 
+        
+                  Value="isEnabled"
+                  Label="Enable"></FluentSwitch>
+
     <FileInput @ref="FileInput" UiComponents="UiComponents">
     </FileInput>
 </InfoPanel>
@@ -7,8 +12,25 @@
 
     [Parameter]
     public ChatComponents? UiComponents { get; set; }
-
-
     public InfoPanel? InfoPanel { get; set; }
     public FileInput? FileInput { get; set; }
+
+    // public void setEnabled(bool enabled)
+    // {
+    //     UiComponents!.ChatInput!.IsAttachmentMode = true;
+    // }
+
+    private bool isEnabled
+    {
+        get
+        {
+            var enabled = UiComponents?.ChatInput?.IsAttachmentMode ?? false;
+            return enabled;
+        }
+        set
+        {
+            UiComponents!.ChatInput!.IsAttachmentMode = value;
+        }
+    }
+};
 }
