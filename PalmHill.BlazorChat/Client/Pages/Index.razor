@@ -1,43 +1,42 @@
 ﻿@page "/"
 
 <FluentHeader Class="chat-header">
-    <FluentButton 
-        OnClick="ChatInput!.ShowSettings" 
-        IconStart="(new Icons.Regular.Size24.SettingsChat())"
-    ></FluentButton>
+    <FluentButton OnClick="MainChatComponents.ChatInput!.ShowSettings"
+                  IconStart="(new Icons.Regular.Size24.SettingsChat())"></FluentButton>
     <FluentSpacer />
     Blazor Chat
     <FluentSpacer />
     <FluentAnchor Href="/swagger" Target="_blank">API</FluentAnchor>
 </FluentHeader>
 
+
 <div class="chat-box">
-    <Chat @ref="ChatRenderer">
+    <Chat @ref="MainChatComponents.ChatRenderer">
     </Chat>
 
-    <ChatInput @ref="ChatInput">
+    <ChatInput @ref="MainChatComponents.ChatInput" UiComponents="MainChatComponents">
     </ChatInput>
 </div>
 
-<InfoPanel Title="Hi World">
-    <FileInput>
+<AttachmentManager @ref="MainChatComponents.AttachmentManager">
+</AttachmentManager>
 
-    </FileInput>
-</InfoPanel>
+
 
 @code
 {
-    private Chat? ChatRenderer { get; set; }
-    private ChatInput? ChatInput { get; set; }
+
+    public ChatComponents MainChatComponents { get; set; } = new ChatComponents();
 
     protected override void OnAfterRender(bool firstRender)
     {
 
-        if (firstRender && ChatRenderer != null)
+        if (firstRender && MainChatComponents.ChatRenderer != null)
         {
-            ChatInput?.AttachToChat(ChatRenderer);
+            StateHasChanged();
         }
     }
+
 }
 
 

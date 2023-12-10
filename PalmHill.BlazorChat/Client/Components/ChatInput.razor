@@ -62,29 +62,19 @@
     </FluentStack>
 </FluentFooter>
 
-@* <FluentInputFile DragDropZoneVisible="false"
-                 Mode="InputFileMode.Stream"
-                 Multiple="true"
-                 AnchorId="uploadButton"
-                 MaximumFileSize="@(100 * 1024 * 1024)"
-                 OnInputFileChange="UploadFiles" />
- *@
+
 @code {
+    [Parameter]
+    public ChatComponents? UiComponents { get; set; }
+
+
     private ElementReference textAreaElement;
     private string messageInput = string.Empty;
     private FluentButton? sendButton;
     private int progressPercent = 0;
     private string progressTitle = string.Empty;
     private ConcurrentDictionary<string, AttachmentInfo> attachments = new ConcurrentDictionary<string, AttachmentInfo>();
-
-    private Chat? _chatRenderer;
-    public Chat? ChatRenderer { get { return _chatRenderer; } }
     public UISettings UISettings { get; set; } = new UISettings();
-
-    public void AttachToChat(Chat chat)
-    {
-        _chatRenderer = chat;
-    }
 
     public async Task ShowSettings()
     {
@@ -128,12 +118,12 @@
 
     private async Task Send()
     {
-        if (ChatRenderer == null)
+        if (UiComponents?.ChatRenderer == null)
         {
             return;
         }
 
-        await ChatRenderer.Send(messageInput, UISettings);
+        await UiComponents.ChatRenderer.Send(messageInput, UISettings);
         messageInput = string.Empty;
         StateHasChanged();
         await SizeTextArea();
@@ -142,7 +132,7 @@
 
     private async Task HandleKeyPress(KeyboardEventArgs e)
     {
-        if (ChatRenderer == null)
+        if (UiComponents?.ChatRenderer == null)
         {
             return;
         }
@@ -162,7 +152,7 @@
 
     private async Task UploadFiles(InputFileChangeEventArgs e)
     {
-        if (ChatRenderer == null)
+        if (UiComponents?.ChatRenderer == null)
         {
             return;
         }
@@ -173,7 +163,7 @@
         {
             var stream = file.OpenReadStream();
             var streamPart = new StreamPart(stream, file.Name, file.ContentType);
-            var apiResponse = await BlazorChatApi.Attachment.AddAttachment(ChatRenderer.ConversationId.ToString(), streamPart);
+            var apiResponse = await BlazorChatApi.Attachment.AddAttachment(UiComponents.ChatRenderer.ConversationId.ToString(), streamPart);
             uploadedCount++;
             progressPercent = (int)((uploadedCount / (double)files.Count()) * 100);
             var attachmentInfo = apiResponse.Content;
@@ -187,10 +177,9 @@
         }
     }
 
-    private async Task ShowAttachmentPanel()
+    private void ShowAttachmentPanel()
     {
-        
-
+        UiComponents!.AttachmentManager?.InfoPanel?.Toggle();
 
     }
 }
