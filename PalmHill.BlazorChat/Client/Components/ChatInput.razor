@@ -150,32 +150,7 @@
         await JSRuntime.InvokeVoidAsync("textAreaAdjust", textAreaElement);
     }
 
-    private async Task UploadFiles(InputFileChangeEventArgs e)
-    {
-        if (UiComponents?.ChatRenderer == null)
-        {
-            return;
-        }
-        progressPercent = 10;
-        var files = e.GetMultipleFiles();
-        var uploadedCount = 0;
-        foreach (var file in files)
-        {
-            var stream = file.OpenReadStream();
-            var streamPart = new StreamPart(stream, file.Name, file.ContentType);
-            var apiResponse = await BlazorChatApi.Attachment.AddAttachment(UiComponents.ChatRenderer.ConversationId.ToString(), streamPart);
-            uploadedCount++;
-            progressPercent = (int)((uploadedCount / (double)files.Count()) * 100);
-            var attachmentInfo = apiResponse.Content;
 
-            if (attachmentInfo == null)
-            {
-                continue;
-            }
-
-            attachments.TryAdd(attachmentInfo.Id, attachmentInfo);
-        }
-    }
 
     private void ShowAttachmentPanel()
     {

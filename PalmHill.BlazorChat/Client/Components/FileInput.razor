@@ -5,7 +5,7 @@
 @inject BlazorChatApi BlazorChatApi
 
 
-<FluentInputFile @ref="@myFileByBuffer"
+<FluentInputFile 
                  AnchorId="MyUploadBuffer"
                  DragDropZoneVisible="true"
                  Mode="InputFileMode.Stream"
@@ -34,49 +34,50 @@
     }
 </style>
 
-<FluentProgress Visible="@(progressPercent > 0)" Min="0" Max="100" Value="@progressPercent" />
 <FluentLabel Alignment="HorizontalAlignment.Center">
     @progressTitle
 </FluentLabel>
 
-<FluentButton @onclick="@((e) => IsCanceled = true)">
-    Cancel
-</FluentButton>
-
-@if (PendingUploadFiles.Any())
+@if (SelectedFiles.Any())
 {
     <h4>Pending Upload</h4>
     <ul>
-        @foreach (var file in PendingUploadFiles)
+        @foreach (var file in SelectedFiles)
         {
             <li>
-                @file.Name
+                @{
+                    var presenceStatus = file.Status switch
+                    {
+                        AttachmentStatus.Pending => PresenceStatus.Away,
+                        AttachmentStatus.Uploaded => PresenceStatus.Available,
+                        AttachmentStatus.Failed => PresenceStatus.Busy,
+                        _ => PresenceStatus.Busy
+                    };
+                }
+
+                <FluentPresenceBadge Status="presenceStatus">
+                    <FluentCard Appearance="Appearance.Stealth" >
+                        @file.Name
+                    </FluentCard>
+                </FluentPresenceBadge>
             </li>
         }
     </ul>
 }
 
-@if (UploadedFiles.Any())
-{
-    <h4>Uploaded</h4>
-    <ul>
-        @foreach (var file in UploadedFiles)
-        {
-            <li>
-                @file.Name
-            </li>
-        }
-    </ul>
-}
+
 
 @code
 {
-    FluentInputFile? myFileByBuffer = default!;
+    [Parameter]
+    public ChatComponents? UiComponents { get; set; }
+
+
     int? progressPercent;
     string? progressTitle;
-    bool IsCanceled;
-    List<AttachmentInfo> UploadedFiles = new List<AttachmentInfo>();
-    List<IBrowserFile> PendingUploadFiles = new List<IBrowserFile>();
+    List<AttachmentInfo> SelectedFiles = new List<AttachmentInfo>();
+
+
 
     private async Task UploadFiles(InputFileChangeEventArgs e)
     {
@@ -85,54 +86,27 @@
         var uploadedCount = 0;
         foreach (var file in files)
         {
-            PendingUploadFiles.Add(file);
+            var attachmentInfo = new AttachmentInfo();
+            attachmentInfo.Name = file.Name;
+            attachmentInfo.ConversationId = UiComponents?.ChatRenderer?.ConversationId.ToString() ?? "";
+            attachmentInfo.Size = file.Size;
+            attachmentInfo.ContentType = file.ContentType;
+            attachmentInfo.Status = AttachmentStatus.Pending;
+
+            SelectedFiles.Add(attachmentInfo);
             var stream = file.OpenReadStream(10000000);
             var streamPart = new StreamPart(stream, file.Name, file.ContentType);
-            var apiResponse = await BlazorChatApi.Attachment.AddAttachment("test1z", streamPart);
+            var apiResponse = await BlazorChatApi.Attachment.AddAttachment("test1z", attachmentInfo.Id, streamPart);
+            // Fake for now. Should be set by websocket. When file is complted processing.
             uploadedCount++;
-            PendingUploadFiles.Remove(file);
-
             progressPercent = (int)((uploadedCount / (double)files.Count()) * 100);
-            var attachmentInfo = apiResponse.Content;
 
-            if (attachmentInfo == null)
+            if (!apiResponse.IsSuccessStatusCode)
             {
+                attachmentInfo.Status = AttachmentStatus.Failed;
                 continue;
             }
-            UploadedFiles.Add(attachmentInfo);
-
-
+            attachmentInfo.Status = AttachmentStatus.Uploaded;
         }
     }
-
-    // async Task OnProgressChangeAsync(FluentInputFileEventArgs file)
-    // {
-    //     progressPercent = file.ProgressPercent;
-    //     progressTitle = file.ProgressTitle;
-
-    //     // To cancel?
-    //     file.IsCancelled = IsCanceled;
-
-    //     // New file
-    //     if (!Files.ContainsKey(file.Index))
-    //     {
-    //         var localFile = Path.GetTempFileName() + file.Name;
-    //         Files.Add(file.Index, localFile);
-    //     }
-
-    //     // Write to the FileStream
-    //     await file.Buffer.AppendToFileAsync(Files[file.Index]);
-    // }
-
-    // void OnCompleted(IEnumerable<FluentInputFileEventArgs> files)
-    // {
-    //     progressPercent = myFileByBuffer!.ProgressPercent;
-    //     progressTitle = myFileByBuffer!.ProgressTitle;
-
-    //     // For the demo, delete these files.
-    //     foreach (var file in Files)
-    //     {
-    //         File.Delete(file.Value);
-    //     }
-    
 }

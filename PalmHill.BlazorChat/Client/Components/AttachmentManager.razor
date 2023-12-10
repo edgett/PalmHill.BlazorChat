@@ -1,9 +1,14 @@
 ﻿<InfoPanel @ref="InfoPanel" Title="Attachments">
-    <FileInput @ref="FileInput">
+    <FileInput @ref="FileInput" UiComponents="UiComponents">
     </FileInput>
 </InfoPanel>
 
 @code {
+
+    [Parameter]
+    public ChatComponents? UiComponents { get; set; }
+
+
     public InfoPanel? InfoPanel { get; set; }
     public FileInput? FileInput { get; set; }
 }

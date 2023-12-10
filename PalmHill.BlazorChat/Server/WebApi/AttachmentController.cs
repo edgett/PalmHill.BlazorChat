@@ -58,8 +58,8 @@ namespace PalmHill.BlazorChat.Server.WebApi
         }
 
         // POST api/<AttachmentController>
-        [HttpPost("{conversationId}")]
-        public ActionResult<AttachmentInfo> AddAttachment([FromForm] FileUpload fileUpload, string conversationId)
+        [HttpPost("{conversationId}/{attachmentId}")]
+        public ActionResult<AttachmentInfo> AddAttachment([FromForm] FileUpload fileUpload, string conversationId, string attachmentId)
         {
             var file = fileUpload.File;
 
