@@ -1,6 +1,4 @@
-﻿@inherits LayoutComponentBase
-
-<FluentStack Orientation="Orientation.Vertical" Class="info-panel control" Width="250px">
+﻿<FluentStack Orientation="Orientation.Vertical" Class="info-panel control" Width="250px">
   <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Top">
         <div style="width: 100%;">
             <FluentLabel Typo="Typography.PaneHeader">@Title</FluentLabel>
@@ -10,13 +8,14 @@
         </FluentButton>
     </FluentStack>
 
-    <FluentBodyContent>@Body</FluentBodyContent>
+    <FluentBodyContent>@ChildContent</FluentBodyContent>
 </FluentStack>
 
 
 @code {
     [Parameter]
     public string Title { get; set; } = string.Empty;
-
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
 }
 

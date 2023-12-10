@@ -189,15 +189,7 @@
 
     private async Task ShowAttachmentPanel()
     {
-        var _dialog = await DialogService.ShowPanelAsync<AttachmentPanel>(attachments, new DialogParameters<ConcurrentDictionary<string, AttachmentInfo>>()
-            {
-                Content = attachments,
-                Alignment = HorizontalAlignment.Right,
-                Title = $"Attachments",
-                PrimaryAction = "Yes",
-                SecondaryAction = "No",
-            });
-        DialogResult result = await _dialog.Result;
+        
 
 
     }
