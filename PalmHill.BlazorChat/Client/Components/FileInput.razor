@@ -4,6 +4,16 @@
 @using Refit
 @inject BlazorChatApi BlazorChatApi
 
+<style>
+    .file-upload-container {
+        border: 2px dashed var(--neutral-stroke-rest);
+        border-radius: 5px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        position: relative;
+    }
+</style>
 
 <FluentInputFile 
                  AnchorId="MyUploadBuffer"
@@ -23,46 +33,20 @@
     </div>
 </FluentInputFile>
 
-<style>
-    .file-upload-container {
-        border: 2px dashed #ccc;
-        border-radius: 5px;
-        padding: 20px;
-        text-align: center;
-        cursor: pointer;
-        position: relative;
-    }
-</style>
 
 <FluentLabel Alignment="HorizontalAlignment.Center">
     @progressTitle
 </FluentLabel>
 
-@if (SelectedFiles.Any())
+@if (UiComponents?.ChatInput?.UploadedFiles.Any() ?? false)
 {
     <h4>Pending Upload</h4>
-    <ul>
-        @foreach (var file in SelectedFiles)
+    <div>
+        @foreach (var file in UiComponents.ChatInput.UploadedFiles)
         {
-            <li>
-                @{
-                    var presenceStatus = file.Status switch
-                    {
-                        AttachmentStatus.Pending => PresenceStatus.Away,
-                        AttachmentStatus.Uploaded => PresenceStatus.Available,
-                        AttachmentStatus.Failed => PresenceStatus.Busy,
-                        _ => PresenceStatus.Busy
-                    };
-                }
-
-                <FluentPresenceBadge Status="presenceStatus">
-                    <FluentCard Appearance="Appearance.Stealth" >
-                        @file.Name
-                    </FluentCard>
-                </FluentPresenceBadge>
-            </li>
+                <AttachmentItemDisplay Attachment="file"></AttachmentItemDisplay>
         }
-    </ul>
+    </div>
 }
 
 
@@ -75,7 +59,6 @@
 
     int? progressPercent;
     string? progressTitle;
-    List<AttachmentInfo> SelectedFiles = new List<AttachmentInfo>();
 
 
 
@@ -93,7 +76,7 @@
             attachmentInfo.ContentType = file.ContentType;
             attachmentInfo.Status = AttachmentStatus.Pending;
 
-            SelectedFiles.Add(attachmentInfo);
+            UiComponents?.ChatInput?.UploadedFiles.Add(attachmentInfo);
             var stream = file.OpenReadStream(10000000);
             var streamPart = new StreamPart(stream, file.Name, file.ContentType);
             var apiResponse = await BlazorChatApi.Attachment.AddAttachment("test1z", attachmentInfo.Id, streamPart);

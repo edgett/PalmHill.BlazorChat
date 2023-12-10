@@ -1,0 +1,27 @@
+﻿@using PalmHill.BlazorChat.Shared.Models
+
+@if (Attachment != null)
+{
+
+    var presenceStatus = Attachment.Status switch
+    {
+        AttachmentStatus.Pending => PresenceStatus.Away,
+        AttachmentStatus.Uploaded => PresenceStatus.Available,
+        AttachmentStatus.Failed => PresenceStatus.Busy,
+        _ => PresenceStatus.Busy
+    };
+
+
+    <FluentPresenceBadge Status="presenceStatus">
+        <FluentCard Appearance="Appearance.Stealth">
+            @Attachment.Name
+        </FluentCard>
+    </FluentPresenceBadge>
+
+
+}
+
+@code {
+    [Parameter]
+    public AttachmentInfo? Attachment { get; set; }
+}
