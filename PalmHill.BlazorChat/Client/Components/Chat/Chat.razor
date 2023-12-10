@@ -69,11 +69,17 @@
             InvokeAsync(StateHasChanged);
         });
 
-        hubConnection.On<Guid, string>("MessageComplete", (messageId, status) =>
+        hubConnection.On<Guid, bool>("MessageComplete", (messageId, success) =>
         {
             var currentModelResponse = modelResponses.Single(mr => mr.PromptId == messageId);
-            currentModelResponse.CompleteResponse();
+            currentModelResponse.CompleteResponse(success);
 
+            InvokeAsync(StateHasChanged);
+        });
+
+        hubConnection.On<bool>("ChatComplete", (isComplete) =>
+        {
+            UiComponents!.ChatInput!.SetReady();
             InvokeAsync(StateHasChanged);
         });
 

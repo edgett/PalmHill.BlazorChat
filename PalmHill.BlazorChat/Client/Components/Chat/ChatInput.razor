@@ -57,7 +57,12 @@
             ></textarea>
         </div>
         <div>
-            <FluentButton @ref="sendButton" OnClick="Send" Appearance="Appearance.Accent" IconStart="(new Icons.Regular.Size24.Send())" Style="margin-top:6px;"></FluentButton>
+            <FluentButton @ref="sendButton" 
+                OnClick="Send" 
+                Loading="Loading" 
+                Appearance="Appearance.Accent" 
+                IconStart="(new Icons.Regular.Size24.Send())" 
+                Style="margin-top:6px;"></FluentButton>
         </div>
     </FluentStack>
 </FluentFooter>
@@ -77,6 +82,7 @@
     public UISettings UISettings { get; set; } = new UISettings();
     public List<AttachmentInfo> SelectedFiles = new List<AttachmentInfo>();
     public List<AttachmentInfo> UploadedFiles = new List<AttachmentInfo>();
+    public bool Loading { get; set; } = false;
 
     public async Task ShowSettings()
     {
@@ -124,7 +130,7 @@
         {
             return;
         }
-
+        Loading = true;
         await UiComponents.ChatRenderer.Send(messageInput, UISettings);
         messageInput = string.Empty;
         StateHasChanged();
@@ -157,6 +163,11 @@
     private void ShowAttachmentPanel()
     {
         UiComponents!.AttachmentManager?.InfoPanel?.Toggle();
+    }
 
+    public void SetReady()
+    {
+        Loading = false;
+        StateHasChanged();
     }
 }

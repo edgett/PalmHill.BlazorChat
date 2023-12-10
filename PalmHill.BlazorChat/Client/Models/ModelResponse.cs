@@ -27,6 +27,7 @@ namespace PalmHill.BlazorChat.Client.Models
         /// Gets or sets a value indicating whether the response is complete.
         /// </summary>
         public bool IsComplete { get; set; } = false;
+        public bool Success { get; private set; } = false;
 
         /// <summary>
         /// Occurs when the response changes.
@@ -63,9 +64,10 @@ namespace PalmHill.BlazorChat.Client.Models
         /// <summary>
         /// Marks the response as complete and raises the <see cref="ResponseCompleted"/> event.
         /// </summary>
-        public void CompleteResponse()
+        public void CompleteResponse(bool success)
         {
             IsComplete = true;
+            Success = success;
             ResponseCompleted?.Invoke(this, EventArgs.Empty);
         }
     }

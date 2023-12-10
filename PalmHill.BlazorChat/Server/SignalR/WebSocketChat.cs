@@ -45,6 +45,8 @@ namespace PalmHill.BlazorChat.Server.SignalR
             finally
             {
                 ThreadLock.InferenceLock.Release();
+                await Clients.Caller.SendAsync("MessageComplete", messageId, false);
+                await Clients.Caller.SendAsync("ChatComplete", true);
             }
         }
 
