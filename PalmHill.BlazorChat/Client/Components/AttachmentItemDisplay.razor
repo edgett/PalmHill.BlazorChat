@@ -1,4 +1,6 @@
-﻿@using PalmHill.BlazorChat.Shared.Models
+﻿@using PalmHill.BlazorChat.ApiClient
+@using PalmHill.BlazorChat.Shared.Models
+@inject BlazorChatApi BlazorChatApi
 
 @if (Attachment != null)
 {
@@ -12,16 +14,48 @@
     };
 
 
-    <FluentPresenceBadge Status="presenceStatus">
-        <FluentCard Appearance="Appearance.Stealth">
-            @Attachment.Name
+    <FluentPresenceBadge Style="width:100%;" Status="presenceStatus">
+        <FluentCard Style="width:100%; padding:3px 3px" >
+            <div>
+                @Attachment.Name
+            </div>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Delete())"
+                          Loading="@loading"
+                          OnClick="@DeleteAttachment">
+            </FluentButton>
+            
         </FluentCard>
+        
     </FluentPresenceBadge>
 
 
 }
 
+
 @code {
     [Parameter]
     public AttachmentInfo? Attachment { get; set; }
+
+    [Parameter]
+    public EventCallback<AttachmentInfo>? OnFileDeleted { get; set; }
+
+    bool loading = false;
+
+    async Task DeleteAttachment()
+    {
+        if(Attachment == null)
+        { 
+            return; 
+        }
+
+        await BlazorChatApi.Attachment.DeleteAttachment(Attachment.Id);
+
+        if (OnFileDeleted == null) 
+        { 
+            return; 
+        }
+        await OnFileDeleted?.InvokeAsync(Attachment);
+
+    }
+
 }

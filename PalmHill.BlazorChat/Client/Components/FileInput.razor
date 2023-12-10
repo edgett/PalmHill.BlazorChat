@@ -40,11 +40,10 @@
 
 @if (UiComponents?.ChatInput?.UploadedFiles.Any() ?? false)
 {
-    <h4>Pending Upload</h4>
     <div>
         @foreach (var file in UiComponents.ChatInput.UploadedFiles)
         {
-                <AttachmentItemDisplay Attachment="file"></AttachmentItemDisplay>
+                <AttachmentItemDisplay OnFileDeleted="onFileDeleted" Attachment="file"></AttachmentItemDisplay>
         }
     </div>
 }
@@ -60,6 +59,10 @@
     int? progressPercent;
     string? progressTitle;
 
+    private void onFileDeleted(AttachmentInfo a)
+    {
+        UiComponents.ChatInput.UploadedFiles.Remove(a);
+    }
 
 
     private async Task UploadFiles(InputFileChangeEventArgs e)
@@ -80,7 +83,6 @@
             var stream = file.OpenReadStream(10000000);
             var streamPart = new StreamPart(stream, file.Name, file.ContentType);
             var apiResponse = await BlazorChatApi.Attachment.AddAttachment("test1z", attachmentInfo.Id, streamPart);
-            // Fake for now. Should be set by websocket. When file is complted processing.
             uploadedCount++;
             progressPercent = (int)((uploadedCount / (double)files.Count()) * 100);
 
@@ -89,6 +91,7 @@
                 attachmentInfo.Status = AttachmentStatus.Failed;
                 continue;
             }
+            // Fake for now. Should be set by websocket. When file is complted processing.
             attachmentInfo.Status = AttachmentStatus.Uploaded;
         }
     }
