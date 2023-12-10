@@ -1,6 +1,7 @@
-﻿using PalmHill.BlazorChat.Client.Components;
+﻿using PalmHill.BlazorChat.Client.Components.Chat;
+using PalmHill.BlazorChat.Client.Components.Attachment;
 
-namespace PalmHill.BlazorChat.Client
+namespace PalmHill.BlazorChat.Client.Models
 {
     public class ChatComponents
     {

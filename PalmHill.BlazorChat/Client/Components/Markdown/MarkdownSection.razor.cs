@@ -2,7 +2,7 @@ using Markdig;
 using Microsoft.AspNetCore.Components;
 
 using Microsoft.FluentUI.AspNetCore.Components;
-namespace PalmHill.BlazorChat.Client.Components;
+namespace PalmHill.BlazorChat.Client.Components.Markdown;
 
 
 public partial class MarkdownSection : FluentComponentBase
