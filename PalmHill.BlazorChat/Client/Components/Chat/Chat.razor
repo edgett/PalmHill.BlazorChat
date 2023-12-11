@@ -118,15 +118,21 @@
                 chatConversation.ChatMessages.Add(chatMessage);
 
                 var apiResponse = await BlazorChatApi.Chat.Ask(chatConversation);
+                var currentModelResponse = modelResponses.Last();
 
                 if (!apiResponse.IsSuccessStatusCode)
                 {
+                    currentModelResponse.CompleteResponse(false);
+                    UiComponents!.ChatInput!.SetReady();
+                    StateHasChanged();
                     return;
                 }
 
                 var answer = apiResponse?.Content.Message;
-                modelResponses.Last().AddResponseString(message);
-
+                modelResponses.Last().AddResponseString(answer ?? "Error");
+                currentModelResponse.CompleteResponse(true);
+                UiComponents!.ChatInput!.SetReady();
+                StateHasChanged();
             }
             else
             {

@@ -1,7 +1,7 @@
 ﻿<InfoPanel @ref="InfoPanel" Title="Attachments">
     <FluentSwitch 
-        
-                  Value="isEnabled"
+                  
+                  @bind-Value="isEnabled"
                   Label="Enable"></FluentSwitch>
 
     <FileInput @ref="FileInput" UiComponents="UiComponents">
@@ -29,7 +29,7 @@
         }
         set
         {
-            UiComponents!.ChatInput!.IsAttachmentMode = value;
+            UiComponents!.ChatInput!.SetAttachmentMode(value);
         }
     }
 }
