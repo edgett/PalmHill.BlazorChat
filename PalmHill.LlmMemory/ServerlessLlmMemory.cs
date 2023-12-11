@@ -1,5 +1,6 @@
 ﻿using Microsoft.KernelMemory;
 using PalmHill.BlazorChat.Shared.Models;
+using PalmHill.Llama;
 using System.Collections.Concurrent;
 using System.Threading;
 
@@ -17,12 +18,9 @@ namespace PalmHill.LlmMemory
 
         public ConcurrentDictionary<string, AttachmentInfo> AttachmentInfos { get; } = new ConcurrentDictionary<string, AttachmentInfo>();
 
-        private static SemaphoreSlim attachmentImportLock = new SemaphoreSlim(1, 1);
-
         public async Task<AttachmentInfo> ImportDocumentAsync(
             AttachmentInfo attachmentInfo,
-            TagCollection? tagCollection = null,
-            SemaphoreSlim? inferenceLock = null
+            TagCollection? tagCollection = null
             )
         {
             if (attachmentInfo.FileBytes == null)
@@ -37,8 +35,7 @@ namespace PalmHill.LlmMemory
 
             attachmentInfo.Size = attachmentInfo.FileBytes.LongLength;
 
-            inferenceLock?.Wait();
-            attachmentImportLock.Wait();
+            await ThreadLock.InferenceLock.WaitAsync();
 
             var stream = new MemoryStream(attachmentInfo.FileBytes);
             var documentId = string.Empty;
@@ -57,8 +54,7 @@ namespace PalmHill.LlmMemory
             }
             finally
             {
-                inferenceLock?.Release();
-                attachmentImportLock.Release();
+                ThreadLock.InferenceLock.Release();
             }
 
 

@@ -110,7 +110,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
         {
             try
             {
-                await LlmMemory.ImportDocumentAsync(attachmentInfo, null, ThreadLock.InferenceLock);
+                await LlmMemory.ImportDocumentAsync(attachmentInfo, null);
                 await WebSocketChat.Clients.User(userId!).SendCoreAsync("AttachmentStatusUpdate", [attachmentInfo]);
 
             }
