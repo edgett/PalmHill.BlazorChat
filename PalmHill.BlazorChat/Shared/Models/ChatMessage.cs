@@ -45,4 +45,7 @@ public enum ChatMessageRole
     /// </summary>
     [Description("User Message")]
     User = 1,
+
+    [Description("User Message")]
+    Question = 2,
 }

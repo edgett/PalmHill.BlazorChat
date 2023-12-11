@@ -3,6 +3,7 @@
 @implements IAsyncDisposable
 @using Markdig
 @using PalmHill.BlazorChat.Shared.Models
+@inject ApiClient.BlazorChatApi BlazorChatApi;
 
 @inherits FluentComponentBase
 
@@ -105,11 +106,40 @@
             modelResponses.Add(newMessage);
             StateHasChanged();
 
-            var chatConversation = GetChatConversation(modelResponses);
-            chatConversation.Id = ConversationId.ToString();
-            chatConversation.Settings = inferenceSettings;
-            chatConversation.SystemMessage = inferenceSettings.SystemMessage;
-            await hubConnection.SendAsync("SendPrompt", newMessage.PromptId, chatConversation);
+            if (UiComponents?.ChatInput?.IsAttachmentMode ?? false)
+            {
+                var chatConversation = new ChatConversation();
+                chatConversation.Id = ConversationId.ToString();
+
+                var chatMessage = new ChatMessage();
+                chatMessage.Message = message;
+                chatMessage.Role = ChatMessageRole.Question;
+
+                chatConversation.ChatMessages.Add(chatMessage);
+
+                var apiResponse = await BlazorChatApi.Chat.Ask(chatConversation);
+
+                if (!apiResponse.IsSuccessStatusCode)
+                {
+                    return;
+                }
+
+                var answer = apiResponse?.Content.Message;
+                modelResponses.Last().AddResponseString(message);
+
+            }
+            else
+            {
+                //Do chat stuff.
+                var chatConversation = GetChatConversation(modelResponses);
+                chatConversation.Id = ConversationId.ToString();
+                chatConversation.Settings = inferenceSettings;
+                chatConversation.SystemMessage = inferenceSettings.SystemMessage;
+                await hubConnection.SendAsync("SendPrompt", newMessage.PromptId, chatConversation);
+
+            }
+
+
         }
     }
 
