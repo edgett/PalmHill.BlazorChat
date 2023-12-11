@@ -85,9 +85,9 @@
         });
 
         hubConnection.On<AttachmentInfo>("AttachmentStatusUpdate", (attachmentInfo) =>
-             {
-                 UiComponents?.AttachmentManager?.FileInput?.UploadStatusChanged(attachmentInfo.Id, attachmentInfo.Status);
-             });
+        {
+            UiComponents?.AttachmentManager?.FileInput?.UploadStatusChanged(attachmentInfo.Id, attachmentInfo.Status);
+        });
 
 
         await hubConnection.StartAsync();
