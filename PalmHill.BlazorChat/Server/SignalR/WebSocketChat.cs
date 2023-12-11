@@ -38,10 +38,7 @@ namespace PalmHill.BlazorChat.Server.SignalR
 
             try
             {
-                var answer = await LlmMemory.Ask(chatConversation.Id, chatConversation.ChatMessages.Last().Message);
-                await Clients.Caller.SendAsync("ReceiveModelString", messageId, answer.Result);
-                //await DoInferenceAndRespondToClient(Clients.Caller, messageId, chatConversation);
-
+                await DoInferenceAndRespondToClient(Clients.Caller, messageId, chatConversation);
             }
             catch (Exception ex)
             {
