@@ -9,14 +9,14 @@ using System.Data;
 
 namespace PalmHill.BlazorChat.Client.Services
 {
-    public class ChatController
+    public class ChatService
     {
 
-        public ChatController(
+        public ChatService(
             NavigationManager navigationManager,
             LocalStorageService localStorage,
             IDialogService dialogService,
-            ThemeControl themeControl
+            ThemeService themeControl
             )
         {
             WebSocketChatConnection = new WebSocketChatService(navigationManager.ToAbsoluteUri("/chathub?customUserId=user1"), WebsocketChatMessages);
@@ -36,7 +36,7 @@ namespace PalmHill.BlazorChat.Client.Services
 
         private readonly LocalStorageService _localStorage;
         private readonly IDialogService _dialogService;
-        private readonly ThemeControl _themeControl;
+        private readonly ThemeService _themeControl;
 
         public async Task StartChat()
         {

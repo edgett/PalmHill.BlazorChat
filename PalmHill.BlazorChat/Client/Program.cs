@@ -21,12 +21,12 @@ builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<BlazorChatApi>();
 
 //Add ThemeControler
-builder.Services.AddSingleton<ThemeControl>();
+builder.Services.AddSingleton<ThemeService>();
 
 //Add LocalStorageService
 builder.Services.AddScoped<LocalStorageService>();
 
-builder.Services.AddScoped<ChatController>();
+builder.Services.AddScoped<ChatService>();
 
 
 await builder.Build().RunAsync();

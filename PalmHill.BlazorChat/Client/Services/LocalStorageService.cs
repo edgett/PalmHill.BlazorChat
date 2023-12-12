@@ -7,9 +7,9 @@ namespace PalmHill.BlazorChat.Client.Services
     public class LocalStorageService
     {
         private ILocalStorageService _localStorage;
-        private ThemeControl _themeControl;
+        private ThemeService _themeControl;
 
-        public LocalStorageService(ILocalStorageService localStorage, ThemeControl themeControl)
+        public LocalStorageService(ILocalStorageService localStorage, ThemeService themeControl)
         {
             _localStorage = localStorage;
             _themeControl = themeControl;

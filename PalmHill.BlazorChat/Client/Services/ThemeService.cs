@@ -3,10 +3,10 @@ using Microsoft.FluentUI.AspNetCore.Components.DesignTokens;
 
 namespace PalmHill.BlazorChat.Client.Services
 {
-    public class ThemeControl
+    public class ThemeService
     {
 
-        public ThemeControl(BaseLayerLuminance baseLayerLuminance, AccentBaseColor accentBaseColor)
+        public ThemeService(BaseLayerLuminance baseLayerLuminance, AccentBaseColor accentBaseColor)
         {
             BaseLayerLuminance = baseLayerLuminance;
             AccentBaseColor = accentBaseColor;
