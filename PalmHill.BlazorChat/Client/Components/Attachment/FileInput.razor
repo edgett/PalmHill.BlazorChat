@@ -99,6 +99,7 @@
                 if (!apiResponse.IsSuccessStatusCode)
                 {
                     attachmentInfo.Status = AttachmentStatus.Failed;
+                    StateHasChanged();
                 }
             });
 
