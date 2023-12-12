@@ -21,7 +21,7 @@ builder.AddLlamaModel();
 
 
 // Initiaize Memory
-builder.AddLlmMemory();
+//builder.AddLlmMemory();
 // End Initiaize Memory
 
 

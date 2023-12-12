@@ -115,10 +115,7 @@ h1:focus {
 
 @media (max-width: 1000px) {
     .chat-messages {
-        width: 100%;
-        max-width: none;
-        padding-left: 10px;
-        padding-right: 10px;
+        width: calc(100vw - 30px);
     }
 
     .chat-header {

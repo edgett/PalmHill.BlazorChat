@@ -27,7 +27,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
         }
 
         [HttpPost("ask")]
-        public async Task<ActionResult<ChatMessage>> Ask(ChatConversation chatConversation)
+        public async Task<ActionResult<ChatMessage>> Ask(InferenceRequest chatConversation)
         {
             var conversationId = chatConversation.Id;
             var question = chatConversation.ChatMessages.LastOrDefault()?.Message;
@@ -37,7 +37,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
             }
 
 
-            var answer = await LlmMemory.Ask(conversationId, question);
+            var answer = await LlmMemory.Ask(conversationId.ToString(), question);
             var chatMessageAnswer = new ChatMessage()
             {
                 Role = ChatMessageRole.Assistant,

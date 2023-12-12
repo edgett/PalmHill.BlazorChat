@@ -1,7 +1,13 @@
 ﻿@page "/"
+@using PalmHill.BlazorChat.Shared.Models.WebSocket
+@inject NavigationManager Navigation;
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage;
+@inject IDialogService DialogService;
+@inject ThemeControl ThemeControl;
 
 <FluentHeader Class="chat-header">
-    <FluentButton OnClick="MainChatComponents.ChatInput!.ShowSettings"
+    <FluentButton
+                OnClick="Controller!.ShowSettings"
                   IconStart="(new Icons.Regular.Size24.SettingsChat())"></FluentButton>
     <FluentSpacer />
     Blazor Chat
@@ -11,14 +17,14 @@
 
 
 <div class="chat-box">
-    <Chat @ref="MainChatComponents.ChatRenderer" UiComponents="MainChatComponents">
+    <Chat Controller="Controller">
     </Chat>
 
-    <ChatInput @ref="MainChatComponents.ChatInput" UiComponents="MainChatComponents">
+    <ChatInput Controller="Controller">
     </ChatInput>
 </div>
 
-<AttachmentManager @ref="MainChatComponents.AttachmentManager" UiComponents="MainChatComponents">
+<AttachmentManager>
 </AttachmentManager>
 
 
@@ -26,15 +32,24 @@
 @code
 {
 
-    public ChatComponents MainChatComponents { get; set; } = new ChatComponents();
+    public ChatController? Controller { get; set; }
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override void OnInitialized()
     {
+        Controller = constructController();
+        _ = Controller.LoadSettings();
+    }
 
-        if (firstRender && MainChatComponents.ChatRenderer != null)
-        {
-            StateHasChanged();
-        }
+    private ChatController constructController()
+    {
+        var controller = new ChatController(Navigation, LocalStorage, DialogService, ThemeControl);
+        controller.OnStateChange += Controller_OnStateChange;
+        return controller;
+    }
+
+    public void Controller_OnStateChange(object? sender, bool bs)
+    {
+        StateHasChanged();
     }
 
 }

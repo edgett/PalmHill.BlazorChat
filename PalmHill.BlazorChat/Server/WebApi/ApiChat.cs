@@ -37,7 +37,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
         /// <returns>Returns a string response from the chat model inference.</returns>
         /// <exception cref="Exception">Thrown when there is an error during the chat model inference.</exception>
         [HttpPost(Name = "Chat")]
-        public async Task<ActionResult<string>> Chat([FromBody] ChatConversation conversation)
+        public async Task<ActionResult<string>> Chat([FromBody] InferenceRequest conversation)
         {
             var errorText = "";
 
@@ -66,7 +66,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
         /// </summary>
         /// <param name="conversation">The chat conversation for which to perform inference.</param>
         /// <returns>Returns the inference result as a string.</returns>
-        private async Task<string> DoInference(ChatConversation conversation)
+        private async Task<string> DoInference(InferenceRequest conversation)
         {
             LLamaContext modelContext = InjectedModel.Model.CreateContext(InjectedModel.ModelParams);
             var session = modelContext.CreateChatSession(conversation);

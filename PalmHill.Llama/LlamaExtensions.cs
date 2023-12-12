@@ -19,8 +19,8 @@ namespace PalmHill.Llama
         /// Loads the chat history into a <see cref="ChatSession"/>.
         /// </summary>
         /// <param name="chatSession">The <see cref="ChatSession"/> to load the history into.</param>
-        /// <param name="chatConversation">The <see cref="ChatConversation"/> containing the chat history.</param>
-        public static void LoadChatHistory(this ChatSession chatSession, ChatConversation chatConversation)
+        /// <param name="chatConversation">The <see cref="InferenceRequest"/> containing the chat history.</param>
+        public static void LoadChatHistory(this ChatSession chatSession, InferenceRequest chatConversation)
         {
 
             if (!string.IsNullOrWhiteSpace(chatConversation.SystemMessage))
@@ -57,12 +57,12 @@ namespace PalmHill.Llama
         }
 
         /// <summary>
-        /// Creates a new <see cref="ChatSession"/> from a <see cref="ChatConversation"/>.
+        /// Creates a new <see cref="ChatSession"/> from a <see cref="InferenceRequest"/>.
         /// </summary>
         /// <param name="lLamaContext">The <see cref="LLamaContext"/> to use for the session.</param>
-        /// <param name="chatConversation">The <see cref="ChatConversation"/> to create the session from.</param>
+        /// <param name="chatConversation">The <see cref="InferenceRequest"/> to create the session from.</param>
         /// <returns>A new <see cref="ChatSession"/>.</returns>
-        public static ChatSession CreateChatSession(this LLamaContext lLamaContext, ChatConversation chatConversation)
+        public static ChatSession CreateChatSession(this LLamaContext lLamaContext, InferenceRequest chatConversation)
         {
             var ex = new InteractiveExecutor(lLamaContext);
             ChatSession session = new ChatSession(ex);
@@ -86,11 +86,11 @@ namespace PalmHill.Llama
         }
 
         /// <summary>
-        /// Gets the inference parameters from a <see cref="ChatConversation"/>.
+        /// Gets the inference parameters from a <see cref="InferenceRequest"/>.
         /// </summary>
-        /// <param name="chatConversation">The <see cref="ChatConversation"/> to get the parameters from.</param>
+        /// <param name="chatConversation">The <see cref="InferenceRequest"/> to get the parameters from.</param>
         /// <returns>The <see cref="InferenceParams"/> for the conversation.</returns>
-        public static InferenceParams GetInferenceParams(this ChatConversation chatConversation, List<string>? defaultAntiPrompts = null)
+        public static InferenceParams GetInferenceParams(this InferenceRequest chatConversation, List<string>? defaultAntiPrompts = null)
         {
             var inferenceParams = new InferenceParams()
             {

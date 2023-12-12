@@ -25,7 +25,7 @@ namespace PalmHill.BlazorChat.Shared
         /// <param name="chatConversation">The ChatConversation object to be converted.</param>
         /// <returns>A string representation of the ChatConversation object in a format suitable for Orca.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the role of a ChatMessage is neither User nor Assistant.</exception>
-        public static string ToOrcaPromptString(this ChatConversation chatConversation)
+        public static string ToOrcaPromptString(this InferenceRequest chatConversation)
         {
             var promptString = new StringBuilder();
 

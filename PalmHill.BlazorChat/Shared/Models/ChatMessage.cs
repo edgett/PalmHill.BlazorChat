@@ -5,6 +5,8 @@
 /// </summary>
 public class ChatMessage
 {
+    public Guid Id { get; set; } = Guid.NewGuid();
+
     /// <summary>
     /// Gets or sets the role of the entity that generated the message.
     /// </summary>

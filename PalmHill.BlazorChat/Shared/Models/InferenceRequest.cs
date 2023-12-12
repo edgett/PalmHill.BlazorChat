@@ -11,9 +11,9 @@ namespace PalmHill.BlazorChat.Shared.Models
     /// <summary>
     /// Represents a chat conversation.
     /// </summary>
-    public class ChatConversation
+    public class InferenceRequest
     {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         /// <summary>
         /// Gets or sets the system message for the chat conversation.

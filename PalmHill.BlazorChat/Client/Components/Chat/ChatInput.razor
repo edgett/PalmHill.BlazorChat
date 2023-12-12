@@ -1,12 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Components.Forms
-@using PalmHill.BlazorChat.ApiClient
 @using PalmHill.BlazorChat.Shared.Models
-@using Refit
 @using System.Collections.Concurrent
-@inject IDialogService DialogService
 @inject IJSRuntime JSRuntime
-@inject ThemeControl ThemeControl
-@inject BlazorChatApi BlazorChatApi
 
 <style>
     .counterbadge-container
@@ -50,7 +45,7 @@
                 placeholder="Shift+Enter for new line" 
                 rows="1" 
                 @ref="textAreaElement" 
-                @bind="messageInput" 
+                @bind="Controller!.UserInput" 
                 class="main-textarea" 
                 @onkeyup="HandleKeyPress" 
                 @bind:event="oninput"
@@ -70,7 +65,7 @@
 
 @code {
     [Parameter]
-    public ChatComponents? UiComponents { get; set; }
+    public ChatController? Controller { get; set; }
 
 
     private ElementReference textAreaElement;
@@ -85,73 +80,22 @@
     public bool Loading { get; set; } = false;
     public bool IsAttachmentMode { get; set; } = false;
 
-    public async Task ShowSettings()
-    {
 
-        DialogParameters<UISettings> parameters = new()
-            {
-
-                Title = $"Settings",
-                PrimaryAction = "Save",
-                PrimaryActionEnabled = true,
-                Width = "500px",
-                TrapFocus = true,
-                Modal = true,
-                PreventScroll = true,
-            };
-        var currentSettingsCopy = new UISettings
-            {
-                FrequencyPenalty = UISettings.FrequencyPenalty,
-                MaxLength = UISettings.MaxLength,
-                PresencePenalty = UISettings.PresencePenalty,
-                Temperature = UISettings.Temperature,
-                TopP = UISettings.TopP,
-                SystemMessage = UISettings.SystemMessage,
-                DarkMode = UISettings.DarkMode
-            };
-        var dialog = await DialogService.ShowDialogAsync<ChatSettings>(currentSettingsCopy, parameters);
-        var dialogResult = await dialog.Result;
-
-        if (dialogResult?.Cancelled == true)
-        {
-            //Reset the theme if cancel.
-            await ThemeControl.ChangeTheme(UISettings.DarkMode);
-        }
-        else
-        {
-            //Save the settings.
-            UISettings = (UISettings?)dialogResult?.Data ?? new UISettings();
-        }
-
-    }
 
     private async Task Send()
     {
-        if (UiComponents?.ChatRenderer == null)
-        {
-            return;
-        }
-        Loading = true;
-        await UiComponents.ChatRenderer.Send(messageInput, UISettings);
-        messageInput = string.Empty;
-        StateHasChanged();
+        await Controller!.SendPrompt();
         await SizeTextArea();
+        StateHasChanged();
 
     }
 
     private async Task HandleKeyPress(KeyboardEventArgs e)
     {
-        if (UiComponents?.ChatRenderer == null)
-        {
-            return;
-        }
-
         if (e.Key == "Enter" && !e.ShiftKey)
         {
             await Send();
         }
-
-        await SizeTextArea();
     }
 
     private async Task SizeTextArea()
@@ -163,7 +107,8 @@
 
     private void ShowAttachmentPanel()
     {
-        UiComponents!.AttachmentManager?.InfoPanel?.Toggle();
+        //TODO: Implement this
+       // UiComponents!.AttachmentManager?.InfoPanel?.Toggle();
     }
 
     public void SetReady()

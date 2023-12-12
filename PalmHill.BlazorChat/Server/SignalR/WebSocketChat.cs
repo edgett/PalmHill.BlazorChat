@@ -8,6 +8,7 @@ using PalmHill.Llama;
 using System.Diagnostics;
 using PalmHill.Llama.Models;
 using PalmHill.LlmMemory;
+using PalmHill.BlazorChat.Shared.Models.WebSocket;
 
 namespace PalmHill.BlazorChat.Server.SignalR
 {
@@ -17,13 +18,13 @@ namespace PalmHill.BlazorChat.Server.SignalR
     /// </summary>
     public class WebSocketChat : Hub
     {
-        public WebSocketChat(InjectedModel injectedModel, LlmMemory.ServerlessLlmMemory llmMemory)
+        public WebSocketChat(InjectedModel injectedModel, LlmMemory.ServerlessLlmMemory? llmMemory = null)
         {
             InjectedModel = injectedModel;
             LlmMemory = llmMemory;
         }
         private InjectedModel InjectedModel { get; }
-        private ServerlessLlmMemory LlmMemory { get; }
+        private ServerlessLlmMemory? LlmMemory { get; }
 
         /// <summary>
         /// Sends a chat prompt to the client and waits for a response. The method performs inference on the chat conversation and sends the result back to the client.
@@ -32,13 +33,13 @@ namespace PalmHill.BlazorChat.Server.SignalR
         /// <param name="chatConversation">The chat conversation to send.</param>
         /// <returns>A Task that represents the asynchronous operation.</returns>
         /// <exception cref="Exception">Thrown when an error occurs during the inference process.</exception>
-        public async Task SendPrompt(Guid messageId, ChatConversation chatConversation)
+        public async Task InferenceRequest(InferenceRequest chatConversation)
         {
-            await ThreadLock.InferenceLock.WaitAsync();
 
+            await ThreadLock.InferenceLock.WaitAsync();
             try
             {
-                await DoInferenceAndRespondToClient(Clients.Caller, messageId, chatConversation);
+                await DoInferenceAndRespondToClient(Clients.Caller, chatConversation);
             }
             catch (Exception ex)
             {
@@ -47,8 +48,11 @@ namespace PalmHill.BlazorChat.Server.SignalR
             finally
             {
                 ThreadLock.InferenceLock.Release();
-                await Clients.Caller.SendAsync("MessageComplete", messageId, false);
-                await Clients.Caller.SendAsync("ChatComplete", true);
+                var inferenceStatusUpdate = new WebSocketInferenceStatusUpdate();
+                inferenceStatusUpdate.MessageId = chatConversation.ChatMessages.LastOrDefault()?.Id;
+                inferenceStatusUpdate.IsComplete = true;
+                inferenceStatusUpdate.Success = true;
+                await Clients.Caller.SendAsync("InferenceStatusUpdate", inferenceStatusUpdate);
             }
         }
 
@@ -60,7 +64,7 @@ namespace PalmHill.BlazorChat.Server.SignalR
         /// <param name="messageId">The unique identifier for the message.</param>
         /// <param name="chatConversation">The chat conversation to use for inference.</param>
         /// <returns>A Task that represents the asynchronous operation.</returns>
-        private async Task DoInferenceAndRespondToClient(ISingleClientProxy respondToClient, Guid messageId, ChatConversation chatConversation)
+        private async Task DoInferenceAndRespondToClient(ISingleClientProxy respondToClient,  InferenceRequest chatConversation)
         {
 
             // Create a context for the model and a chat session for the conversation
@@ -68,6 +72,7 @@ namespace PalmHill.BlazorChat.Server.SignalR
             var session = modelContext.CreateChatSession(chatConversation);
             var inferenceParams = chatConversation.GetInferenceParams(InjectedModel.DefaultAntiPrompts);
 
+            var messageId = chatConversation.ChatMessages.LastOrDefault()?.Id;
             var cancelGeneration = new CancellationTokenSource();
             var textBuffer = "";
             var fullResponse = "";
@@ -89,7 +94,11 @@ namespace PalmHill.BlazorChat.Server.SignalR
 
                 if (shouldSendBuffer)
                 {
-                    await respondToClient.SendAsync("ReceiveModelString", messageId, textBuffer);
+                    var inferenceString = new WebSocketInferenceString();
+                    inferenceString.MessageId = messageId ?? Guid.NewGuid();
+                    inferenceString.InferenceString = textBuffer;
+
+                    await respondToClient.SendAsync("ReceiveInferenceString", inferenceString);
                     textBuffer = "";
                 }
 
@@ -101,10 +110,10 @@ namespace PalmHill.BlazorChat.Server.SignalR
 
             if (textBuffer.Length > 0)
             {
-                await respondToClient.SendAsync("ReceiveModelString", messageId, textBuffer);
+                await respondToClient.SendAsync("ReceiveInferenceString", chatConversation.Id, textBuffer);
             }
 
-            await respondToClient.SendAsync("MessageComplete", messageId, "success");
+            await respondToClient.SendAsync("MessageComplete", chatConversation.Id, "success");
             Console.WriteLine($"Inference took {inferenceStopwatch.ElapsedMilliseconds}ms and generated {totalTokens} tokens. {(totalTokens / (inferenceStopwatch.ElapsedMilliseconds / (float)1000)).ToString("F2")} tokens/second.");
             Console.WriteLine(fullResponse);
         }

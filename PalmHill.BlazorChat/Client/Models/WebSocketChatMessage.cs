@@ -6,12 +6,14 @@ namespace PalmHill.BlazorChat.Client.Models
     /// <summary>
     /// Represents a response from the chat model.
     /// </summary>
-    public class ModelResponse
+    public class WebSocketChatMessage
     {
         /// <summary>
         /// Gets or sets the unique identifier for the prompt.
         /// </summary>
-        public Guid PromptId { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        public Guid? ConversationId { get; set; }
 
         /// <summary>
         /// Gets or sets the prompt text.

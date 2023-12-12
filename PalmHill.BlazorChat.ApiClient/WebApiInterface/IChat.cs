@@ -7,9 +7,9 @@ namespace PalmHill.BlazorChat.ApiClient.WebApiInterface
     public interface IChat
     {
         [Post("/api/chat")]
-        Task<ApiResponse<string>> Chat(ChatConversation conversation);
+        Task<ApiResponse<string>> Chat(InferenceRequest conversation);
 
         [Post("/api/attachment/ask")]
-        Task<ApiResponse<ChatMessage>> Ask(ChatConversation chatConversation);
+        Task<ApiResponse<ChatMessage>> Ask(InferenceRequest chatConversation);
     }
 }
