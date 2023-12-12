@@ -2,7 +2,7 @@
 namespace PalmHill.BlazorChat.Client.Models
 {
     /// <summary>
-    /// Represents a response from the chat model.
+    /// Represents prompt with a response.
     /// </summary>
     public class WebSocketChatMessage
     {
@@ -11,6 +11,9 @@ namespace PalmHill.BlazorChat.Client.Models
         /// </summary>
         public Guid Id { get; set; } = Guid.NewGuid();
 
+        /// <summary>
+        /// The unique identifier for the conversation.
+        /// </summary>
         public Guid? ConversationId { get; set; }
 
         /// <summary>
@@ -24,9 +27,13 @@ namespace PalmHill.BlazorChat.Client.Models
         public List<string> ResponseStrings { get; set; } = new List<string>();
 
         /// <summary>
-        /// Gets or sets a value indicating whether the response is complete.
+        /// Response is complete.
         /// </summary>
         public bool IsComplete { get; set; } = false;
+
+        /// <summary>
+        /// Response is successful.
+        /// </summary>
         public bool Success { get; private set; } = false;
 
         /// <summary>
@@ -40,7 +47,7 @@ namespace PalmHill.BlazorChat.Client.Models
         public event EventHandler? ResponseCompleted;
 
         /// <summary>
-        /// Gets the full response text.
+        /// Full response text.
         /// </summary>
         public string Resonse
         {

@@ -4,6 +4,11 @@ namespace PalmHill.BlazorChat.Client.Models
 {
     public static class ModelExtensions
     {
+        /// <summary>
+        /// Creates a copy of the <see cref="LocalStorageSettings"/> object.
+        /// </summary>
+        /// <param name="localStorageSettings">The object to copy.</param>
+        /// <returns>A new instance of <see cref="LocalStorageSettings"/> with values from <paramref name="localStorageSettings"/>.</returns>
         public static LocalStorageSettings CreateCopy(this LocalStorageSettings localStorageSettings)
         { 
             var copy = new LocalStorageSettings();
@@ -14,6 +19,11 @@ namespace PalmHill.BlazorChat.Client.Models
             return copy;
         }
 
+        /// <summary>
+        /// Creates a copy of the <see cref="InferenceSettings"/> object.
+        /// </summary>
+        /// <param name="inferenceSettings">The object top copy.</param>
+        /// <returns>A new instance of <see cref="InferenceSettings"/> with values from <paramref name="inferenceSettings"/>.</returns>
         public static InferenceSettings CreateCopy(this InferenceSettings inferenceSettings)
         { 
             var copy = new InferenceSettings();
