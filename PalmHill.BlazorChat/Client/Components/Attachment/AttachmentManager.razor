@@ -1,35 +1,17 @@
-﻿<InfoPanel @ref="InfoPanel" Title="Attachments">
+﻿
+<InfoPanel IsOpen="Controller!.AttachmentsVisible" Title="Attachments">
     <FluentSwitch 
                   
-                  @bind-Value="isEnabled"
+                  @bind-Value="Controller!.AttachmentsEnabled"
                   Label="Enable"></FluentSwitch>
 
-    <FileInput @ref="FileInput" UiComponents="UiComponents">
+    <FileInput ConversationId="@Controller.WebSocketChatConnection.ConversationId">
     </FileInput>
 </InfoPanel>
 
 @code {
 
     [Parameter]
-    public ChatComponents? UiComponents { get; set; }
-    public InfoPanel? InfoPanel { get; set; }
-    public FileInput? FileInput { get; set; }
+    public ChatService? Controller { get; set; }
 
-    // public void setEnabled(bool enabled)
-    // {
-    //     UiComponents!.ChatInput!.IsAttachmentMode = true;
-    // }
-
-    private bool isEnabled
-    {
-        get
-        {
-            var enabled = UiComponents?.ChatInput?.IsAttachmentMode ?? false;
-            return enabled;
-        }
-        set
-        {
-            UiComponents!.ChatInput!.SetAttachmentMode(value);
-        }
-    }
 }

@@ -14,9 +14,9 @@ namespace PalmHill.BlazorChat.ApiClient.WebApiInterface
 
         [Multipart]
         [Post("/api/Attachment/{conversationId}/{attachmentId}")]
-        Task<ApiResponse<AttachmentInfo>> AddAttachment(string conversationId, string attachmentId, [AliasAs("file")] StreamPart file);
+        Task<ApiResponse<AttachmentInfo>> AddAttachment(Guid conversationId, Guid attachmentId, [AliasAs("file")] StreamPart file);
 
         [Delete("/api/Attachment/{attachmentId}")]
-        Task DeleteAttachment(string attachmentId);
+        Task DeleteAttachment(Guid attachmentId);
     }
 }

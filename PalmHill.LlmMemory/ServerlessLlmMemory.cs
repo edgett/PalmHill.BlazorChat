@@ -16,7 +16,7 @@ namespace PalmHill.LlmMemory
         public IKernelMemory KernelMemory { get; }
 
 
-        public ConcurrentDictionary<string, AttachmentInfo> AttachmentInfos { get; } = new ConcurrentDictionary<string, AttachmentInfo>();
+        public ConcurrentDictionary<Guid, AttachmentInfo> AttachmentInfos { get; } = new ConcurrentDictionary<Guid, AttachmentInfo>();
 
         public async Task<AttachmentInfo> ImportDocumentAsync(
             AttachmentInfo attachmentInfo,
@@ -43,9 +43,9 @@ namespace PalmHill.LlmMemory
             {
               documentId   = await KernelMemory.ImportDocumentAsync(stream,
               attachmentInfo.Name,
-              attachmentInfo.Id,
+              attachmentInfo.Id.ToString(),
               tagCollection,
-              attachmentInfo.ConversationId);
+              attachmentInfo.ConversationId.ToString());
             }
             catch (Exception ex)
             {
@@ -86,7 +86,7 @@ namespace PalmHill.LlmMemory
 
         public async Task UpdateAttachmentStatus(AttachmentInfo attachmentInfo)
         {
-            var isDocReady = await KernelMemory.IsDocumentReadyAsync(attachmentInfo.Id, attachmentInfo.ConversationId);
+            var isDocReady = await KernelMemory.IsDocumentReadyAsync(attachmentInfo.Id.ToString(), attachmentInfo.ConversationId.ToString());
 
             if (attachmentInfo != null && attachmentInfo?.Status != AttachmentStatus.Failed)
             {
@@ -94,12 +94,10 @@ namespace PalmHill.LlmMemory
             }
         }
 
-        public async Task<bool> DeleteDocument(string conversationId, string attachmentId)
+        public async Task<bool> DeleteDocument(Guid conversationId, Guid attachmentId)
         {
-            await KernelMemory.DeleteDocumentAsync(attachmentId, conversationId);
+            await KernelMemory.DeleteDocumentAsync(attachmentId.ToString(), conversationId.ToString());
             var removed = AttachmentInfos.Remove(attachmentId, out _);
-
-
             return true;
         }
 

@@ -33,10 +33,10 @@
     </div>
 </FluentInputFile>
 
-@if (UiComponents?.ChatInput?.UploadedFiles.Any() ?? false)
+@if (UploadedFiles.Any())
 {
     <div>
-        @foreach (var file in UiComponents.ChatInput.UploadedFiles)
+        @foreach (var file in UploadedFiles)
         {
             <AttachmentItemDisplay OnFileDeleted="FileDeletedHandler" Attachment="file"></AttachmentItemDisplay>
         }
@@ -48,66 +48,73 @@
 @code
 {
     [Parameter]
-    public ChatComponents? UiComponents { get; set; }
+    public List<AttachmentInfo> UploadedFiles { get; set; } = new List<AttachmentInfo>();
+
+    [Parameter]
+    public Guid? ConversationId { get; set; }
+
+    [Parameter]
+    public EventCallback<AttachmentInfo> OnFileDeleted { get; set; }
+
 
 
     int? progressPercent;
     private void FileDeletedHandler(AttachmentInfo deletedAttachment)
     {
-        if (UiComponents?.ChatInput == null)
-        {
-            return;
-        }
-
-        UiComponents.ChatInput.UploadedFiles.Remove(deletedAttachment);
+        UploadedFiles.Remove(deletedAttachment);
     }
 
 
     private async Task UploadFiles(InputFileChangeEventArgs e)
     {
-        // progressPercent = 10;
-        // var files = e.GetMultipleFiles();
-        // var uploadedCount = 0;
-        // var uploadTasks = new List<Task>();
+        if (ConversationId is null)
+        {
+            return;    
+        }
 
-        // foreach (var file in files)
-        // {
-        //     var attachmentInfo = new AttachmentInfo();
-        //     attachmentInfo.Name = file.Name;
-        //     attachmentInfo.ConversationId = UiComponents?.ChatRenderer?.ConversationId.ToString() ?? "";
-        //     attachmentInfo.Size = file.Size;
-        //     attachmentInfo.ContentType = file.ContentType;
-        //     attachmentInfo.Status = AttachmentStatus.Pending;
+        progressPercent = 10;
+        var files = e.GetMultipleFiles();
+        var uploadedCount = 0;
+        var uploadTasks = new List<Task>();
 
-        //     UiComponents?.ChatInput?.UploadedFiles.Add(attachmentInfo);
+        foreach (var file in files)
+        {
+            var attachmentInfo = new AttachmentInfo();
+            attachmentInfo.Name = file.Name;
+            attachmentInfo.ConversationId = ConversationId;
+            attachmentInfo.Size = file.Size;
+            attachmentInfo.ContentType = file.ContentType;
+            attachmentInfo.Status = AttachmentStatus.Pending;
 
-        //     var uploadTask = new Task(async () =>
-        //     {
-        //         var stream = file.OpenReadStream(10000000);
-        //         var streamPart = new StreamPart(stream, file.Name, file.ContentType);
-        //         var apiResponse = await BlazorChatApi.Attachment.AddAttachment(UiComponents?.ChatRenderer?.ConversationId.ToString() ?? "", attachmentInfo.Id, streamPart);
-        //         uploadedCount++;
-        //         progressPercent = (int)((uploadedCount / (double)files.Count()) * 100);
+            UploadedFiles.Add(attachmentInfo);
 
-        //         if (!apiResponse.IsSuccessStatusCode)
-        //         {
-        //             attachmentInfo.Status = AttachmentStatus.Failed;
-        //         }
-        //     });
+            var uploadTask = new Task(async () =>
+            {
+                var stream = file.OpenReadStream(10000000);
+                var streamPart = new StreamPart(stream, file.Name, file.ContentType);
+                var apiResponse = await BlazorChatApi.Attachment.AddAttachment(ConversationId.Value, attachmentInfo.Id, streamPart);
+                uploadedCount++;
+                progressPercent = (int)((uploadedCount / (double)files.Count()) * 100);
 
-        //     uploadTasks.Add(uploadTask);
-        // }
+                if (!apiResponse.IsSuccessStatusCode)
+                {
+                    attachmentInfo.Status = AttachmentStatus.Failed;
+                }
+            });
 
-        // foreach (var uploadTask in uploadTasks)
-        // {
-        //     uploadTask.Start();
-        //     await uploadTask;
-        // }
+            uploadTasks.Add(uploadTask);
+        }
+
+        foreach (var uploadTask in uploadTasks)
+        {
+            uploadTask.Start();
+            await uploadTask;
+        }
     }
 
-    public void UploadStatusChanged(string attachmentId, AttachmentStatus newStatus)
+    public void UploadStatusChanged(Guid attachmentId, AttachmentStatus newStatus)
     {
-        var currentAttachment = UiComponents?.ChatInput?.UploadedFiles.SingleOrDefault(a => a.Id == attachmentId);
+        var currentAttachment = UploadedFiles.SingleOrDefault(a => a.Id == attachmentId);
         currentAttachment!.Status = newStatus;
         StateHasChanged();
     }

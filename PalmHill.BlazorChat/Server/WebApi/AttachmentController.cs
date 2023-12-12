@@ -49,7 +49,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
         }
 
         [HttpGet("list/{conversationId}")]
-        public IEnumerable<AttachmentInfo> GetAttachments(string conversationId)
+        public IEnumerable<AttachmentInfo> GetAttachments(Guid conversationId)
         {
             var conversationAttachments = LlmMemory
                 .AttachmentInfos
@@ -60,7 +60,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
         }
 
         [HttpGet("{attachmentId}")]
-        public ActionResult<AttachmentInfo> GetAttachmentById(string attachmentId)
+        public ActionResult<AttachmentInfo> GetAttachmentById(Guid attachmentId)
         {
             var attchmentFound = LlmMemory.AttachmentInfos.TryGetValue(attachmentId, out var attachmentInfo);
 
@@ -81,7 +81,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
 
         // POST api/<AttachmentController>
         [HttpPost("{conversationId}/{attachmentId}")]
-        public ActionResult<AttachmentInfo> AddAttachment([FromForm] FileUpload fileUpload, string conversationId, string attachmentId)
+        public ActionResult<AttachmentInfo> AddAttachment([FromForm] FileUpload fileUpload, Guid conversationId, Guid attachmentId)
         {
             var file = fileUpload.File;
 
@@ -123,19 +123,19 @@ namespace PalmHill.BlazorChat.Server.WebApi
 
         // DELETE api/<AttachmentController>/5
         [HttpDelete("{attachmentId}")]
-        public async Task DeleteAttachment(string attachmentId)
+        public async Task DeleteAttachment(Guid attachmentId)
         {
             var exists = LlmMemory.AttachmentInfos.TryGetValue(attachmentId, out var attachmentInfo);
-            if (!exists)
+            if (!exists || attachmentInfo?.ConversationId is null)
             {
                 return;
             }
 
-            await LlmMemory.DeleteDocument(attachmentInfo?.ConversationId ?? string.Empty, attachmentId);
+            await LlmMemory.DeleteDocument(attachmentInfo.ConversationId.Value, attachmentId);
         }
 
         [HttpGet("{attachmentId}/file")]
-        public ActionResult GetAttachmentFile(string attachmentId)
+        public ActionResult GetAttachmentFile(Guid attachmentId)
         { 
             var attachmentInfo = LlmMemory.AttachmentInfos[attachmentId];
             if (attachmentInfo == null)

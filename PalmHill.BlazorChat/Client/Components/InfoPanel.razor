@@ -21,6 +21,7 @@
     public string Title { get; set; } = string.Empty;
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
+    [Parameter]
     public bool IsOpen { get; set; } = false;
 
     public void Show()

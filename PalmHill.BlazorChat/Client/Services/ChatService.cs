@@ -27,9 +27,14 @@ namespace PalmHill.BlazorChat.Client.Services
         }
 
         public string UserInput { get; set; } = string.Empty;
-        public LocalStorageSettings LocalStorageSettings { get; set; } = new LocalStorageSettings();
-        public List<WebSocketChatMessage> WebsocketChatMessages { get; set; } = new List<WebSocketChatMessage>();
-        private WebSocketChatService WebSocketChatConnection { get; }
+        public bool AttachmentsEnabled { get; set; } = false;
+        public bool AttachmentsVisible { get; private set; } = false;
+        public List<AttachmentInfo> SelectedFiles = new List<AttachmentInfo>();
+        public List<AttachmentInfo> UploadedFiles = new List<AttachmentInfo>();
+        public LocalStorageSettings LocalStorageSettings { get; private set; } = new LocalStorageSettings();
+        public List<WebSocketChatMessage> WebsocketChatMessages { get; private set; } = new List<WebSocketChatMessage>();
+        public WebSocketChatService WebSocketChatConnection { get; }
+
         public event EventHandler<bool>? OnStateChange;
 
 
@@ -86,6 +91,24 @@ namespace PalmHill.BlazorChat.Client.Services
                 await SaveSettings();
             }
 
+        }
+
+        public void ToggleAttachments()
+        {
+            AttachmentsVisible = !AttachmentsVisible;
+            StateHasChanged();
+        }
+
+        public void ShowAttachments()
+        {
+            AttachmentsVisible = true;
+            StateHasChanged();
+        }
+
+        public void HideAttachments()
+        {
+            AttachmentsVisible = false;
+            StateHasChanged();
         }
 
 
