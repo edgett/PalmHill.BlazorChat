@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.FluentUI.AspNetCore.Components.DesignTokens;
 
-namespace PalmHill.BlazorChat.Client
+namespace PalmHill.BlazorChat.Client.Services
 {
     public class ThemeControl
     {

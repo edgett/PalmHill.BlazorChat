@@ -7,7 +7,7 @@ using PalmHill.BlazorChat.Shared.Models;
 using PalmHill.BlazorChat.Shared.Models.WebSocket;
 using System.Data;
 
-namespace PalmHill.BlazorChat.Client
+namespace PalmHill.BlazorChat.Client.Services
 {
     public class ChatController
     {
@@ -25,7 +25,7 @@ namespace PalmHill.BlazorChat.Client
             _dialogService = dialogService;
             _themeControl = themeControl;
         }
-        
+
         public string UserInput { get; set; } = string.Empty;
         public LocalStorageSettings LocalStorageSettings { get; set; } = new LocalStorageSettings();
         public List<WebSocketChatMessage> WebsocketChatMessages { get; set; } = new List<WebSocketChatMessage>();
@@ -40,8 +40,8 @@ namespace PalmHill.BlazorChat.Client
 
         public async Task StartChat()
         {
-           LocalStorageSettings = await _localStorage.GetSettings();
-           await WebSocketChatConnection.StartAsync();
+            LocalStorageSettings = await _localStorage.GetSettings();
+            await WebSocketChatConnection.StartAsync();
         }
 
         private async Task SendInferenceRequest()
@@ -88,8 +88,8 @@ namespace PalmHill.BlazorChat.Client
 
         }
 
-  
-       
+
+
 
         private void setupWebSocketChatConnection()
         {

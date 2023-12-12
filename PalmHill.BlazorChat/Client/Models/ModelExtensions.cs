@@ -1,5 +1,4 @@
 ﻿using PalmHill.BlazorChat.Shared.Models;
-using System.Runtime.CompilerServices;
 
 namespace PalmHill.BlazorChat.Client.Models
 {

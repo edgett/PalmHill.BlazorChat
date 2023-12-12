@@ -2,7 +2,7 @@
 using Markdig.Syntax.Inlines;
 using PalmHill.BlazorChat.Client.Models;
 
-namespace PalmHill.BlazorChat.Client
+namespace PalmHill.BlazorChat.Client.Services
 {
     public class LocalStorageService
     {

@@ -3,7 +3,7 @@ using PalmHill.BlazorChat.Client.Models;
 using PalmHill.BlazorChat.Shared.Models;
 using PalmHill.BlazorChat.Shared.Models.WebSocket;
 
-namespace PalmHill.BlazorChat.Client
+namespace PalmHill.BlazorChat.Client.Services
 {
     public class WebSocketChatService
     {

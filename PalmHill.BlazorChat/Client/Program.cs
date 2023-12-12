@@ -5,6 +5,7 @@ using Microsoft.FluentUI.AspNetCore.Components;
 using Microsoft.FluentUI.AspNetCore.Components.DesignTokens;
 using PalmHill.BlazorChat.ApiClient;
 using PalmHill.BlazorChat.Client;
+using PalmHill.BlazorChat.Client.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
