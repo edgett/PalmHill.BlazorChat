@@ -1,6 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.FluentUI.AspNetCore.Components;
+using PalmHill.BlazorChat.ApiClient;
 using PalmHill.BlazorChat.Client.Components.Settings;
 using PalmHill.BlazorChat.Client.Models;
 using PalmHill.BlazorChat.Shared.Models;
@@ -16,7 +17,8 @@ namespace PalmHill.BlazorChat.Client.Services
             NavigationManager navigationManager,
             LocalStorageService localStorage,
             IDialogService dialogService,
-            ThemeService themeControl
+            ThemeService themeControl,
+            BlazorChatApi blazorChatApi
             )
         {
             WebSocketChatConnection = new WebSocketChatService(navigationManager.ToAbsoluteUri("/chathub?customUserId=user1"), WebsocketChatMessages);
@@ -24,6 +26,7 @@ namespace PalmHill.BlazorChat.Client.Services
             _localStorage = localStorage;
             _dialogService = dialogService;
             _themeControl = themeControl;
+            _blazorChatApi = blazorChatApi;
         }
 
         public string UserInput { get; set; } = string.Empty;
@@ -42,6 +45,7 @@ namespace PalmHill.BlazorChat.Client.Services
         private readonly LocalStorageService _localStorage;
         private readonly IDialogService _dialogService;
         private readonly ThemeService _themeControl;
+        private readonly BlazorChatApi _blazorChatApi;
 
         public async Task StartChat()
         {
@@ -56,12 +60,61 @@ namespace PalmHill.BlazorChat.Client.Services
 
         public async Task SendPrompt()
         {
+            if (AttachmentsEnabled == false)
+            { 
+                await SendToWebSocketChat();
+            }
+
+            if (AttachmentsEnabled == true)
+            {
+                await AskDocumentApi();
+            }
+        }
+
+        public async Task SendToWebSocketChat()
+        {
             var prompt = new WebSocketChatMessage();
             prompt.Prompt = UserInput;
             WebsocketChatMessages.Add(prompt);
             UserInput = string.Empty;
             StateHasChanged();
             await SendInferenceRequest();
+        }
+
+        public async Task AskDocumentApi()
+        {
+
+            var prompt = new WebSocketChatMessage();
+            prompt.Prompt = UserInput;
+            WebsocketChatMessages.Add(prompt);
+            UserInput = string.Empty;
+            StateHasChanged();
+
+            var infrerenceRequest = new InferenceRequest();
+            infrerenceRequest.Id = WebSocketChatConnection.ConversationId;
+            var chatMessage = new ChatMessage();
+            chatMessage.Id = prompt.Id;
+            chatMessage.Message = prompt.Prompt;
+            chatMessage.Role = ChatMessageRole.Question;
+            
+            infrerenceRequest.ChatMessages.Add(chatMessage);
+
+            var apiResponse = await _blazorChatApi!.Chat.Ask(infrerenceRequest);
+
+            if (apiResponse.IsSuccessStatusCode)
+            {
+                var chatMessageResponse = apiResponse.Content;
+                prompt.AddResponseString(chatMessageResponse?.Message ?? "");
+                prompt.CompleteResponse(true);
+            }
+            else
+            {
+                prompt.AddResponseString("Error.");
+                prompt.CompleteResponse(false);
+            }
+
+            StateHasChanged();
+            
         }
 
         public async Task SaveSettings()
