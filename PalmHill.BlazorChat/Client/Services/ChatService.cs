@@ -90,6 +90,9 @@ namespace PalmHill.BlazorChat.Client.Services
         public async Task AskDocumentApi()
         {
 
+            CanSend = false;
+            CanStop = true;
+
             var prompt = new WebSocketChatMessage();
             prompt.Prompt = UserInput;
             WebsocketChatMessages.Add(prompt);
@@ -115,12 +118,9 @@ namespace PalmHill.BlazorChat.Client.Services
             }
             else
             {
-                prompt.AddResponseString("Error.");
                 prompt.CompleteResponse(false);
             }
-
-            StateHasChanged();
-            
+            SetReady();
         }
 
         public async Task SaveSettings()

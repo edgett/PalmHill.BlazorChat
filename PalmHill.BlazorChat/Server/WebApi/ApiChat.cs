@@ -60,15 +60,15 @@ namespace PalmHill.BlazorChat.Server.WebApi
 
             try
             {
-                await ThreadLock.InferenceLock.WaitAsync();
-                var response = await DoInference(conversation);
+                await ThreadLock.InferenceLock.WaitAsync(cancellationTokenSource.Token);
+                var response = await DoInference(conversation, cancellationTokenSource.Token);
                 return Ok(response);
             }
             catch (OperationCanceledException)
             {
                 errorText = $"Inference for {conversationId} was canceled.";
                 Console.WriteLine(errorText);
-                return BadRequest(errorText);
+                return StatusCode(444, errorText);
             }
             catch (Exception ex)
             {
@@ -95,22 +95,41 @@ namespace PalmHill.BlazorChat.Server.WebApi
 
 
             var conversationId = chatConversation.Id;
+            var cancellationTokenSource = new CancellationTokenSource();
+            ChatCancelation.CancelationTokens[conversationId] = cancellationTokenSource;
+
             var question = chatConversation.ChatMessages.LastOrDefault()?.Message;
             if (question == null)
             {
                 return BadRequest("No question provided.");
             }
 
-            var answer = await LlmMemory.Ask(conversationId.ToString(), question);
-
-            var chatMessageAnswer = new ChatMessage()
+            try
             {
-                Role = ChatMessageRole.Assistant,
-                Message = answer.Result,
-                AttachmentIds = answer.RelevantSources.Select(s => s.SourceName).ToList()
-            };
+                var answer = await LlmMemory.Ask(conversationId.ToString(), question, cancellationTokenSource.Token);
 
-            return chatMessageAnswer;
+                var chatMessageAnswer = new ChatMessage()
+                {
+                    Role = ChatMessageRole.Assistant,
+                    Message = answer.Result,
+                    AttachmentIds = answer.RelevantSources.Select(s => s.SourceName).ToList()
+                };
+
+                if (cancellationTokenSource.Token.IsCancellationRequested)
+                {
+                    throw new OperationCanceledException(cancellationTokenSource.Token);
+                }
+
+                return chatMessageAnswer;
+            }
+            catch (OperationCanceledException ex)
+            {
+                return StatusCode(444, ex.ToString());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.ToString());
+            }
         }
 
         [HttpDelete("cancel/{conversationId}", Name = "CancelChat")]
@@ -132,13 +151,12 @@ namespace PalmHill.BlazorChat.Server.WebApi
         /// </summary>
         /// <param name="conversation">The chat conversation for which to perform inference.</param>
         /// <returns>Returns the inference result as a string.</returns>
-        private async Task<string> DoInference(InferenceRequest conversation)
+        private async Task<string> DoInference(InferenceRequest conversation, CancellationToken cancellationToken)
         {
             LLamaContext modelContext = InjectedModel.Model.CreateContext(InjectedModel.ModelParams);
             var session = modelContext.CreateChatSession(conversation);
             var inferenceParams = conversation.GetInferenceParams(InjectedModel.DefaultAntiPrompts);
 
-            var cancelGeneration = new CancellationTokenSource();
             var fullResponse = "";
             var totalTokens = 0;
             var inferenceStopwatch = new Stopwatch();
@@ -146,9 +164,17 @@ namespace PalmHill.BlazorChat.Server.WebApi
             inferenceStopwatch.Start();
             var asyncResponse = session.ChatAsync(session.History,
                                                         inferenceParams,
-                                                        cancelGeneration.Token);
+                                                        cancellationToken);
             await foreach (var text in asyncResponse)
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    modelContext.Dispose();
+                    inferenceStopwatch.Stop();
+
+                    throw new OperationCanceledException(cancellationToken);
+                }
+
                 totalTokens++;
                 fullResponse += text;
             }

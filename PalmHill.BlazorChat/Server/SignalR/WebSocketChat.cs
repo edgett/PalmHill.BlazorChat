@@ -109,7 +109,7 @@ namespace PalmHill.BlazorChat.Server.SignalR
                     modelContext.Dispose();
                     inferenceStopwatch.Stop();
 
-                    throw new OperationCanceledException();
+                    throw new OperationCanceledException(cancellationToken);
                 }
 
                 totalTokens++;

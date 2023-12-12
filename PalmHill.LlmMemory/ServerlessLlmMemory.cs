@@ -1,4 +1,5 @@
-﻿using Microsoft.KernelMemory;
+﻿using Azure.Core;
+using Microsoft.KernelMemory;
 using PalmHill.BlazorChat.Shared.Models;
 using PalmHill.Llama;
 using System.Collections.Concurrent;
@@ -108,12 +109,32 @@ namespace PalmHill.LlmMemory
             return results;
         }
 
-        public async Task<MemoryAnswer> Ask(string conversationId, string query)
+        public async Task<MemoryAnswer> Ask(string conversationId, string query, CancellationToken cancellationToken)
         {
             var processedQuery = processQuery(query);
-            var results = await KernelMemory.AskAsync(processedQuery, conversationId);
+            Exception? exception;
+            try
+            {
+                await Llama.ThreadLock.InferenceLock.WaitAsync(cancellationToken);
+                var results = await KernelMemory.AskAsync(processedQuery, conversationId, cancellationToken: cancellationToken);
+                return results;
+            }
+            catch (OperationCanceledException ex)
+            {
+                exception = ex;
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+            finally
+            {
+                Llama.ThreadLock.InferenceLock.Release();
+            }
 
-            return results;
+            throw exception;
+            
+            
         }
 
         private string processQuery(string query)
