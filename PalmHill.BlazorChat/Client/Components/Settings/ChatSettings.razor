@@ -1,4 +1,5 @@
-﻿@inject ThemeControl ThemeControl
+﻿@inject IDialogService DialogService
+@inject ThemeControl ThemeControl
 @implements IDialogContentComponent<LocalStorageSettings>
 
 @using Microsoft.FluentUI.AspNetCore.Components.DesignTokens
@@ -70,6 +71,18 @@
 
     }
 
+    public static DialogParameters<LocalStorageSettings> DefaultDialogParameters =  new()
+        {
 
+            Title = $"Settings",
+            PrimaryAction = "Save",
+            PrimaryActionEnabled = true,
+            Width = "500px",
+            TrapFocus = true,
+            Modal = true,
+            PreventScroll = true,
+        };
+
+ 
 
 }

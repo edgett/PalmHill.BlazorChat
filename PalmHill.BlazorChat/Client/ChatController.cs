@@ -14,33 +14,35 @@ namespace PalmHill.BlazorChat.Client
 
         public ChatController(
             NavigationManager navigationManager,
-            ILocalStorageService localStorage,
+            LocalStorageService localStorage,
             IDialogService dialogService,
             ThemeControl themeControl
             )
         {
-            WebSocketChatConnection = new WebSocketChatConnection(navigationManager.ToAbsoluteUri("/chathub?customUserId=user1"), WebsocketChatMessages);
+            WebSocketChatConnection = new WebSocketChatService(navigationManager.ToAbsoluteUri("/chathub?customUserId=user1"), WebsocketChatMessages);
             setupWebSocketChatConnection();
             _localStorage = localStorage;
             _dialogService = dialogService;
             _themeControl = themeControl;
-            _ = WebSocketChatConnection.StartAsync();
-
         }
         
         public string UserInput { get; set; } = string.Empty;
         public LocalStorageSettings LocalStorageSettings { get; set; } = new LocalStorageSettings();
         public List<WebSocketChatMessage> WebsocketChatMessages { get; set; } = new List<WebSocketChatMessage>();
-        private WebSocketChatConnection WebSocketChatConnection { get; }
+        private WebSocketChatService WebSocketChatConnection { get; }
         public event EventHandler<bool>? OnStateChange;
 
 
 
-        private readonly ILocalStorageService _localStorage;
+        private readonly LocalStorageService _localStorage;
         private readonly IDialogService _dialogService;
         private readonly ThemeControl _themeControl;
 
-        
+        public async Task StartChat()
+        {
+           LocalStorageSettings = await _localStorage.GetSettings();
+           await WebSocketChatConnection.StartAsync();
+        }
 
         private async Task SendInferenceRequest()
         {
@@ -59,29 +61,18 @@ namespace PalmHill.BlazorChat.Client
 
         public async Task SaveSettings()
         {
-            //Todo: Save settings to local storage
-            await _localStorage.SetItemAsync("LocalStorageSettings", LocalStorageSettings);
+            await _localStorage.SaveSettings(LocalStorageSettings);
         }
 
         public async Task ShowSettings()
         {
 
-            DialogParameters<LocalStorageSettings> parameters = new()
-            {
 
-                Title = $"Settings",
-                PrimaryAction = "Save",
-                PrimaryActionEnabled = true,
-                Width = "500px",
-                TrapFocus = true,
-                Modal = true,
-                PreventScroll = true,
-            };
-
-            var currentSettings = await GetStorageSettings();
-
-            var dialog = await _dialogService.ShowDialogAsync<ChatSettings>(currentSettings, parameters);
+            var currentSettings = LocalStorageSettings.CreateCopy();
+            var dialogParameters = ChatSettings.DefaultDialogParameters;
+            var dialog = await _dialogService.ShowDialogAsync<ChatSettings>(currentSettings, dialogParameters);
             var dialogResult = await dialog.Result;
+
 
             if (dialogResult?.Cancelled == true)
             {
@@ -97,46 +88,14 @@ namespace PalmHill.BlazorChat.Client
 
         }
 
-        public async Task LoadSettings()
-        {
-            LocalStorageSettings = await GetStorageSettings();
-            await _themeControl.ChangeTheme(LocalStorageSettings.DarkMode);
-        }
-
-        private async Task<LocalStorageSettings> GetStorageSettings()
-        {
-            var settingsExist = await _localStorage.ContainKeyAsync("LocalStorageSettings");
-
-            if (settingsExist)
-            {
-                var localStorageSettings = await _localStorage.GetItemAsync<LocalStorageSettings>("LocalStorageSettings");
-
-                if (localStorageSettings.SettingsVersion == LocalStorageSettings.CurrentSettingsVersion)
-                {
-                    return localStorageSettings;
-                }
-                else
-                {
-                    //TODO: Migrate settings
-                    return new LocalStorageSettings();
-                }
-            }
-
-            return new LocalStorageSettings();
-        }
+  
+       
 
         private void setupWebSocketChatConnection()
         {
-            
-
             WebSocketChatConnection.OnInferenceStatusUpdate += (sender, inferenceStatusUpdate) =>
             {
                 StateHasChanged();
-            };
-
-            WebSocketChatConnection.OnAttachmentStatusUpdate += (sender, attachmentInfo) =>
-            {
-                //TODO: Handle attachment info
             };
         }
 

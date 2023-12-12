@@ -4,6 +4,7 @@
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage;
 @inject IDialogService DialogService;
 @inject ThemeControl ThemeControl;
+@inject ChatController Controller;
 
 <FluentHeader Class="chat-header">
     <FluentButton
@@ -32,19 +33,16 @@
 @code
 {
 
-    public ChatController? Controller { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        Controller = constructController();
-        _ = Controller.LoadSettings();
+        attachControllerEvents();
+        await Controller.StartChat();
     }
 
-    private ChatController constructController()
+    private void attachControllerEvents()
     {
-        var controller = new ChatController(Navigation, LocalStorage, DialogService, ThemeControl);
-        controller.OnStateChange += Controller_OnStateChange;
-        return controller;
+        Controller.OnStateChange += Controller_OnStateChange;
     }
 
     public void Controller_OnStateChange(object? sender, bool bs)

@@ -5,9 +5,9 @@ using PalmHill.BlazorChat.Shared.Models.WebSocket;
 
 namespace PalmHill.BlazorChat.Client
 {
-    public class WebSocketChatConnection
+    public class WebSocketChatService
     {
-        public WebSocketChatConnection(Uri chatHubUri, List<WebSocketChatMessage> webSocketChatMessages)
+        public WebSocketChatService(Uri chatHubUri, List<WebSocketChatMessage> webSocketChatMessages)
         {
             WebSocketChatMessages = webSocketChatMessages;
             HubConnection = new HubConnectionBuilder()
