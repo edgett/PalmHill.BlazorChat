@@ -5,7 +5,7 @@
                   @bind-Value="Controller!.AttachmentsEnabled"
                   Label="Enable"></FluentSwitch>
 
-    <FileInput ConversationId="@Controller.WebSocketChatConnection.ConversationId">
+    <FileInput Controller="Controller">
     </FileInput>
 </InfoPanel>
 

@@ -33,10 +33,10 @@
     </div>
 </FluentInputFile>
 
-@if (UploadedFiles.Any())
+@if (Controller!.UploadedFiles.Any())
 {
     <div>
-        @foreach (var file in UploadedFiles)
+        @foreach (var file in Controller.UploadedFiles)
         {
             <AttachmentItemDisplay OnFileDeleted="FileDeletedHandler" Attachment="file"></AttachmentItemDisplay>
         }
@@ -48,7 +48,8 @@
 @code
 {
     [Parameter]
-    public List<AttachmentInfo> UploadedFiles { get; set; } = new List<AttachmentInfo>();
+    public ChatService? Controller { get; set; }
+
 
     [Parameter]
     public Guid? ConversationId { get; set; }
@@ -61,7 +62,7 @@
     int? progressPercent;
     private void FileDeletedHandler(AttachmentInfo deletedAttachment)
     {
-        UploadedFiles.Remove(deletedAttachment);
+       Controller!.UploadedFiles.Remove(deletedAttachment);
     }
 
 
@@ -86,7 +87,7 @@
             attachmentInfo.ContentType = file.ContentType;
             attachmentInfo.Status = AttachmentStatus.Pending;
 
-            UploadedFiles.Add(attachmentInfo);
+            Controller!.UploadedFiles.Add(attachmentInfo);
 
             var uploadTask = new Task(async () =>
             {
@@ -115,7 +116,7 @@
 
     public void UploadStatusChanged(Guid attachmentId, AttachmentStatus newStatus)
     {
-        var currentAttachment = UploadedFiles.SingleOrDefault(a => a.Id == attachmentId);
+        var currentAttachment = Controller?.UploadedFiles.SingleOrDefault(a => a.Id == attachmentId);
         currentAttachment!.Status = newStatus;
         StateHasChanged();
     }

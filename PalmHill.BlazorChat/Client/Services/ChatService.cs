@@ -120,6 +120,13 @@ namespace PalmHill.BlazorChat.Client.Services
             {
                 StateHasChanged();
             };
+
+            WebSocketChatConnection.OnAttachmentStatusUpdate += (sender, attachmentInfo) =>
+            {
+                var attachmentInfoToUpdate = UploadedFiles.SingleOrDefault(af => af.Id == attachmentInfo.Id);
+                attachmentInfoToUpdate!.Status = attachmentInfo.Status;
+                StateHasChanged();
+            };
         }
 
         private void StateHasChanged()
