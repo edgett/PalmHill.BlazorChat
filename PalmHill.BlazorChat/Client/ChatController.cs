@@ -19,7 +19,7 @@ namespace PalmHill.BlazorChat.Client
             ThemeControl themeControl
             )
         {
-            WebSocketChatConnection = new WebSocketChatConnection(navigationManager.ToAbsoluteUri("/chathub?customUserId=user1"));
+            WebSocketChatConnection = new WebSocketChatConnection(navigationManager.ToAbsoluteUri("/chathub?customUserId=user1"), WebsocketChatMessages);
             setupWebSocketChatConnection();
             _localStorage = localStorage;
             _dialogService = dialogService;
@@ -27,11 +27,10 @@ namespace PalmHill.BlazorChat.Client
             _ = WebSocketChatConnection.StartAsync();
 
         }
-        public Guid ConversationId { get; } = Guid.NewGuid();
+        
         public string UserInput { get; set; } = string.Empty;
         public LocalStorageSettings LocalStorageSettings { get; set; } = new LocalStorageSettings();
         public List<WebSocketChatMessage> WebsocketChatMessages { get; set; } = new List<WebSocketChatMessage>();
-        private InferenceRequest InferenceRequest { get => GetInferenceRequestFromWebsocketMessages(); }
         private WebSocketChatConnection WebSocketChatConnection { get; }
         public event EventHandler<bool>? OnStateChange;
 
@@ -41,37 +40,11 @@ namespace PalmHill.BlazorChat.Client
         private readonly IDialogService _dialogService;
         private readonly ThemeControl _themeControl;
 
-        private InferenceRequest GetInferenceRequestFromWebsocketMessages()
-        {
-            var chatConversation = new InferenceRequest();
-            chatConversation.Id = ConversationId;
-            chatConversation.SystemMessage = LocalStorageSettings.SystemMessage;
-
-            foreach (var promptAndResponse in WebsocketChatMessages)
-            {
-                var userMessage = new ChatMessage();
-                userMessage.Message = promptAndResponse.Prompt;
-                userMessage.Id = promptAndResponse.Id;
-                userMessage.Role = ChatMessageRole.User;
-                chatConversation.ChatMessages.Add(userMessage);
-
-                if (promptAndResponse.IsComplete && promptAndResponse.Success == true)
-                {
-                    var modelMessage = new ChatMessage();
-                    modelMessage.Message = promptAndResponse.Resonse;
-                    modelMessage.Role = ChatMessageRole.Assistant;
-                    chatConversation.ChatMessages.Add(modelMessage);
-
-                }
-
-            }
-
-            return chatConversation;
-        }
+        
 
         private async Task SendInferenceRequest()
         {
-            await WebSocketChatConnection!.SendInferenceRequestAsync(InferenceRequest);
+            await WebSocketChatConnection!.SendInferenceRequestAsync();
         }
 
         public async Task SendPrompt()
@@ -154,23 +127,11 @@ namespace PalmHill.BlazorChat.Client
 
         private void setupWebSocketChatConnection()
         {
-            WebSocketChatConnection.OnReceiveInferenceString += (sender, inferenceString) =>
-            {
-                var lastPrompt = WebsocketChatMessages.SingleOrDefault(cm => cm.Id == inferenceString.MessageId);
-                lastPrompt?.AddResponseString(inferenceString.InferenceString);
-
-            };
+            
 
             WebSocketChatConnection.OnInferenceStatusUpdate += (sender, inferenceStatusUpdate) =>
             {
-                var lastPrompt = WebsocketChatMessages.Single(cm => cm.Id == inferenceStatusUpdate.MessageId);
-
-                if (inferenceStatusUpdate.IsComplete)
-                {
-                    lastPrompt.CompleteResponse(inferenceStatusUpdate.Success ?? false);
-                }
-
-                OnStateChange?.Invoke(this, true);
+                StateHasChanged();
             };
 
             WebSocketChatConnection.OnAttachmentStatusUpdate += (sender, attachmentInfo) =>
