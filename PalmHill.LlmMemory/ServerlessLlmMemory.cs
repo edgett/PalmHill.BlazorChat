@@ -99,7 +99,7 @@ namespace PalmHill.LlmMemory
         {
             await KernelMemory.DeleteDocumentAsync(attachmentId.ToString(), conversationId.ToString());
             var removed = AttachmentInfos.Remove(attachmentId, out _);
-            return true;
+            return removed;
         }
 
         public async Task<SearchResult> SearchAsync(string conversationId, string query)

@@ -42,8 +42,11 @@
     [Parameter]
     public EventCallback<TValue> ValueChanged { get; set; }
 
- 
 
+    /// <summary>
+    /// Event handler for when the text input changes. Triggeres the <see cref="ValueChanged"/> event.
+    /// </summary>
+    /// <param name="e"></param>
     private async Task OnTextChanged(ChangeEventArgs e)
     {
         if (e.Value == null)

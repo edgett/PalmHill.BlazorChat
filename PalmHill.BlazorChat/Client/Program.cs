@@ -20,12 +20,13 @@ builder.Services.AddBlazoredLocalStorage();
 //Add BlazorChatApi for operating the API.
 builder.Services.AddScoped<BlazorChatApi>();
 
-//Add ThemeControler
+//Add ThemeControler Service
 builder.Services.AddSingleton<ThemeService>();
 
 //Add LocalStorageService
 builder.Services.AddScoped<LocalStorageService>();
 
+//Add ChatService
 builder.Services.AddScoped<ChatService>();
 
 

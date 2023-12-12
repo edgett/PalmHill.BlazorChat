@@ -1,0 +1,22 @@
+﻿@if (Controller!.UploadedFiles.Any())
+{
+    <div>
+        @foreach (var file in Controller.UploadedFiles)
+        {
+            <AttachmentItemDisplay OnFileDeleted="_fileDeletedHandler" Attachment="file"></AttachmentItemDisplay>
+        }
+    </div>
+}
+@code {
+    [Parameter]
+    public ChatService? Controller { get; set; }
+
+    /// <summary>
+    /// Removes the deleted attachment from the <see cref="Controller"/>'s UploadedFiles list.
+    /// </summary>
+    /// <param name="deletedAttachment">The deleted <see cref="AttachmentInfo"></param>
+    private void _fileDeletedHandler(AttachmentInfo deletedAttachment)
+    {
+        Controller!.UploadedFiles.Remove(deletedAttachment);
+    }
+}

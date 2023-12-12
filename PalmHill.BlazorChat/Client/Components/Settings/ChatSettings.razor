@@ -15,50 +15,61 @@
                     Rows="10"
                     Class="w-100"></FluentTextArea>
 
-    <SettingContainer Label="Temperature"
+    <RangeSetting Label="Temperature"
                       Min="0.1f"
                       Max="1f"
                       Step="0.1f"
-                      @bind-Value="Content.InferenceSettings.Temperature"></SettingContainer>
+                      @bind-Value="Content.InferenceSettings.Temperature"></RangeSetting>
 
-    <SettingContainer Label="Max Length"
+    <RangeSetting Label="Max Length"
                       Min="1"
                       Max="4096"
                       Step="1"
                       @bind-Value="Content.InferenceSettings.MaxLength">
-    </SettingContainer>
+    </RangeSetting>
 
-    <SettingContainer Label="Top P"
+    <RangeSetting Label="Top P"
                       Min="0.1f"
                       Max="1f"
                       Step="0.1f"
                       @bind-Value="Content.InferenceSettings.TopP">
-    </SettingContainer>
+    </RangeSetting>
 
-    <SettingContainer Label="Frequency penalty"
+    <RangeSetting Label="Frequency penalty"
                       Min="0f"
                       Max="1f"
                       Step="0.1f"
                       @bind-Value="Content.InferenceSettings.FrequencyPenalty">
-    </SettingContainer>
+    </RangeSetting>
 
-    <SettingContainer Label="Presence penalty"
+    <RangeSetting Label="Presence penalty"
                       Min="0f"
                       Max="1f"
                       Step="0.1f"
                       @bind-Value="Content.InferenceSettings.PresencePenalty">
-    </SettingContainer>
+    </RangeSetting>
 
 </FluentStack>
 
 @code {
 
-
+    /// <summary>
+    /// The <see cref="LocalStorageSettings"/> to display.
+    /// </summary>
     [Parameter]
     public LocalStorageSettings Content { get; set; } = new LocalStorageSettings();
+
+    /// <summary>
+    /// The <see cref="FluentDialog"/> the component is displayed in.
+    /// </summary>
     [CascadingParameter]
     public FluentDialog? Dialog { get; set; }
 
+
+    /// <summary>
+    /// Event handler for when <see cref="LocalStorageSettings.DarkMode"/> is changed.
+    /// </summary>
+    /// <param name="darkModeChecked">Is dark mode on</param>
     public async Task ChangeThemeChecked(bool darkModeChecked)
     {
         Content.DarkMode = darkModeChecked;
@@ -66,6 +77,9 @@
 
     }
 
+    /// <summary>
+    /// The default <see cref="DialogParameters"/> for the component.
+    /// </summary>
     public static DialogParameters<LocalStorageSettings> DefaultDialogParameters =  new()
         {
 

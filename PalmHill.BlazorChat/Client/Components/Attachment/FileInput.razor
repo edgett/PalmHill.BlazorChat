@@ -15,33 +15,24 @@
     }
 </style>
 
-<FluentInputFile 
-                 AnchorId="MyUploadBuffer"
+<FluentInputFile AnchorId="uploadFileButton"
                  DragDropZoneVisible="true"
                  Mode="InputFileMode.Stream"
                  Multiple="true"
                  MaximumFileSize="100000"
-                 OnInputFileChange="UploadFiles"
+                 OnInputFileChange="OnInputFileChange"
                  Class="file-upload-container">
                  
     <div>
         <h5>Drag and Drop Files</h5>
         <br />
-        <FluentButton Appearance="Appearance.Accent" Id="MyUploadBuffer">
+        <FluentButton Appearance="Appearance.Accent" Id="uploadFileButton">
             Select Files
         </FluentButton>
     </div>
 </FluentInputFile>
 
-@if (Controller!.UploadedFiles.Any())
-{
-    <div>
-        @foreach (var file in Controller.UploadedFiles)
-        {
-            <AttachmentItemDisplay OnFileDeleted="FileDeletedHandler" Attachment="file"></AttachmentItemDisplay>
-        }
-    </div>
-}
+
 
 
 
@@ -50,75 +41,12 @@
     [Parameter]
     public ChatService? Controller { get; set; }
 
-
+    /// <summary>
+    /// Event callback to invoke when the user selects files.
+    /// </summary>
     [Parameter]
-    public EventCallback<AttachmentInfo> OnFileDeleted { get; set; }
+    public EventCallback<InputFileChangeEventArgs> OnInputFileChange { get; set; }
+    
 
-
-
-    int? progressPercent;
-    private void FileDeletedHandler(AttachmentInfo deletedAttachment)
-    {
-        Controller!.UploadedFiles.Remove(deletedAttachment);
-    }
-
-
-    private async Task UploadFiles(InputFileChangeEventArgs e)
-    {
-      
-        progressPercent = 10;
-        var files = e.GetMultipleFiles();
-        var uploadedCount = 0;
-        var uploadTasks = new List<Task>();
-
-        foreach (var file in files)
-        {
-            var attachmentInfo = new AttachmentInfo();
-            attachmentInfo.ConversationId = Controller?.WebSocketChatConnection.ConversationId;
-            attachmentInfo.Name = file.Name;
-            attachmentInfo.Size = file.Size;
-            attachmentInfo.ContentType = file.ContentType;
-            attachmentInfo.Status = AttachmentStatus.Pending;
-
-            Controller!.UploadedFiles.Add(attachmentInfo);
-
-            var uploadTask = new Task(async () =>
-            {
-                if (attachmentInfo?.ConversationId is null)
-                {
-                    attachmentInfo!.Status = AttachmentStatus.Failed;
-                    StateHasChanged();
-                    return;
-                }
-
-                var stream = file.OpenReadStream(10000000);
-                var streamPart = new StreamPart(stream, file.Name, file.ContentType);
-                var apiResponse = await BlazorChatApi.Attachment.AddAttachment(attachmentInfo.ConversationId.Value, attachmentInfo.Id, streamPart);
-                uploadedCount++;
-                progressPercent = (int)((uploadedCount / (double)files.Count()) * 100);
-
-                if (!apiResponse.IsSuccessStatusCode)
-                {
-                    attachmentInfo.Status = AttachmentStatus.Failed;
-                    StateHasChanged();
-                }
-            });
-
-            uploadTasks.Add(uploadTask);
-        }
-
-        foreach (var uploadTask in uploadTasks)
-        {
-            uploadTask.Start();
-            await uploadTask;
-        }
-    }
-
-    public void UploadStatusChanged(Guid attachmentId, AttachmentStatus newStatus)
-    {
-        var currentAttachment = Controller?.UploadedFiles.SingleOrDefault(a => a.Id == attachmentId);
-        currentAttachment!.Status = newStatus;
-        StateHasChanged();
-    }
 
 }

@@ -6,7 +6,8 @@
 @inherits FluentComponentBase
 
 <div class="chat-messages">
-    @foreach (var mr in Controller!.WebsocketChatMessages)
+    @* Display each prompt in a card. Display each response in a card. *@
+    @foreach (var promptWithResponse in Controller!.WebsocketChatMessages)
     {
         <FluentCard>
             <FluentStack>
@@ -15,7 +16,7 @@
                 </div>
 
                 <div>
-                    <span>@mr.Prompt</span>
+                    <span>@promptWithResponse.Prompt</span>
                 </div>
             </FluentStack>
 
@@ -26,12 +27,12 @@
                 <div style="position:relative;">
                     <FluentIcon Value="@(new Icons.Regular.Size24.LightbulbPerson())" />
 
-                    <FluentProgressRing Visible="!mr.IsComplete"
+                    <FluentProgressRing Visible="!promptWithResponse.IsComplete"
                                         Style="height:24px; width:24px; position:absolute; top:0px; left:0px;"></FluentProgressRing>
                 </div>
 
                 <div>
-                    <ModelMarkdown ModelResponse="@mr"></ModelMarkdown>
+                    <ModelMarkdown WebSocketChatMessage="@promptWithResponse"></ModelMarkdown>
                 </div>
             </FluentStack>
 

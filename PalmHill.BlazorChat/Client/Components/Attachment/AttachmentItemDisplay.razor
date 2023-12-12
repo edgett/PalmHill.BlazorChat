@@ -4,61 +4,81 @@
 
 @if (Attachment != null)
 {
-
-
-
-
-    <FluentPresenceBadge Style="width:100%;" Status="presenceStatus" StatusTitle="@presenceLabel">
+    <FluentPresenceBadge Style="width:100%;" Status="_presenceStatus" StatusTitle="@_presenceLabel">
         <FluentCard Style="width:100%; padding:3px 3px" >
             <div>
                 @Attachment.Name
             </div>
             <FluentButton IconStart="@(new Icons.Regular.Size16.Delete())"
-                          Loading="@loading"
-                          OnClick="@DeleteAttachment" 
+                          Loading="@_deleteInProgress"
+                          OnClick="@_deleteAttachment" 
                           Title="Delete">
             </FluentButton>
-            
         </FluentCard>
-        
     </FluentPresenceBadge>
-
-
 }
 
 
 @code {
+    /// <summary>
+    /// The <see cref="AttachmentInfo"/> to display
+    /// </summary>
     [Parameter]
     public AttachmentInfo? Attachment { get; set; }
 
+    /// <summary>
+    /// The <see cref="EventCallback"/> to invoke when the attachment is deleted. 
+    /// The event handler will remove the attachment from the list.
+    /// </summary>
     [Parameter]
     public EventCallback<AttachmentInfo> OnFileDeleted { get; set; }
 
-    bool loading = false;
+    private bool _deleteInProgress = false;
 
-    async Task DeleteAttachment()
+    /// <summary>
+    /// Deletes the attachment by calling the api.
+    /// </summary>
+    /// <returns></returns>
+    private async Task _deleteAttachment()
     {
         if(Attachment == null)
         { 
             return; 
         }
 
+        _deleteInProgress = true;
         try
         {
-            loading = true;
-            await BlazorChatApi.Attachment.DeleteAttachment(Attachment.Id);
-            await OnFileDeleted.InvokeAsync(Attachment);
+            var apiResponse = await BlazorChatApi.Attachment.DeleteAttachment(Attachment.Id);
+
+            if (!apiResponse.IsSuccessStatusCode )
+            {
+                throw new Exception($"Failed to delete attachment. {apiResponse.StatusCode} {apiResponse.ReasonPhrase}");
+            }
+
+            if (!apiResponse.Content)
+            {
+                throw new Exception($"Failed to delete attachment. {apiResponse.StatusCode} {apiResponse.ReasonPhrase}");
+            }
+
+            if (apiResponse.IsSuccessStatusCode)
+            {               //Only invoke when the delete was successful. 
+                            //The event handler will remove the attachment from the list.
+                await OnFileDeleted.InvokeAsync(Attachment);
+            }
 
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to delete attachment. {ex}");
+            Console.WriteLine($"{ex}");
         }
-
-        loading = false;
+        _deleteInProgress = false;
     }
 
-    public PresenceStatus presenceStatus
+    /// <summary>
+    /// The <see cref="PresenceStatus"/> to display on the attachment.
+    /// </summary>
+    private PresenceStatus _presenceStatus
     {
         get
         {
@@ -80,7 +100,10 @@
         }
     }
 
-    public string presenceLabel
+    /// <summary>
+    /// The tooltip text to display for the attachment.
+    /// </summary>
+    private string _presenceLabel
     {
         get
         {

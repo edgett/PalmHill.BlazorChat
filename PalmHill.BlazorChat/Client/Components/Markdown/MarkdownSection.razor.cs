@@ -10,10 +10,6 @@ public partial class MarkdownSection : FluentComponentBase
     private string? _content;
     private bool _raiseContentConverted;
 
-    //[Inject]
-    //private IStaticAssetService StaticAssetService { get; set; } = default!;
-
-
     /// <summary>
     /// Gets or sets the Markdown content 
     /// </summary>
@@ -21,11 +17,8 @@ public partial class MarkdownSection : FluentComponentBase
     public string? Content { get; set; }
 
     /// <summary>
-    /// Gets or sets asset to read the Markdown from
+    /// Event callback for when the Markdown content is converted to HTML.
     /// </summary>
-    //[Parameter]
-    //public string? FromAsset { get; set; }
-
     [Parameter]
     public EventCallback OnContentConverted { get; set; }
 
@@ -60,12 +53,6 @@ public partial class MarkdownSection : FluentComponentBase
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-
-        //if (firstRender && !string.IsNullOrEmpty(FromAsset))
-        //{
-        //    InternalContent = await StaticAssetService.GetAsync(FromAsset);
-        //}
-
         if (_raiseContentConverted)
         {
             _raiseContentConverted = false;
@@ -79,9 +66,7 @@ public partial class MarkdownSection : FluentComponentBase
 
     public void RefreshContent()
     {
-
         InternalContent = Content;
-
     }
 
 

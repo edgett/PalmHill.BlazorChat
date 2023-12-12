@@ -3,46 +3,36 @@
 @inject IJSRuntime JSRuntime
 
 <style>
-    .counterbadge-container
-    {
-        display:block !important;
+    .counterbadge-container {
+        display: block !important;
     }
 
 </style>
 
 <FluentFooter Class="w-100" Style="position:fixed; bottom:15px;">
     <FluentStack Class="chat-messages input-area">
-        <div class="file-input-area" @onclick="ShowAttachmentPanel">
-            
-
-            <FluentCounterBadge 
-                Count="Controller?.UploadedFiles.Count ?? 0" 
-                ShowZero="true" 
-                BottomPosition="-10" 
-                
-            >
-                <FluentButton 
-                    Id="uploadButton" 
-                    IconStart="(new Icons.Regular.Size24.Attach())" 
-                    Style="margin-top:6px;"
-                ></FluentButton>
+        <div class="file-input-area" @onclick="Controller!.ShowAttachments">
+            <FluentCounterBadge Count="Controller?.UploadedFiles.Count ?? 0"
+                                ShowZero="true"
+                                BottomPosition="-10">
+                <FluentButton Id="uploadButton"
+                              IconStart="(new Icons.Regular.Size24.Attach())"
+                              Style="margin-top:6px;"></FluentButton>
             </FluentCounterBadge>
         </div>
         <div style="flex-grow:1;" class="min-h-100">
-            <textarea 
-                placeholder="Shift+Enter for new line" 
-                rows="1" 
-                @ref="textAreaElement" 
-                @bind="Controller!.UserInput" 
-                class="main-textarea" 
-                @onkeyup="HandleKeyPress" 
-                @bind:event="oninput"
-            ></textarea>
+            <textarea placeholder="Shift+Enter for new line"
+                      rows="1"
+                      @ref="textAreaElement"
+                      @bind="Controller!.UserInput"
+                      class="main-textarea"
+                      @onkeyup="_handleKeyPress"
+                      @bind:event="oninput"></textarea>
         </div>
         <div>
             @if (Controller?.CanSend == true)
             {
-                <FluentButton OnClick="Send"
+                <FluentButton OnClick="_sendPrompt"
                               Disabled="string.IsNullOrWhiteSpace(Controller!.UserInput)"
                               Appearance="Appearance.Accent"
                               IconStart="(new Icons.Regular.Size24.Send())"
@@ -52,11 +42,11 @@
 
             @if (Controller?.CanStop == true)
             {
-                <FluentButton OnClick="CancelTextGeneration"
+                <FluentButton OnClick="_cancelTextGeneration"
                               Appearance="Appearance.Accent"
                               IconStart="(new Icons.Regular.Size24.Stop())"
                               Style="margin-top:6px;"></FluentButton>
-            
+
             }
 
         </div>
@@ -68,44 +58,52 @@
     [Parameter]
     public ChatService? Controller { get; set; }
 
-
+    /// <summary>
+    /// Reference to the main text area. Used to resize it.
+    /// </summary>
     private ElementReference textAreaElement;
 
-
-
-
-    private async Task Send()
+    /// <summary>
+    /// Sends the prompt to the server.
+    /// </summary>
+    private async Task _sendPrompt()
     {
+        await _sizeTextArea();
         await Controller!.SendPrompt();
-        await SizeTextArea();
-        StateHasChanged();
-
     }
 
-    public async Task CancelTextGeneration()
+    /// <summary>
+    /// Cancels the text generation.
+    /// </summary>
+    private async Task _cancelTextGeneration()
     {
         await Controller!.CancelTextGeneration();
     }
 
-    private async Task HandleKeyPress(KeyboardEventArgs e)
+    /// <summary>
+    /// Handel key press events from the main text area.
+    /// Send prompt on enter.
+    /// </summary>
+    /// <param name="e">The key pressed.</param>
+    private async Task _handleKeyPress(KeyboardEventArgs e)
     {
         if (e.Key == "Enter" && !e.ShiftKey)
         {
-            await Send();
+            await _sendPrompt();
         }
     }
 
-    private async Task SizeTextArea()
+    /// <summary>
+    /// Resizes the main text area.
+    /// </summary>
+    private async Task _sizeTextArea()
     {
         await JSRuntime.InvokeVoidAsync("textAreaAdjust", textAreaElement);
     }
 
 
 
-    private void ShowAttachmentPanel()
-    {
-        Controller!.ShowAttachments();
-    }
+
 
 
 }

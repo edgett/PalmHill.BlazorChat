@@ -1,53 +1,70 @@
-﻿<MarkdownSection @ref="mdSection" Content="@markdownToRender"></MarkdownSection>
+﻿<MarkdownSection @ref="mdSection" Content="@_inferenceMarkdownToRender"></MarkdownSection>
 
 @code {
 
-    private string markdownToRender { get; set; } = string.Empty;
+    /// <summary>
+    /// The markdown to render.
+    /// </summary>
+    private string _inferenceMarkdownToRender { get; set; } = string.Empty;
 
+    /// <summary>
+    /// The <see cref="WebSocketChatMessage"/> to display.
+    /// </summary>
     [Parameter]
-    public WebSocketChatMessage? ModelResponse { get; set; }
+    public WebSocketChatMessage? WebSocketChatMessage { get; set; }
 
+    /// <summary>
+    /// The markdown renderer reference to refresh the content.
+    /// </summary>
     private MarkdownSection? mdSection { get; set; }
 
-    private void HandleResponseChanged(object? sender, EventArgs? e)
+    /// <summary>
+    /// Event handler for when the <see cref="WebSocketChatMessage.ResponseChanged"/> event is fired.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void _handleResponseChanged(object? sender, EventArgs? e)
     {
         // Update the markdownToRender variable based on the new response
-        markdownToRender = ModelResponse?.Resonse ?? string.Empty;
+        _inferenceMarkdownToRender = WebSocketChatMessage?.Resonse ?? string.Empty;
         mdSection?.RefreshContent();
         // Invoke a StateHasChanged to refresh the UI if needed
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Setup the response event handling.
+    /// </summary>
     protected override void OnParametersSet()
     {
         // Unsubscribe from the old ModelResponse's event to avoid memory leaks
-        if (ModelResponse != null)
+        if (WebSocketChatMessage != null)
         {
-            ModelResponse.ResponseChanged -= HandleResponseChanged;
-            ModelResponse.ResponseCompleted -= HandleResponseChanged;
+            WebSocketChatMessage.ResponseChanged -= _handleResponseChanged;
+            WebSocketChatMessage.ResponseCompleted -= _handleResponseChanged;
         }
 
         // Assign the new ModelResponse object
         base.OnParametersSet();
 
         // Subscribe to the new ModelResponse's event
-        if (ModelResponse != null)
+        if (WebSocketChatMessage != null)
         {
-            ModelResponse.ResponseChanged += HandleResponseChanged;
-            ModelResponse.ResponseCompleted += HandleResponseChanged;
+            WebSocketChatMessage.ResponseChanged += _handleResponseChanged;
+            WebSocketChatMessage.ResponseCompleted += _handleResponseChanged;
 
             // Update the UI with the current state of the response
-            markdownToRender = ModelResponse.Resonse;
+            _inferenceMarkdownToRender = WebSocketChatMessage.Resonse;
         }
     }
 
     // Ensure to unsubscribe when the component is disposed to avoid memory leaks
     public void Dispose()
     {
-        if (ModelResponse != null)
+        if (WebSocketChatMessage != null)
         {
-            ModelResponse.ResponseChanged -= HandleResponseChanged;
-            ModelResponse.ResponseCompleted -= HandleResponseChanged;
+            WebSocketChatMessage.ResponseChanged -= _handleResponseChanged;
+            WebSocketChatMessage.ResponseCompleted -= _handleResponseChanged;
         }
     }
 }
