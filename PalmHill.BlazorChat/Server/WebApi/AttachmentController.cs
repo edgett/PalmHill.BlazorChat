@@ -26,27 +26,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
             WebSocketChat = webSocketChat;
         }
 
-        [HttpPost("ask")]
-        public async Task<ActionResult<ChatMessage>> Ask(InferenceRequest chatConversation)
-        {
-            var conversationId = chatConversation.Id;
-            var question = chatConversation.ChatMessages.LastOrDefault()?.Message;
-            if (question == null)
-            {
-                return BadRequest("No question provided.");
-            }
-
-
-            var answer = await LlmMemory.Ask(conversationId.ToString(), question);
-            var chatMessageAnswer = new ChatMessage()
-            {
-                Role = ChatMessageRole.Assistant,
-                Message = answer.Result,
-                AttachmentIds = answer.RelevantSources.Select(s => s.SourceName).ToList()
-            };
-
-            return chatMessageAnswer;
-        }
+        
 
         [HttpGet("list/{conversationId}")]
         public IEnumerable<AttachmentInfo> GetAttachments(Guid conversationId)

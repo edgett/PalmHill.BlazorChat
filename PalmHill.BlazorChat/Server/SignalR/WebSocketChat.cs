@@ -9,6 +9,7 @@ using System.Diagnostics;
 using PalmHill.Llama.Models;
 using PalmHill.LlmMemory;
 using PalmHill.BlazorChat.Shared.Models.WebSocket;
+using System.Collections.Concurrent;
 
 namespace PalmHill.BlazorChat.Server.SignalR
 {
@@ -25,6 +26,7 @@ namespace PalmHill.BlazorChat.Server.SignalR
         }
         private InjectedModel InjectedModel { get; }
         private ServerlessLlmMemory? LlmMemory { get; }
+        
 
         /// <summary>
         /// Sends a chat prompt to the client and waits for a response. The method performs inference on the chat conversation and sends the result back to the client.
@@ -35,11 +37,31 @@ namespace PalmHill.BlazorChat.Server.SignalR
         /// <exception cref="Exception">Thrown when an error occurs during the inference process.</exception>
         public async Task InferenceRequest(InferenceRequest chatConversation)
         {
+            var conversationId = chatConversation.Id;
+            var cancellationTokenSource = new CancellationTokenSource();
+            ChatCancelation.CancelationTokens[conversationId] = cancellationTokenSource;
 
-            await ThreadLock.InferenceLock.WaitAsync();
             try
             {
-                await DoInferenceAndRespondToClient(Clients.Caller, chatConversation);
+                await ThreadLock.InferenceLock.WaitAsync(cancellationTokenSource.Token);
+                await DoInferenceAndRespondToClient(Clients.Caller, chatConversation, cancellationTokenSource.Token);
+
+                var inferenceStatusUpdate = new WebSocketInferenceStatusUpdate();
+                inferenceStatusUpdate.MessageId = chatConversation.ChatMessages.LastOrDefault()?.Id;
+                inferenceStatusUpdate.IsComplete = true;
+                inferenceStatusUpdate.Success = true;
+                await Clients.Caller.SendAsync("InferenceStatusUpdate", inferenceStatusUpdate);
+            }
+         
+            catch (OperationCanceledException)
+            {
+                var inferenceStatusUpdate = new WebSocketInferenceStatusUpdate();
+                inferenceStatusUpdate.MessageId = chatConversation.ChatMessages.LastOrDefault()?.Id;
+                inferenceStatusUpdate.IsComplete = true;
+                inferenceStatusUpdate.Success = false;
+                await Clients.Caller.SendAsync("InferenceStatusUpdate", inferenceStatusUpdate);
+                // Handle the cancellation operation
+                Console.WriteLine($"Inference for {conversationId} was canceled.");
             }
             catch (Exception ex)
             {
@@ -48,11 +70,8 @@ namespace PalmHill.BlazorChat.Server.SignalR
             finally
             {
                 ThreadLock.InferenceLock.Release();
-                var inferenceStatusUpdate = new WebSocketInferenceStatusUpdate();
-                inferenceStatusUpdate.MessageId = chatConversation.ChatMessages.LastOrDefault()?.Id;
-                inferenceStatusUpdate.IsComplete = true;
-                inferenceStatusUpdate.Success = true;
-                await Clients.Caller.SendAsync("InferenceStatusUpdate", inferenceStatusUpdate);
+                ChatCancelation.CancelationTokens.TryRemove(conversationId, out _);
+                
             }
         }
 
@@ -64,16 +83,15 @@ namespace PalmHill.BlazorChat.Server.SignalR
         /// <param name="messageId">The unique identifier for the message.</param>
         /// <param name="chatConversation">The chat conversation to use for inference.</param>
         /// <returns>A Task that represents the asynchronous operation.</returns>
-        private async Task DoInferenceAndRespondToClient(ISingleClientProxy respondToClient,  InferenceRequest chatConversation)
+        private async Task DoInferenceAndRespondToClient(ISingleClientProxy respondToClient,  InferenceRequest chatConversation, CancellationToken cancellationToken)
         {
-
             // Create a context for the model and a chat session for the conversation
             LLamaContext modelContext = InjectedModel.Model.CreateContext(InjectedModel.ModelParams);
             var session = modelContext.CreateChatSession(chatConversation);
             var inferenceParams = chatConversation.GetInferenceParams(InjectedModel.DefaultAntiPrompts);
 
             var messageId = chatConversation.ChatMessages.LastOrDefault()?.Id;
-            var cancelGeneration = new CancellationTokenSource();
+            
             var textBuffer = "";
             var fullResponse = "";
             var totalTokens = 0;
@@ -82,10 +100,17 @@ namespace PalmHill.BlazorChat.Server.SignalR
             inferenceStopwatch.Start();
             var asyncResponse = session.ChatAsync(session.History,
                                                         inferenceParams,
-                                                        cancelGeneration.Token);
+                                                        cancellationToken);
             // Perform inference and send the response to the client
             await foreach (var text in asyncResponse)
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    modelContext.Dispose();
+                    inferenceStopwatch.Stop();
+
+                    throw new OperationCanceledException();
+                }
 
                 totalTokens++;
                 fullResponse += text;
@@ -104,7 +129,7 @@ namespace PalmHill.BlazorChat.Server.SignalR
 
 
             }
-            modelContext.Dispose();
+            modelContext.Dispose(); 
 
             inferenceStopwatch.Stop();
 
@@ -113,7 +138,6 @@ namespace PalmHill.BlazorChat.Server.SignalR
                 await respondToClient.SendAsync("ReceiveInferenceString", chatConversation.Id, textBuffer);
             }
 
-            await respondToClient.SendAsync("MessageComplete", chatConversation.Id, "success");
             Console.WriteLine($"Inference took {inferenceStopwatch.ElapsedMilliseconds}ms and generated {totalTokens} tokens. {(totalTokens / (inferenceStopwatch.ElapsedMilliseconds / (float)1000)).ToString("F2")} tokens/second.");
             Console.WriteLine(fullResponse);
         }

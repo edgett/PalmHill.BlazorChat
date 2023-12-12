@@ -9,7 +9,11 @@ namespace PalmHill.BlazorChat.ApiClient.WebApiInterface
         [Post("/api/chat")]
         Task<ApiResponse<string>> Chat(InferenceRequest conversation);
 
-        [Post("/api/attachment/ask")]
+        [Post("/api/chat/docs")]
         Task<ApiResponse<ChatMessage>> Ask(InferenceRequest chatConversation);
+
+        [Delete("/api/chat/cancel/{conversationId}")]
+        public Task<ApiResponse<bool>> CancelChat(Guid conversationId);
+
     }
 }

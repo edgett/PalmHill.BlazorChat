@@ -20,6 +20,7 @@ namespace PalmHill.BlazorChat.Client.Services
         public string SystemMessage = string.Empty;
         public List<WebSocketChatMessage> WebSocketChatMessages { get; }
         public HubConnection HubConnection { get; }
+        public bool CanSend { get; set; } = true;
 
         public event EventHandler<WebSocketInferenceString>? OnReceiveInferenceString;
         public event EventHandler<WebSocketInferenceStatusUpdate>? OnInferenceStatusUpdate;
@@ -29,11 +30,16 @@ namespace PalmHill.BlazorChat.Client.Services
         public async Task StartAsync()
         {
             await HubConnection.StartAsync();
-        }
+        }  
 
         public async Task StopAsync()
         {
             await HubConnection.StopAsync();
+        }
+
+        public async Task CancelInferenceAsync()
+        { 
+            await HubConnection.SendAsync("CancelInference", ConversationId);
         }
 
         public async Task SendInferenceRequestAsync()

@@ -30,6 +30,8 @@ namespace PalmHill.BlazorChat.Client.Services
         }
 
         public string UserInput { get; set; } = string.Empty;
+        public bool CanSend { get; set; } = true;
+        public bool CanStop { get; set; } = false;
         public bool AttachmentsEnabled { get; set; } = false;
         public bool AttachmentsVisible { get; private set; } = false;
         public List<AttachmentInfo> SelectedFiles = new List<AttachmentInfo>();
@@ -73,6 +75,10 @@ namespace PalmHill.BlazorChat.Client.Services
 
         public async Task SendToWebSocketChat()
         {
+            //Set the UI state.
+            CanSend = false;
+            CanStop = true;
+
             var prompt = new WebSocketChatMessage();
             prompt.Prompt = UserInput;
             WebsocketChatMessages.Add(prompt);
@@ -165,13 +171,33 @@ namespace PalmHill.BlazorChat.Client.Services
         }
 
 
+        public void SetReady()
+        {
+            CanSend = true;
+            CanStop = false;
+            StateHasChanged();
+        }
 
+        public async Task CancelTextGeneration()
+        {
+            var canceled = await _blazorChatApi!.Chat.CancelChat(WebSocketChatConnection.ConversationId);
+
+            if (canceled.Content)
+            { 
+                SetReady();
+            }
+
+            Console.WriteLine($"CancelTextGeneration failed ({canceled.StatusCode}): {canceled.ReasonPhrase}");
+        }
 
         private void setupWebSocketChatConnection()
         {
             WebSocketChatConnection.OnInferenceStatusUpdate += (sender, inferenceStatusUpdate) =>
             {
-                StateHasChanged();
+                if (inferenceStatusUpdate.IsComplete == true)
+                { 
+                    SetReady();
+                }
             };
 
             WebSocketChatConnection.OnAttachmentStatusUpdate += (sender, attachmentInfo) =>

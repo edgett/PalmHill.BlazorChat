@@ -13,27 +13,16 @@
 <FluentFooter Class="w-100" Style="position:fixed; bottom:15px;">
     <FluentStack Class="chat-messages input-area">
         <div class="file-input-area" @onclick="ShowAttachmentPanel">
-            @*Not wrapping this in an if block. Use css to hide. FluentInputFile won't work if the element disappears from the DOM. *@
-
-            @{
-                var isProgressCssClass = ((progressPercent == 0 || progressPercent == 100) ? string.Empty : "hidden");
-            }
-
-            @if (progressPercent > 0 && progressPercent < 100)
-            {
-                <FluentProgressRing Style="height:32px; margin-top:6px" />
-            }
+            
 
             <FluentCounterBadge 
-                Count="attachments.Count" 
+                Count="Controller?.UploadedFiles.Count ?? 0" 
                 ShowZero="true" 
                 BottomPosition="-10" 
-                Class="@isProgressCssClass"
+                
             >
                 <FluentButton 
                     Id="uploadButton" 
-                    
-                    Class="@isProgressCssClass" 
                     IconStart="(new Icons.Regular.Size24.Attach())" 
                     Style="margin-top:6px;"
                 ></FluentButton>
@@ -51,12 +40,25 @@
             ></textarea>
         </div>
         <div>
-            <FluentButton @ref="sendButton" 
-                OnClick="Send" 
-                Loading="Loading" 
-                Appearance="Appearance.Accent" 
-                IconStart="(new Icons.Regular.Size24.Send())" 
-                Style="margin-top:6px;"></FluentButton>
+            @if (Controller?.CanSend == true)
+            {
+                <FluentButton OnClick="Send"
+                              Disabled="string.IsNullOrWhiteSpace(Controller!.UserInput)"
+                              Appearance="Appearance.Accent"
+                              IconStart="(new Icons.Regular.Size24.Send())"
+                              Style="margin-top:6px;"></FluentButton>
+
+            }
+
+            @if (Controller?.CanStop == true)
+            {
+                <FluentButton OnClick="CancelTextGeneration"
+                              Appearance="Appearance.Accent"
+                              IconStart="(new Icons.Regular.Size24.Stop())"
+                              Style="margin-top:6px;"></FluentButton>
+            
+            }
+
         </div>
     </FluentStack>
 </FluentFooter>
@@ -68,16 +70,7 @@
 
 
     private ElementReference textAreaElement;
-    private string messageInput = string.Empty;
-    private FluentButton? sendButton;
-    private int progressPercent = 0;
-    private string progressTitle = string.Empty;
-    private ConcurrentDictionary<string, AttachmentInfo> attachments = new ConcurrentDictionary<string, AttachmentInfo>();
-    public UISettings UISettings { get; set; } = new UISettings();
-    public List<AttachmentInfo> SelectedFiles = new List<AttachmentInfo>();
-    public List<AttachmentInfo> UploadedFiles = new List<AttachmentInfo>();
-    public bool Loading { get; set; } = false;
-    public bool IsAttachmentMode { get; set; } = false;
+
 
 
 
@@ -87,6 +80,11 @@
         await SizeTextArea();
         StateHasChanged();
 
+    }
+
+    public async Task CancelTextGeneration()
+    {
+        await Controller!.CancelTextGeneration();
     }
 
     private async Task HandleKeyPress(KeyboardEventArgs e)
@@ -109,15 +107,5 @@
         Controller!.ShowAttachments();
     }
 
-    public void SetReady()
-    {
-        Loading = false;
-        StateHasChanged();
-    }
 
-    public void SetAttachmentMode(bool enabled)
-    {
-        IsAttachmentMode = enabled;
-        StateHasChanged();
-    }
 }

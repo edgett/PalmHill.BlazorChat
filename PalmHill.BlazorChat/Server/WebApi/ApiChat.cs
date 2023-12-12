@@ -5,6 +5,10 @@ using PalmHill.BlazorChat.Shared.Models;
 using PalmHill.Llama;
 using System.Diagnostics;
 using PalmHill.Llama.Models;
+using Microsoft.AspNetCore.SignalR;
+using PalmHill.BlazorChat.Server.SignalR;
+using PalmHill.BlazorChat.Shared.Models.WebSocket;
+using PalmHill.LlmMemory;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -23,11 +27,20 @@ namespace PalmHill.BlazorChat.Server.WebApi
         /// </summary>
         /// <param name="model">The LLamaWeights model.</param>
         /// <param name="modelParams">The model parameters.</param>
-        public ApiChat(InjectedModel injectedModel)
+        public ApiChat(
+            InjectedModel injectedModel,
+            IHubContext<WebSocketChat> webSocketChat,
+            LlmMemory.ServerlessLlmMemory? llmMemory = null
+            )
         {
             InjectedModel = injectedModel;
+            WebSocketChat = webSocketChat;
+            LlmMemory = llmMemory;
+
         }
 
+        private IHubContext<WebSocketChat> WebSocketChat { get; }
+        public ServerlessLlmMemory? LlmMemory { get; }
         private InjectedModel InjectedModel { get; }
 
         /// <summary>
@@ -41,11 +54,21 @@ namespace PalmHill.BlazorChat.Server.WebApi
         {
             var errorText = "";
 
-            await ThreadLock.InferenceLock.WaitAsync();
+            var conversationId = conversation.Id;
+            var cancellationTokenSource = new CancellationTokenSource();
+            ChatCancelation.CancelationTokens[conversationId] = cancellationTokenSource;
+
             try
             {
+                await ThreadLock.InferenceLock.WaitAsync();
                 var response = await DoInference(conversation);
                 return Ok(response);
+            }
+            catch (OperationCanceledException)
+            {
+                errorText = $"Inference for {conversationId} was canceled.";
+                Console.WriteLine(errorText);
+                return BadRequest(errorText);
             }
             catch (Exception ex)
             {
@@ -54,11 +77,54 @@ namespace PalmHill.BlazorChat.Server.WebApi
             finally
             {
                 ThreadLock.InferenceLock.Release();
+                ChatCancelation.CancelationTokens.TryRemove(conversationId, out _);
             }
 
             Console.WriteLine(errorText);
-
             return StatusCode(500, errorText);
+        }
+
+        [HttpPost("docs")]
+        public async Task<ActionResult<ChatMessage>> Ask(InferenceRequest chatConversation)
+        {
+            if (LlmMemory == null)
+            {
+                var result = StatusCode(503, "No LlmMemory loaded.");
+                return result;
+            }
+
+
+            var conversationId = chatConversation.Id;
+            var question = chatConversation.ChatMessages.LastOrDefault()?.Message;
+            if (question == null)
+            {
+                return BadRequest("No question provided.");
+            }
+
+            var answer = await LlmMemory.Ask(conversationId.ToString(), question);
+
+            var chatMessageAnswer = new ChatMessage()
+            {
+                Role = ChatMessageRole.Assistant,
+                Message = answer.Result,
+                AttachmentIds = answer.RelevantSources.Select(s => s.SourceName).ToList()
+            };
+
+            return chatMessageAnswer;
+        }
+
+        [HttpDelete("cancel/{conversationId}", Name = "CancelChat")]
+        public async Task<bool> CancelChat(Guid conversationId)
+        {
+            var cancelToken = ChatCancelation.CancelationTokens[conversationId];
+            if (cancelToken == null)
+            {
+                return false;
+            }
+            else { 
+                await cancelToken.CancelAsync();
+                return true;
+            }
         }
 
         /// <summary>
