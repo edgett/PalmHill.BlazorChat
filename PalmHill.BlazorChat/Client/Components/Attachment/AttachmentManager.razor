@@ -34,7 +34,7 @@
         foreach (var file in files)
         {
             var attachmentInfo = new AttachmentInfo();
-            attachmentInfo.ConversationId = Controller?.WebSocketChatConnection.ConversationId;
+            attachmentInfo.ConversationId = Controller?.WebSocketChatConnection?.ConversationId;
             attachmentInfo.Name = file.Name;
             attachmentInfo.Size = file.Size;
             attachmentInfo.ContentType = file.ContentType;

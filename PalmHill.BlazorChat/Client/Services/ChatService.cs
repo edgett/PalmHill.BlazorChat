@@ -10,9 +10,20 @@ using System.Data;
 
 namespace PalmHill.BlazorChat.Client.Services
 {
+    /// <summary>
+    /// The the main service that controls the chat UI. 
+    /// </summary>
     public class ChatService
     {
 
+        /// <summary>
+        /// Main constructor. Uses dependency injection to get the required services.
+        /// </summary>
+        /// <param name="navigationManager"></param>
+        /// <param name="localStorage"></param>
+        /// <param name="dialogService"></param>
+        /// <param name="themeControl"></param>
+        /// <param name="blazorChatApi"></param>
         public ChatService(
             NavigationManager navigationManager,
             LocalStorageService localStorage,
@@ -21,25 +32,62 @@ namespace PalmHill.BlazorChat.Client.Services
             BlazorChatApi blazorChatApi
             )
         {
-            WebSocketChatConnection = new WebSocketChatService(navigationManager.ToAbsoluteUri("/chathub?customUserId=user1"), WebsocketChatMessages);
-            setupWebSocketChatConnection();
+            
             _localStorage = localStorage;
             _dialogService = dialogService;
             _themeControl = themeControl;
             _blazorChatApi = blazorChatApi;
+            _navigationManager = navigationManager;
+            setupWebSocketChatConnection();
         }
 
+        /// <summary>
+        /// User input from the chat box.
+        /// </summary>
         public string UserInput { get; set; } = string.Empty;
+        /// <summary>
+        /// Whether the chat is ready to send a message.
+        /// </summary>
         public bool CanSend { get; set; } = true;
+        /// <summary>
+        /// Whether the chat is ready to stop.
+        /// </summary>
         public bool CanStop { get; set; } = false;
+        /// <summary>
+        /// Whether the chat is in Attachment mode. Will only reference attached douments.
+        /// </summary>
         public bool AttachmentsEnabled { get; set; } = false;
+        /// <summary>
+        /// Show the attachment panel.
+        /// </summary>
         public bool AttachmentsVisible { get; private set; } = false;
+        /// <summary>
+        /// The list of files that have been selected for Chat. This is non-functional for now.
+        /// </summary>
         public List<AttachmentInfo> SelectedFiles = new List<AttachmentInfo>();
-        public List<AttachmentInfo> UploadedFiles = new List<AttachmentInfo>();
-        public LocalStorageSettings LocalStorageSettings { get; private set; } = new LocalStorageSettings();
-        public List<WebSocketChatMessage> WebsocketChatMessages { get; private set; } = new List<WebSocketChatMessage>();
-        public WebSocketChatService WebSocketChatConnection { get; }
 
+        /// <summary>
+        /// The list of files that have been uploaded for Chat.
+        /// </summary>
+        public List<AttachmentInfo> UploadedFiles = new List<AttachmentInfo>();
+
+        /// <summary>
+        /// The local storage settings.
+        /// </summary>
+        public LocalStorageSettings LocalStorageSettings { get; private set; } = new LocalStorageSettings();
+        /// <summary>
+        /// The list of chat messages. Containing a prompt and its response.
+        /// </summary>
+        public List<WebSocketChatMessage> WebsocketChatMessages { get; private set; } = new List<WebSocketChatMessage>();
+
+        /// <summary>
+        /// The WebSocketChatService that handles the WebSocket connection.
+        /// </summary>
+        public WebSocketChatService? WebSocketChatConnection { get; private set; }
+
+        /// <summary>
+        /// Event handler for when the state changes.
+        /// </summary>
         public event EventHandler<bool>? OnStateChange;
 
 
@@ -48,18 +96,32 @@ namespace PalmHill.BlazorChat.Client.Services
         private readonly IDialogService _dialogService;
         private readonly ThemeService _themeControl;
         private readonly BlazorChatApi _blazorChatApi;
+        private readonly NavigationManager _navigationManager;
 
+
+        /// <summary>
+        /// Starts the chat over the WebSocket connection.
+        /// </summary>
+        /// <returns></returns>
         public async Task StartChat()
         {
             LocalStorageSettings = await _localStorage.GetSettings();
-            await WebSocketChatConnection.StartAsync();
+            await WebSocketChatConnection!.StartAsync();
         }
 
+        /// <summary>
+        /// Stops the chat over the WebSocket connection.
+        /// </summary>
+        /// <returns></returns>
         private async Task SendInferenceRequest()
         {
             await WebSocketChatConnection!.SendInferenceRequestAsync();
         }
 
+        /// <summary>
+        /// Sends the prompt to the WebSocketChatConnection or the Document API if in <see cref="AttachmentsEnabled" /> is true.
+        /// </summary>
+        /// <returns></returns>
         public async Task SendPrompt()
         {
             if (AttachmentsEnabled == false)
@@ -73,6 +135,9 @@ namespace PalmHill.BlazorChat.Client.Services
             }
         }
 
+        /// <summary>
+        /// Sends the prompt to the WebSocketChatConnection.
+        /// </summary>
         public async Task SendToWebSocketChat()
         {
             //Set the UI state.
@@ -87,6 +152,9 @@ namespace PalmHill.BlazorChat.Client.Services
             await SendInferenceRequest();
         }
 
+        /// <summary>
+        /// Sends the prompt to the Document API.
+        /// </summary>
         public async Task AskDocumentApi()
         {
 
@@ -100,7 +168,7 @@ namespace PalmHill.BlazorChat.Client.Services
             StateHasChanged();
 
             var infrerenceRequest = new InferenceRequest();
-            infrerenceRequest.Id = WebSocketChatConnection.ConversationId;
+            infrerenceRequest.Id = WebSocketChatConnection!.ConversationId;
             var chatMessage = new ChatMessage();
             chatMessage.Id = prompt.Id;
             chatMessage.Message = prompt.Prompt;
@@ -123,20 +191,24 @@ namespace PalmHill.BlazorChat.Client.Services
             SetReady();
         }
 
+        /// <summary>
+        /// Saves the settings to local storage.
+        /// </summary>
+        /// <returns></returns>
         public async Task SaveSettings()
         {
             await _localStorage.SaveSettings(LocalStorageSettings);
         }
 
+        /// <summary>
+        /// Shows the <see cref="ChatSettings"/> dialog.
+        /// </summary>
         public async Task ShowSettings()
         {
-
-
             var currentSettings = LocalStorageSettings.CreateCopy();
             var dialogParameters = ChatSettings.DefaultDialogParameters;
             var dialog = await _dialogService.ShowDialogAsync<ChatSettings>(currentSettings, dialogParameters);
             var dialogResult = await dialog.Result;
-
 
             if (dialogResult?.Cancelled == true)
             {
@@ -149,28 +221,41 @@ namespace PalmHill.BlazorChat.Client.Services
                 LocalStorageSettings = (LocalStorageSettings?)dialogResult?.Data ?? new LocalStorageSettings();
                 await SaveSettings();
             }
-
         }
 
-        public void ToggleAttachments()
+        /// <summary>
+        /// Toggles the <see cref="AttachmentsVisible"/> property.
+        /// This does not toggle the <see cref="AttachmentsEnabled"/> property.
+        /// </summary>
+        public void ToggleAttachmentsVisible()
         {
             AttachmentsVisible = !AttachmentsVisible;
             StateHasChanged();
         }
 
+        /// <summary>
+        /// Shows the <see cref="Client.Components.Attachment.AttachmentManager"/>.
+        /// </summary>
         public void ShowAttachments()
         {
             AttachmentsVisible = true;
             StateHasChanged();
         }
 
+        /// <summary>
+        /// Hides the <see cref="Client.Components.Attachment.AttachmentManager"/>.
+        /// </summary>
         public void HideAttachments()
         {
             AttachmentsVisible = false;
             StateHasChanged();
         }
 
-
+        /// <summary>
+        /// Chat is ready to send a message.
+        /// Sets the <see cref="CanSend"/> property true.
+        /// Sets the <see cref="CanStop"/> property false.
+        /// </summary>
         public void SetReady()
         {
             CanSend = true;
@@ -178,9 +263,12 @@ namespace PalmHill.BlazorChat.Client.Services
             StateHasChanged();
         }
 
+        /// <summary>
+        /// Cancel the text generation via http request. Effectively stops the chat.
+        /// </summary>
         public async Task CancelTextGeneration()
         {
-            var canceled = await _blazorChatApi!.Chat.CancelChat(WebSocketChatConnection.ConversationId);
+            var canceled = await _blazorChatApi!.Chat.CancelChat(WebSocketChatConnection!.ConversationId);
 
             if (canceled.Content)
             { 
@@ -190,8 +278,14 @@ namespace PalmHill.BlazorChat.Client.Services
             Console.WriteLine($"CancelTextGeneration failed ({canceled.StatusCode}): {canceled.ReasonPhrase}");
         }
 
+        /// <summary>
+        /// Sets up the <see cref="WebSocketChatConnection"/> property.
+        /// Configures the event handlers for the <see cref="WebSocketChatConnection"/>.
+        /// </summary>
         private void setupWebSocketChatConnection()
         {
+            WebSocketChatConnection = new WebSocketChatService(_navigationManager.ToAbsoluteUri("/chathub?customUserId=user1"), WebsocketChatMessages);
+
             WebSocketChatConnection.OnInferenceStatusUpdate += (sender, inferenceStatusUpdate) =>
             {
                 if (inferenceStatusUpdate.IsComplete == true)
@@ -208,6 +302,9 @@ namespace PalmHill.BlazorChat.Client.Services
             };
         }
 
+        /// <summary>
+        /// Invokes the <see cref="OnStateChange"/> event.
+        /// </summary>
         private void StateHasChanged()
         {
             OnStateChange?.Invoke(this, true);

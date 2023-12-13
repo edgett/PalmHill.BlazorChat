@@ -4,19 +4,34 @@ using PalmHill.BlazorChat.Client.Models;
 
 namespace PalmHill.BlazorChat.Client.Services
 {
+    /// <summary>
+    /// Service to handle local storage.
+    /// </summary>
     public class LocalStorageService
     {
         private ILocalStorageService _localStorage;
         private ThemeService _themeControl;
 
+        /// <summary>
+        /// Use dependency injection to get the local storage service and the theme service.
+        /// </summary>
+        /// <param name="localStorage"></param>
+        /// <param name="themeControl">Used to change the theme on settings get.</param>
         public LocalStorageService(ILocalStorageService localStorage, ThemeService themeControl)
         {
             _localStorage = localStorage;
             _themeControl = themeControl;
         }
 
+        /// <summary>
+        /// In memory settings.
+        /// </summary>
         public LocalStorageSettings LocalStorageSettings { get; private set; } = new LocalStorageSettings();
 
+        /// <summary>
+        /// Get the settings from local storage.
+        /// </summary>
+        /// <returns></returns>
         public async Task<LocalStorageSettings> GetSettings()
         {
             LocalStorageSettings = await GetStorageSettings();
@@ -24,6 +39,11 @@ namespace PalmHill.BlazorChat.Client.Services
             return LocalStorageSettings;
         }
 
+        /// <summary>
+        /// Save the settings to local storage.
+        /// </summary>
+        /// <param name="localStorageSettings"></param>
+        /// <returns></returns>
         public async Task SaveSettings(LocalStorageSettings localStorageSettings)
         {
             await _localStorage.SetItemAsync("LocalStorageSettings", localStorageSettings);

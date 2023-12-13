@@ -1,6 +1,6 @@
 ﻿@if (Controller!.UploadedFiles.Any())
 {
-    <div>
+    <div style="padding:3px 3px;">
         @foreach (var file in Controller.UploadedFiles)
         {
             <AttachmentItemDisplay OnFileDeleted="_fileDeletedHandler" Attachment="file"></AttachmentItemDisplay>
