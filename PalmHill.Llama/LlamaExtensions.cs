@@ -3,6 +3,10 @@ using LLama;
 using PalmHill.BlazorChat.Shared.Models;
 using static LLama.Common.ChatHistory;
 using PalmHill.BlazorChat.Shared;
+using Microsoft.Extensions.DependencyInjection;
+using PalmHill.Llama.Models;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 
 namespace PalmHill.Llama
 {
@@ -15,12 +19,12 @@ namespace PalmHill.Llama
         /// Loads the chat history into a <see cref="ChatSession"/>.
         /// </summary>
         /// <param name="chatSession">The <see cref="ChatSession"/> to load the history into.</param>
-        /// <param name="chatConversation">The <see cref="ChatConversation"/> containing the chat history.</param>
-        public static void LoadChatHistory(this ChatSession chatSession, ChatConversation chatConversation)
-        { 
+        /// <param name="chatConversation">The <see cref="InferenceRequest"/> containing the chat history.</param>
+        public static void LoadChatHistory(this ChatSession chatSession, InferenceRequest chatConversation)
+        {
 
             if (!string.IsNullOrWhiteSpace(chatConversation.SystemMessage))
-            { 
+            {
                 chatSession.History.AddMessage(AuthorRole.System, chatConversation.SystemMessage);
             }
 
@@ -35,7 +39,7 @@ namespace PalmHill.Llama
                     continue;
                 }
 
-          
+
                 switch (chatMessage.Role)
                 {
                     case ChatMessageRole.User:
@@ -53,17 +57,17 @@ namespace PalmHill.Llama
         }
 
         /// <summary>
-        /// Creates a new <see cref="ChatSession"/> from a <see cref="ChatConversation"/>.
+        /// Creates a new <see cref="ChatSession"/> from a <see cref="InferenceRequest"/>.
         /// </summary>
         /// <param name="lLamaContext">The <see cref="LLamaContext"/> to use for the session.</param>
-        /// <param name="chatConversation">The <see cref="ChatConversation"/> to create the session from.</param>
+        /// <param name="chatConversation">The <see cref="InferenceRequest"/> to create the session from.</param>
         /// <returns>A new <see cref="ChatSession"/>.</returns>
-        public static ChatSession CreateChatSession(this LLamaContext lLamaContext, ChatConversation chatConversation)
+        public static ChatSession CreateChatSession(this LLamaContext lLamaContext, InferenceRequest chatConversation)
         {
             var ex = new InteractiveExecutor(lLamaContext);
             ChatSession session = new ChatSession(ex);
 
-            var specialTokensToIgnore = new string[] { "Assistant:", "User:"};
+            var specialTokensToIgnore = new string[] { "Assistant:", "User:" };
             session = session.WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(specialTokensToIgnore, redundancyLength: 8));
             session.LoadChatHistory(chatConversation);
             var promptMessage = chatConversation.ChatMessages.Last();
@@ -82,20 +86,81 @@ namespace PalmHill.Llama
         }
 
         /// <summary>
-        /// Gets the inference parameters from a <see cref="ChatConversation"/>.
+        /// Gets the inference parameters from a <see cref="InferenceRequest"/>.
         /// </summary>
-        /// <param name="chatConversation">The <see cref="ChatConversation"/> to get the parameters from.</param>
+        /// <param name="chatConversation">The <see cref="InferenceRequest"/> to get the parameters from.</param>
         /// <returns>The <see cref="InferenceParams"/> for the conversation.</returns>
-        public static InferenceParams GetInferenceParams(this ChatConversation chatConversation)
+        public static InferenceParams GetInferenceParams(this InferenceRequest chatConversation, List<string>? defaultAntiPrompts = null)
         {
-            var inferenceParams = new InferenceParams() { 
+            var inferenceParams = new InferenceParams()
+            {
                 Temperature = chatConversation.Settings.Temperature,
                 MaxTokens = chatConversation.Settings.MaxLength,
                 TopP = chatConversation.Settings.TopP,
                 FrequencyPenalty = chatConversation.Settings.FrequencyPenalty,
                 PresencePenalty = chatConversation.Settings.PresencePenalty,
-                AntiPrompts = ["User:"] };
+                AntiPrompts = defaultAntiPrompts ?? []
+            };
             return inferenceParams;
+        }
+
+
+        /// <summary>
+        /// Add Llama to the service collection.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="modelConfig"></param>
+        /// <exception cref="FileNotFoundException">Occurs when the model file is missing.</exception>
+        /// <exception cref="ArgumentNullException">Occurs when the <see cref="ModelConfig"/> is null.</exception>"
+        public static InjectedModel AddLlamaModel(this IHostApplicationBuilder builder, ModelConfig? modelConfig = null)
+        {
+            var defaultModelConfigSection = "InferenceModelConfig";
+
+                //Attemt to get model config from config
+            modelConfig = builder?.GetModelConfigFromConfigSection(defaultModelConfigSection);
+
+            if (modelConfig == null)
+            { 
+                throw new ArgumentNullException(nameof(modelConfig), $"The argument {modelConfig} must be supplied if there is no {defaultModelConfigSection} section in app configuartion.");
+            }
+
+            //check if model is present
+            var modelExsists = System.IO.File.Exists(modelConfig.ModelPath);
+            if (!modelExsists)
+            {
+                throw new FileNotFoundException($"Model file does not exsist.", modelConfig.ModelPath);
+            }
+
+            //Initlize Llama
+            ModelParams parameters = new ModelParams(modelConfig.ModelPath ?? "")
+            {
+                ContextSize = modelConfig.ContextSize,
+                GpuLayerCount = modelConfig.GpuLayerCount,
+                MainGpu = modelConfig.Gpu
+            };
+
+            LLamaWeights model = LLamaWeights.LoadFromFile(parameters);
+            //End Initlize Llama
+
+            var injectedModel = new InjectedModel(model, parameters, modelConfig.AntiPrompts);
+
+            //Add to services
+            builder?.Services.AddSingleton(injectedModel);
+
+            return injectedModel;
+        }
+
+
+        
+
+
+        public static ModelConfig? GetModelConfigFromConfigSection(this IHostApplicationBuilder builder, string configSection)
+        {
+            var appConfig = builder?.Configuration.GetSection(configSection);
+            var appSettingsConfig = appConfig?.Get<ModelConfig>();
+            appSettingsConfig!.AntiPrompts = appConfig?.GetSection("AntiPrompts").Get<List<string>>() ?? [];
+
+            return appSettingsConfig;
         }
     }
 }

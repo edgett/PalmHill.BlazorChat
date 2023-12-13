@@ -5,6 +5,8 @@
 /// </summary>
 public class ChatMessage
 {
+    public Guid Id { get; set; } = Guid.NewGuid();
+
     /// <summary>
     /// Gets or sets the role of the entity that generated the message.
     /// </summary>
@@ -22,6 +24,11 @@ public class ChatMessage
     /// </value>
     [DefaultValue("What are cats?")]
     public string? Message { get; set; }
+
+    /// <summary>
+    /// The user can add attachments to the message, the attachment will becom part of the context.
+    /// </summary>
+    public List<string> AttachmentIds { get; set; } = new List<string>();
 }
 
 /// <summary>
@@ -40,4 +47,7 @@ public enum ChatMessageRole
     /// </summary>
     [Description("User Message")]
     User = 1,
+
+    [Description("User Message")]
+    Question = 2,
 }

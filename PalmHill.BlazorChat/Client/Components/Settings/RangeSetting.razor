@@ -6,7 +6,14 @@
         <FluentLabel>@Label</FluentLabel>
         
         <div class="nolabel">
-            <FluentNumberField Class="no-lable" @bind-Value="Value" Style="width:75px;" HideStep="true" TValue="TValue" @oninput="OnTextChanged" ></FluentNumberField>
+            <FluentNumberField 
+                Class="no-lable" 
+                @bind-Value="Value" 
+                Style="width:75px;" 
+                HideStep="true" 
+                TValue="TValue" 
+                @oninput="OnTextChanged" 
+            ></FluentNumberField>
         </div>
     </FluentStack>
 
@@ -35,8 +42,11 @@
     [Parameter]
     public EventCallback<TValue> ValueChanged { get; set; }
 
- 
 
+    /// <summary>
+    /// Event handler for when the text input changes. Triggeres the <see cref="ValueChanged"/> event.
+    /// </summary>
+    /// <param name="e"></param>
     private async Task OnTextChanged(ChangeEventArgs e)
     {
         if (e.Value == null)

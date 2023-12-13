@@ -1,22 +1,33 @@
-using LLama.Common;
-using LLama;
-using Microsoft.AspNetCore.ResponseCompression;
 using PalmHill.Llama;
-using System.Runtime.InteropServices;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
-using PalmHill.BlazorChat.Server;
+using PalmHill.BlazorChat.Server.SignalR;
+using Microsoft.AspNetCore.SignalR;
+using PalmHill.LlmMemory;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//Make Swagger use enums.
+// Initlize Llama
+builder.AddLlamaModel();
+// End Initlize Llama
+
+
+// Initiaize Memory
+builder.AddLlmMemory();
+// End Initiaize Memory
+
+
 builder.Services.AddControllers().AddJsonOptions(options =>
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+        //Make Swagger use enums.
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter())
+    );
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddSignalR();
+
+//Add signalR custom user id provider.
+builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
 
 ////Compress websockets traffic.
 //builder.Services.AddResponseCompression(opts =>
@@ -33,32 +44,9 @@ builder.Services.AddSwaggerGen(c =>
     c.UseAllOfToExtendReferenceSchemas();
 });
 
-//get model path from appsettings.json
-string? modelPath = builder.Configuration["DefaultModelPath"]; ; // change in appsettings.json
 
-//check if model is present
-var modelExsists = System.IO.File.Exists(modelPath);
-if (!modelExsists)
-{
-    Console.ForegroundColor = ConsoleColor.Red;
-    Console.WriteLine($"Model at path {modelPath} does not exsist.");
-    Console.ResetColor();
-    Console.WriteLine("Press any key to exit.");
-    Console.Read();
-    return;
-}
 
-//Initlize Llama
-ModelParams parameters = new ModelParams(modelPath ?? "")
-{
-    ContextSize = 4096,
-    GpuLayerCount = 90,
-};
 
-LLamaWeights model = LLamaWeights.LoadFromFile(parameters);
-builder.Services.AddSingleton(model);
-builder.Services.AddSingleton(parameters);
-//End Initlize Llama
 
 var app = builder.Build();
 

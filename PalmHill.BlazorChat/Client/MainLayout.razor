@@ -1,18 +1,9 @@
 ﻿@using Microsoft.FluentUI.AspNetCore.Components.DesignTokens
+
 @inherits LayoutComponentBase
-@inject ThemeControl ThemeControl
+@inject ThemeService ThemeControl
 
 <FluentLayout>
-    
-
-    <FluentHeader Class="chat-header">
-        Blazor Chat
-        <FluentSpacer />
-
-        
-        <FluentAnchor Href="/swagger" Target="_blank">API</FluentAnchor>
-    </FluentHeader>
-
     @Body
 </FluentLayout>
 
@@ -21,19 +12,3 @@
 <FluentTooltipProvider />
 <FluentMessageBarProvider />
 
-@code {
-    private bool darkMode = false;
-    public static bool Expanded { get; set; } = true;
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-
-            await ThemeControl.ChangeTheme(darkMode);
-            StateHasChanged();
-        }
-    }
-
-
-
-}

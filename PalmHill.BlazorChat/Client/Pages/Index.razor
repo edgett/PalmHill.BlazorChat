@@ -1,26 +1,52 @@
 ﻿@page "/"
+@inject ChatService Controller;
+@inject LocalStorageService LocalStorage;
+
+<FluentHeader Class="chat-header">
+    <FluentButton
+                OnClick="Controller!.ShowSettings"
+                  IconStart="(new Icons.Regular.Size24.SettingsChat())"></FluentButton>
+    <FluentSpacer />
+    Blazor Chat
+    <FluentSpacer />
+    <FluentAnchor Href="/swagger" Target="_blank">API</FluentAnchor>
+</FluentHeader>
+
 
 <div class="chat-box">
-    <Chat @ref="ChatRenderer">
-    </Chat>
+    <ChatMessageList Controller="Controller">
+    </ChatMessageList>
 
-    <ChatInput @ref="ChatInput">
+    <ChatInput Controller="Controller">
     </ChatInput>
 </div>
 
+<AttachmentManager Controller="Controller">
+</AttachmentManager>
+
+
+
 @code
 {
-    private Chat? ChatRenderer { get; set; }
-    private ChatInput? ChatInput { get; set; }
 
-    protected override void OnAfterRender(bool firstRender)
+
+    protected override async Task OnInitializedAsync()
     {
-
-        if (firstRender && ChatRenderer != null)
-        {
-            ChatInput?.AttachToChat(ChatRenderer);
-        }
+        attachControllerEvents();
+        await LocalStorage.SyncTheme();
+        await Controller.StartChat();
     }
+
+    private void attachControllerEvents()
+    {
+        Controller.OnStateChange += Controller_OnStateChange;
+    }
+
+    public void Controller_OnStateChange(object? sender, bool bs)
+    {
+        StateHasChanged();
+    }
+
 }
 
 

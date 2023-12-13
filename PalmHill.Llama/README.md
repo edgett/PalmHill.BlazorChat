@@ -1,7 +1,42 @@
-The [`LlamaExtensions.cs`](PalmHill.Llama/LlamaExtensions.cs) file is a part of the `PalmHill.Llama` namespace and contains extension methods for the `ChatSession` and `ChatConversation` classes.
+﻿# PalmHill.Llama
 
-The [`LoadChatHistory`](PalmHill.Llama/LlamaExtensions.cs#L11-L45) method is an extension method for the `ChatSession` class. It takes a `ChatConversation` object as an argument and loads the chat history into the `ChatSession` object. It iterates over the `ChatMessages` in the `ChatConversation` and adds them to the `ChatSession`'s history. If a message is from the user, it is added as a `User` message, and if it is from the assistant, it is added as an `Assistant` message.
+PalmHill.Llama is a .NET library designed to integrate with the LLama machine learning framework. It provides essential utilities and models to enhance the capabilities of LLama-based applications, particularly in the realm of AI and data processing.
 
-The [`CreateChatSession`](PalmHill.Llama/LlamaExtensions.cs#L48-L69) method is an extension method for the `LLamaContext` class. It takes a `ChatConversation` object as an argument and creates a new `ChatSession` object. It also sets up an output transform to ignore certain special tokens and loads the chat history into the session. It then checks if the last message in the conversation is a user message and if it is not empty.
+## Features
 
-The [`GetInferenceParams`](PalmHill.Llama/LlamaExtensions.cs#L72-L82) method is an extension method for the `ChatConversation` class. It extracts the inference parameters from the `ChatConversation`'s settings and returns them as an `InferenceParams` object.
+- **Llama Extensions**: Enhancements to the LLama context for improved functionality and usability.
+- **Thread Locking**: Utilizes `SemaphoreSlim` for effective thread management in concurrent environments.
+- **Model Injection**: Facilitates the injection of pre-trained LLama models with configurable parameters.
+- **Configuration Management**: Offers robust options to configure the LLama models and their operational parameters.
+
+## Dependencies
+
+- .NET 8.0
+- LLamaSharp 0.8.1
+- LLamaSharp.Backend.Cuda12 0.8.1
+- Microsoft.Extensions.* various libraries
+
+## Installation
+
+Include the PalmHill.Llama library in your .NET project using the provided `.csproj` file. NuGet coming soon.
+
+## Usage
+
+### Llama Extensions
+
+Utilize the `LlamaExtensions` class to add enhanced capabilities to your LLama context.
+
+### Thread Management
+
+Use the `ThreadLock` class to manage concurrency in your applications, ensuring safe and efficient processing.
+
+### Model Injection
+
+Create instances of `InjectedModel` to work with pre-trained LLama models. Configure using `ModelConfig`.
+
+### Configuration
+
+Configure your models and operational parameters with the `ModelConfig` class, allowing for flexible and robust application setups.
+
+
+

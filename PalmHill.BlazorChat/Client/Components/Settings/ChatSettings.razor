@@ -1,0 +1,97 @@
+﻿@inject IDialogService DialogService
+@inject ThemeService ThemeControl
+@implements IDialogContentComponent<LocalStorageSettings>
+
+@using Microsoft.FluentUI.AspNetCore.Components.DesignTokens
+
+<FluentStack Orientation="Orientation.Vertical">
+
+    <FluentSwitch ValueChanged="ChangeThemeChecked"
+                  Value="Content.DarkMode"
+                  Label="Dark Mode"></FluentSwitch>
+
+    <FluentTextArea Label="System Prompt"
+                    @bind-Value="Content.SystemMessage"
+                    Rows="10"
+                    Class="w-100"></FluentTextArea>
+
+    <RangeSetting Label="Temperature"
+                      Min="0.1f"
+                      Max="1f"
+                      Step="0.1f"
+                      @bind-Value="Content.InferenceSettings.Temperature"></RangeSetting>
+
+    <RangeSetting Label="Max Length"
+                      Min="1"
+                      Max="4096"
+                      Step="1"
+                      @bind-Value="Content.InferenceSettings.MaxLength">
+    </RangeSetting>
+
+    <RangeSetting Label="Top P"
+                      Min="0.1f"
+                      Max="1f"
+                      Step="0.1f"
+                      @bind-Value="Content.InferenceSettings.TopP">
+    </RangeSetting>
+
+    <RangeSetting Label="Frequency penalty"
+                      Min="0f"
+                      Max="1f"
+                      Step="0.1f"
+                      @bind-Value="Content.InferenceSettings.FrequencyPenalty">
+    </RangeSetting>
+
+    <RangeSetting Label="Presence penalty"
+                      Min="0f"
+                      Max="1f"
+                      Step="0.1f"
+                      @bind-Value="Content.InferenceSettings.PresencePenalty">
+    </RangeSetting>
+
+</FluentStack>
+
+@code {
+
+    /// <summary>
+    /// The <see cref="LocalStorageSettings"/> to display.
+    /// </summary>
+    [Parameter]
+    public LocalStorageSettings Content { get; set; } = new LocalStorageSettings();
+
+    /// <summary>
+    /// The <see cref="FluentDialog"/> the component is displayed in.
+    /// </summary>
+    [CascadingParameter]
+    public FluentDialog? Dialog { get; set; }
+
+
+    /// <summary>
+    /// Event handler for when <see cref="LocalStorageSettings.DarkMode"/> is changed.
+    /// </summary>
+    /// <param name="darkModeChecked">Is dark mode on</param>
+    public async Task ChangeThemeChecked(bool darkModeChecked)
+    {
+        Content.DarkMode = darkModeChecked;
+        await ThemeControl.ChangeTheme(darkModeChecked);
+
+    }
+
+    /// <summary>
+    /// The default <see cref="DialogParameters"/> for the component.
+    /// </summary>
+    public static DialogParameters<LocalStorageSettings> DefaultDialogParameters =  new()
+        {
+
+            Title = $"Settings",
+            PrimaryAction = "Save",
+            PrimaryActionEnabled = true,
+            Width = "500px",
+            TrapFocus = true,
+            Modal = true,
+            PreventScroll = true,
+        };
+
+ 
+
+}

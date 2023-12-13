@@ -1,0 +1,53 @@
+﻿@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+@using Markdig
+@inject ApiClient.BlazorChatApi BlazorChatApi;
+
+@inherits FluentComponentBase
+
+<div class="chat-messages">
+    @* Display each prompt in a card. Display each response in a card. *@
+    @foreach (var promptWithResponse in Controller!.WebsocketChatMessages)
+    {
+        <FluentCard>
+            <FluentStack>
+                <div>
+                    <FluentIcon Value="@(new Icons.Regular.Size24.PersonChat())" />
+                </div>
+
+                <div>
+                    <span>@promptWithResponse.Prompt</span>
+                </div>
+            </FluentStack>
+
+        </FluentCard>
+
+        <FluentCard>
+            <FluentStack>
+                <div style="position:relative;">
+                    <FluentIcon Value="@(new Icons.Regular.Size24.LightbulbPerson())" />
+
+                    <FluentProgressRing Visible="!promptWithResponse.IsComplete"
+                                        Style="height:24px; width:24px; position:absolute; top:0px; left:0px;"></FluentProgressRing>
+                </div>
+
+                <div>
+                    <ModelMarkdown WebSocketChatMessage="@promptWithResponse"></ModelMarkdown>
+                </div>
+            </FluentStack>
+
+        </FluentCard>
+    }
+
+    <div style="height:125px"></div>
+</div>
+
+
+
+@code
+{
+
+    [Parameter]
+    public ChatService? Controller { get; set; }
+
+}

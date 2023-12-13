@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\PalmHill.Llama\PalmHill.Llama.csproj" />
+    <ProjectReference Include="..\..\PalmHill.LlmMemory\PalmHill.LlmMemory.csproj" />
     <ProjectReference Include="..\Client\PalmHill.BlazorChat.Client.csproj" />
     <ProjectReference Include="..\Shared\PalmHill.BlazorChat.Shared.csproj" />
   </ItemGroup>

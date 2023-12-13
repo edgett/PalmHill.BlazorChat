@@ -1,17 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace PalmHill.BlazorChat.Client
+﻿
+namespace PalmHill.BlazorChat.Client.Models
 {
     /// <summary>
-    /// Represents a response from the chat model.
+    /// Represents prompt with a response.
     /// </summary>
-    public class ModelResponse
+    public class WebSocketChatMessage
     {
         /// <summary>
         /// Gets or sets the unique identifier for the prompt.
         /// </summary>
-        public Guid PromptId { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        /// <summary>
+        /// The unique identifier for the conversation.
+        /// </summary>
+        public Guid? ConversationId { get; set; }
 
         /// <summary>
         /// Gets or sets the prompt text.
@@ -24,9 +27,14 @@ namespace PalmHill.BlazorChat.Client
         public List<string> ResponseStrings { get; set; } = new List<string>();
 
         /// <summary>
-        /// Gets or sets a value indicating whether the response is complete.
+        /// Response is complete.
         /// </summary>
         public bool IsComplete { get; set; } = false;
+
+        /// <summary>
+        /// Response is successful.
+        /// </summary>
+        public bool Success { get; private set; } = false;
 
         /// <summary>
         /// Occurs when the response changes.
@@ -39,7 +47,7 @@ namespace PalmHill.BlazorChat.Client
         public event EventHandler? ResponseCompleted;
 
         /// <summary>
-        /// Gets the full response text.
+        /// Full response text.
         /// </summary>
         public string Resonse
         {
@@ -63,9 +71,10 @@ namespace PalmHill.BlazorChat.Client
         /// <summary>
         /// Marks the response as complete and raises the <see cref="ResponseCompleted"/> event.
         /// </summary>
-        public void CompleteResponse()
+        public void CompleteResponse(bool success)
         {
             IsComplete = true;
+            Success = success;
             ResponseCompleted?.Invoke(this, EventArgs.Empty);
         }
     }

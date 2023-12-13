@@ -1,0 +1,74 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@using Refit
+@inject BlazorChatApi BlazorChatApi;
+<InfoPanel IsOpen="Controller!.AttachmentsVisible" Title="Attachments">
+    <FluentSwitch 
+                  
+                  @bind-Value="Controller!.AttachmentsEnabled"
+                  Label="Enable"></FluentSwitch>
+
+    <FileInput Controller="Controller" OnInputFileChange="_uploadFiles">
+    </FileInput>
+
+    <AttachmentList Controller="Controller">
+    </AttachmentList>
+</InfoPanel>
+
+@code {
+
+    [Parameter]
+    public ChatService? Controller { get; set; }
+
+    /// <summary>
+    /// Uploads files to the server when the user selects them.
+    /// Adds to the <see cref="Controller"/>'s UploadedFiles list.
+    /// </summary>
+    /// <param name="e">The selected files.</param>
+    private async Task _uploadFiles(InputFileChangeEventArgs e)
+    {
+
+        var files = e.GetMultipleFiles();
+        var uploadedCount = 0;
+        var uploadTasks = new List<Task>();
+
+        foreach (var file in files)
+        {
+            var attachmentInfo = new AttachmentInfo();
+            attachmentInfo.ConversationId = Controller?.WebSocketChatConnection?.ConversationId;
+            attachmentInfo.Name = file.Name;
+            attachmentInfo.Size = file.Size;
+            attachmentInfo.ContentType = file.ContentType;
+            attachmentInfo.Status = AttachmentStatus.Pending;
+
+            Controller!.UploadedFiles.Add(attachmentInfo);
+
+            var uploadTask = new Task(async () =>
+            {
+                if (attachmentInfo?.ConversationId is null)
+                {
+                    attachmentInfo!.Status = AttachmentStatus.Failed;
+                    return;
+                }
+
+                var stream = file.OpenReadStream(10000000);
+                var streamPart = new StreamPart(stream, file.Name, file.ContentType);
+                var apiResponse = await BlazorChatApi.Attachment.AddAttachment(attachmentInfo.ConversationId.Value, attachmentInfo.Id, streamPart);
+                uploadedCount++;
+
+                if (!apiResponse.IsSuccessStatusCode)
+                {
+                    attachmentInfo.Status = AttachmentStatus.Failed;
+                }
+            });
+
+            uploadTasks.Add(uploadTask);
+        }
+
+        foreach (var uploadTask in uploadTasks)
+        {
+            uploadTask.Start();
+            await uploadTask;
+        }
+    }
+
+}

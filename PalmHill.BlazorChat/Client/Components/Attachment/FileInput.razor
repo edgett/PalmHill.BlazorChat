@@ -1,0 +1,52 @@
+﻿@using Microsoft.AspNetCore.Components.Forms    
+@using PalmHill.BlazorChat.ApiClient            
+@using PalmHill.BlazorChat.Shared.Models        
+@using Refit                                    
+@inject BlazorChatApi BlazorChatApi             
+
+<style>
+    .file-upload-container {
+        border: 2px dashed var(--neutral-stroke-rest);
+        border-radius: 5px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        position: relative;
+    }
+</style>
+
+<FluentInputFile AnchorId="uploadFileButton"
+                 DragDropZoneVisible="true"
+                 Mode="InputFileMode.Stream"
+                 Multiple="true"
+                 MaximumFileSize="100000"
+                 OnInputFileChange="OnInputFileChange"
+                 Class="file-upload-container">
+                 
+    <div>
+        <h5>Drag and Drop Files</h5>
+        <br />
+        <FluentButton Appearance="Appearance.Accent" Id="uploadFileButton">
+            Select Files
+        </FluentButton>
+    </div>
+</FluentInputFile>
+
+
+
+
+
+@code
+{
+    [Parameter]
+    public ChatService? Controller { get; set; }
+
+    /// <summary>
+    /// Event callback to invoke when the user selects files.
+    /// </summary>
+    [Parameter]
+    public EventCallback<InputFileChangeEventArgs> OnInputFileChange { get; set; }
+    
+
+
+}

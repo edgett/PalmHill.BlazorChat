@@ -1,0 +1,63 @@
+﻿@if (IsOpen)
+{
+    <FluentStack Orientation="Orientation.Vertical" Class="info-panel control" Width="250px">
+        <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Top">
+            <div style="width: 100%;"><FluentLabel Typo="Typography.PaneHeader">@Title</FluentLabel></div>
+                <FluentButton Appearance="Appearance.Stealth" OnClick="Hide">
+                    <FluentIcon Value="(new Icons.Regular.Size24.Dismiss())" />
+                </FluentButton>
+            </FluentStack>
+
+            <FluentBodyContent>@ChildContent</FluentBodyContent>
+        </FluentStack>
+
+
+}
+
+
+
+@code {
+    /// <summary>
+    /// Title of the panel.
+    /// </summary>
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Is the panel open?
+    /// </summary>
+    [Parameter]
+    public bool IsOpen { get; set; } = false;
+
+
+    /// <summary>
+    /// Show the panel.
+    /// </summary>
+    public void Show()
+    {
+        IsOpen = true;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Hide the panel. 
+    /// </summary>
+    public void Hide()
+    {
+        IsOpen = false;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Toggle the panel.
+    /// </summary>
+    public void Toggle()
+    {
+        IsOpen = !IsOpen;
+        StateHasChanged();
+    }
+
+}
+

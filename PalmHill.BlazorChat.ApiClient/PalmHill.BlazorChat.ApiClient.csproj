@@ -7,10 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LLamaSharp" Version="0.8.1" />
-    <PackageReference Include="LLamaSharp.Backend.Cuda12" Version="0.8.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Refit" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
