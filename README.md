@@ -46,6 +46,8 @@ PalmHill.BlazorChat offers a range of features to provide a seamless and interac
 
 - **Real-Time Chat**: Engage in real-time conversations with the help of SignalR, which ensures instant message delivery.
 
+- **Retrieval Augmented Generation for Uploaded Docs**: This feature allows users to chat about content within uploaded documents. By leveraging retrieval augmented generation, the chatbot can reference and incorporate specific information from these documents in its responses, providing a more personalized and context-aware interaction. Early version.
+
 - **Markdown Support**: The [`ModelMarkdown.razor`](PalmHill.BlazorChat/Client/Components/ModelMarkdown.razor#L1-L53) component allows for markdown formatting in chat messages, enhancing readability and user experience.
 
 - **Chat Settings**: Customize your chat experience with adjustable settings such as temperature, max length, top P, frequency penalty, and presence penalty, all managed by the [`ChatSettings.razor`](PalmHill.BlazorChat/Client/Components/ChatSettings.razor#L1-L37) component.
@@ -77,7 +79,8 @@ Before you begin, ensure you have the following installed on your system:
 ### Step 1: Download and Place the Language Model
 1. **Download the Language Model:** First, you'll need to download the appropriate Llama 2 language model for the application. Any GGUF/Llama2 model should work and can be downloaded from Hugginface. We reccomend selecting a model that will fit your VRAM and RAM from [this list](https://huggingface.co/TheBloke/Orca-2-13B-GGUF).
 
-    For testing [TheBloke/Orca-2-13B-GGUF](https://huggingface.co/TheBloke/Orca-2-13B-GGUF/blob/main/orca-2-13b.Q6_K.gguf) was used and requires at least 13gb VRAM.
+    For testing Chat [TheBloke/Orca-2-13B-GGUF](https://huggingface.co/TheBloke/Orca-2-13B-GGUF/blob/main/orca-2-13b.Q6_K.gguf) was used and requires at least 13gb VRAM.
+    For testing Embedding [TheBloke/Mistral-7B-OpenOrca-GGUF](https://huggingface.co/TheBloke/Mistral-7B-OpenOrca-GGUF/blob/main/mistral-7b-openorca.Q4_K_M.gguf) was used and requires at least 7gb VRAM.
 
 2. **Place the Model:** Once downloaded, place the model file in a designated directory on your system. Remember the path of this directory, as you'll need it for configuring the application.
 
@@ -98,6 +101,35 @@ Before you begin, ensure you have the following installed on your system:
     ```json
     "ModelPath": "C:\\path\\to\\your\\model\\model-file-name"
     ```
+
+    Full example:
+    ```json
+    {
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information",
+          "Microsoft.AspNetCore": "Warning"
+        }
+      },
+      "AllowedHosts": "*",
+      "InferenceModelConfig": {
+        "ModelPath": "C:\\models\\orca-2-13b.Q6_K.gguf",
+        "GpuLayerCount": 100,
+        "ContextSize": 4096,
+        "Gpu": 0,
+        "AntiPrompts": [ "User:" ]
+      },
+      "EmbeddingModelConfig": {
+        "ModelPath": "C:\\models\\mistral-7b-openorca.Q4_K_M.gguf",
+        "GpuLayerCount": 100,
+        "ContextSize": 2048,
+        "Gpu": 0,
+        "AntiPrompts": [ "Question:" ]
+
+      }
+    }
+    ```
+
 
 ### Step 5: Run the Application
 1. **Build the Solution:** Build the solution in Visual Studio to ensure all dependencies are correctly resolved.
