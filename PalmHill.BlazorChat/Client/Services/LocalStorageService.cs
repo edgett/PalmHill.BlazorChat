@@ -35,8 +35,12 @@ namespace PalmHill.BlazorChat.Client.Services
         public async Task<LocalStorageSettings> GetSettings()
         {
             LocalStorageSettings = await _getMigratedSettings();
-            await _themeControl.ChangeTheme(LocalStorageSettings.DarkMode);
             return LocalStorageSettings;
+        }
+
+        public async Task SyncTheme()
+        {
+            await _themeControl.ChangeTheme(LocalStorageSettings.DarkMode);
         }
 
         /// <summary>

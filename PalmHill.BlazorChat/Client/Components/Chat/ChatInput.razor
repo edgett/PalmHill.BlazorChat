@@ -11,7 +11,7 @@
 
 <FluentFooter Class="w-100" Style="position:fixed; bottom:15px;">
     <FluentStack Class="chat-messages input-area">
-        <div class="file-input-area" @onclick="Controller!.ShowAttachments">
+        <div class="file-input-area" @onclick="Controller!.ToggleAttachmentsVisible">
             <FluentCounterBadge Count="Controller?.UploadedFiles.Count ?? 0"
                                 ShowZero="true"
                                 BottomPosition="-10">

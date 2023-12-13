@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject ChatService Controller;
+@inject LocalStorageService LocalStorage;
 
 <FluentHeader Class="chat-header">
     <FluentButton
@@ -32,6 +33,7 @@
     protected override async Task OnInitializedAsync()
     {
         attachControllerEvents();
+        await LocalStorage.SyncTheme();
         await Controller.StartChat();
     }
 

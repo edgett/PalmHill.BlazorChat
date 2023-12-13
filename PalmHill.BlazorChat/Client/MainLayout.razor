@@ -12,16 +12,3 @@
 <FluentTooltipProvider />
 <FluentMessageBarProvider />
 
-@code {
-    private bool darkMode = false;
-    public static bool Expanded { get; set; } = true;
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-
-            await ThemeControl.ChangeTheme(darkMode);
-            StateHasChanged();
-        }
-    }
-}

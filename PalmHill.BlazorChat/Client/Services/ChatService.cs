@@ -60,7 +60,7 @@ namespace PalmHill.BlazorChat.Client.Services
         /// <summary>
         /// Show the attachment panel.
         /// </summary>
-        public bool AttachmentsVisible { get; private set; } = false;
+        public bool AttachmentsVisible { get; set; } = false;
         /// <summary>
         /// The list of files that have been selected for Chat. This is non-functional for now.
         /// </summary>
@@ -213,7 +213,7 @@ namespace PalmHill.BlazorChat.Client.Services
             if (dialogResult?.Cancelled == true)
             {
                 //Reset the theme if cancel.
-                await _themeControl.ChangeTheme(LocalStorageSettings.DarkMode);
+                await _localStorageService.SyncTheme();
             }
             else
             {
