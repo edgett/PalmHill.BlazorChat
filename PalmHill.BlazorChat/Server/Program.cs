@@ -1,17 +1,9 @@
-using LLama.Common;
-using LLama;
-using Microsoft.AspNetCore.ResponseCompression;
 using PalmHill.Llama;
-using System.Runtime.InteropServices;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
 using PalmHill.BlazorChat.Server.SignalR;
 using Microsoft.AspNetCore.SignalR;
-using LLamaSharp.KernelMemory;
-using Microsoft.KernelMemory;
 using PalmHill.LlmMemory;
-using PalmHill.Llama.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -110,8 +110,8 @@ namespace PalmHill.Llama
         /// </summary>
         /// <param name="builder"></param>
         /// <param name="modelConfig"></param>
-        /// <exception cref="FileNotFoundException"></exception>
-        /// <exception cref="ArgumentNullException"></exception>"
+        /// <exception cref="FileNotFoundException">Occurs when the model file is missing.</exception>
+        /// <exception cref="ArgumentNullException">Occurs when the <see cref="ModelConfig"/> is null.</exception>"
         public static InjectedModel AddLlamaModel(this IHostApplicationBuilder builder, ModelConfig? modelConfig = null)
         {
             var defaultModelConfigSection = "InferenceModelConfig";

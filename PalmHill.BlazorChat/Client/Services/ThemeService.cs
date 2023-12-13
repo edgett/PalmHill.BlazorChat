@@ -3,33 +3,44 @@ using Microsoft.FluentUI.AspNetCore.Components.DesignTokens;
 
 namespace PalmHill.BlazorChat.Client.Services
 {
+
+    /// <summary>
+    /// Service to handle theme changes.
+    /// </summary>
     public class ThemeService
     {
-
+        /// <summary>
+        /// For DI.
+        /// </summary>
+        /// <param name="baseLayerLuminance">From FluentUI</param>
+        /// <param name="accentBaseColor">From FluentUI</param>
         public ThemeService(BaseLayerLuminance baseLayerLuminance, AccentBaseColor accentBaseColor)
         {
-            BaseLayerLuminance = baseLayerLuminance;
-            AccentBaseColor = accentBaseColor;
+            _baseLayerLuminance = baseLayerLuminance;
+            _accentBaseColor = accentBaseColor;
         }
 
-        private BaseLayerLuminance? BaseLayerLuminance { get; set; }
+        private BaseLayerLuminance? _baseLayerLuminance { get; }
 
-        private AccentBaseColor? AccentBaseColor { get; set; }
+        private AccentBaseColor? _accentBaseColor { get;  }
 
-
+        /// <summary>
+        /// Changes the theme.
+        /// </summary>
+        /// <param name="darkMode">Dark Mode</param>
         public async Task ChangeTheme(bool darkMode)
         {
 
             if (darkMode)
             {
-                await BaseLayerLuminance!.WithDefault(0f);
-                await AccentBaseColor!.WithDefault(new Swatch(255, 105, 180));
+                await _baseLayerLuminance!.WithDefault(0f);
+                await _accentBaseColor!.WithDefault(new Swatch(255, 105, 180));
 
             }
             else
             {
-                await BaseLayerLuminance!.WithDefault(1f);
-                await AccentBaseColor!.WithDefault(new Swatch(255, 105, 180));
+                await _baseLayerLuminance!.WithDefault(1f);
+                await _accentBaseColor!.WithDefault(new Swatch(255, 105, 180));
             }
 
         }

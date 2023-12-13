@@ -33,7 +33,7 @@ namespace PalmHill.BlazorChat.Client.Services
             )
         {
             
-            _localStorage = localStorage;
+            _localStorageService = localStorage;
             _dialogService = dialogService;
             _themeControl = themeControl;
             _blazorChatApi = blazorChatApi;
@@ -92,7 +92,7 @@ namespace PalmHill.BlazorChat.Client.Services
 
 
 
-        private readonly LocalStorageService _localStorage;
+        private readonly LocalStorageService _localStorageService;
         private readonly IDialogService _dialogService;
         private readonly ThemeService _themeControl;
         private readonly BlazorChatApi _blazorChatApi;
@@ -105,7 +105,7 @@ namespace PalmHill.BlazorChat.Client.Services
         /// <returns></returns>
         public async Task StartChat()
         {
-            LocalStorageSettings = await _localStorage.GetSettings();
+            LocalStorageSettings = await _localStorageService.GetSettings();
             await WebSocketChatConnection!.StartAsync();
         }
 
@@ -197,7 +197,7 @@ namespace PalmHill.BlazorChat.Client.Services
         /// <returns></returns>
         public async Task SaveSettings()
         {
-            await _localStorage.SaveSettings(LocalStorageSettings);
+            await _localStorageService.SaveSettings(LocalStorageSettings);
         }
 
         /// <summary>
@@ -284,7 +284,11 @@ namespace PalmHill.BlazorChat.Client.Services
         /// </summary>
         private void setupWebSocketChatConnection()
         {
-            WebSocketChatConnection = new WebSocketChatService(_navigationManager.ToAbsoluteUri("/chathub?customUserId=user1"), WebsocketChatMessages);
+            WebSocketChatConnection = new WebSocketChatService(
+                    _navigationManager.ToAbsoluteUri("/chathub?customUserId=user1"), 
+                    WebsocketChatMessages,
+                    _localStorageService
+                    );
 
             WebSocketChatConnection.OnInferenceStatusUpdate += (sender, inferenceStatusUpdate) =>
             {

@@ -34,7 +34,7 @@ namespace PalmHill.BlazorChat.Client.Services
         /// <returns></returns>
         public async Task<LocalStorageSettings> GetSettings()
         {
-            LocalStorageSettings = await GetStorageSettings();
+            LocalStorageSettings = await _getMigratedSettings();
             await _themeControl.ChangeTheme(LocalStorageSettings.DarkMode);
             return LocalStorageSettings;
         }
@@ -49,7 +49,10 @@ namespace PalmHill.BlazorChat.Client.Services
             await _localStorage.SetItemAsync("LocalStorageSettings", localStorageSettings);
         }
 
-        private async Task<LocalStorageSettings> GetStorageSettings()
+        /// <summary>
+        /// Gets the settings from local storage and migrates them if necessary.
+        /// </summary>
+        private async Task<LocalStorageSettings> _getMigratedSettings()
         {
             var settingsExist = await _localStorage.ContainKeyAsync("LocalStorageSettings");
 

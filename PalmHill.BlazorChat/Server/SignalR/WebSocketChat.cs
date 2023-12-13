@@ -120,7 +120,7 @@ namespace PalmHill.BlazorChat.Server.SignalR
                 if (shouldSendBuffer)
                 {
                     var inferenceString = new WebSocketInferenceString();
-                    inferenceString.MessageId = messageId ?? Guid.NewGuid();
+                    inferenceString.WebSocketChatMessageId = messageId ?? Guid.NewGuid();
                     inferenceString.InferenceString = textBuffer;
 
                     await respondToClient.SendAsync("ReceiveInferenceString", inferenceString);

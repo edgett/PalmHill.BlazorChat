@@ -1,5 +1,8 @@
 ﻿namespace PalmHill.BlazorChat.Shared.Models.WebSocket
 {
+    /// <summary>
+    /// A status update sent over a WebSocket.
+    /// </summary>
     public class WebSocketInferenceStatusUpdate
     {
         public Guid? MessageId { get; set; }
