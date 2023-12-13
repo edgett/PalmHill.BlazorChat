@@ -31,3 +31,6 @@ To use this library, add a reference to it in your project and create an instanc
 var httpClient = new HttpClient { BaseAddress = new Uri("https://api.example.com") };
 var blazorChatApi = new BlazorChatApi(httpClient);
 var response = await blazorChatApi.Chat.Chat(new InferenceRequest { /* ... */ });
+```
+
+Note: This library is not yet available on NuGet.

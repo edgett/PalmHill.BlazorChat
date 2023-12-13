@@ -20,14 +20,14 @@ namespace PalmHill.BlazorChat.Server.WebApi
     /// </summary>
     [Route("api/chat", Name = "Chat")]
     [ApiController]
-    public class ApiChat : ControllerBase
+    public class ApiChatController : ControllerBase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ApiChat"/> class.
+        /// Initializes a new instance of the <see cref="ApiChatController"/> class.
         /// </summary>
         /// <param name="model">The LLamaWeights model.</param>
         /// <param name="modelParams">The model parameters.</param>
-        public ApiChat(
+        public ApiChatController(
             InjectedModel injectedModel,
             IHubContext<WebSocketChat> webSocketChat,
             LlmMemory.ServerlessLlmMemory? llmMemory = null
