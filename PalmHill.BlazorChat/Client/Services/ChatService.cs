@@ -142,6 +142,7 @@ namespace PalmHill.BlazorChat.Client.Services
             CanStop = true;
 
             var prompt = new WebSocketChatMessage();
+            prompt.ConversationId = ConversationId;
             prompt.Prompt = UserInput;
             WebsocketChatMessages.Add(prompt);
             UserInput = string.Empty;
@@ -160,12 +161,13 @@ namespace PalmHill.BlazorChat.Client.Services
 
             var prompt = new WebSocketChatMessage();
             prompt.Prompt = UserInput;
+            prompt.ConversationId = ConversationId;
             WebsocketChatMessages.Add(prompt);
             UserInput = string.Empty;
             StateHasChanged();
 
             var infrerenceRequest = new InferenceRequest();
-            infrerenceRequest.Id = WebSocketChatConnection!.ConversationId;
+            infrerenceRequest.Id = ConversationId;
             var chatMessage = new ChatMessage();
             chatMessage.Id = prompt.Id;
             chatMessage.Message = prompt.Prompt;
@@ -239,7 +241,7 @@ namespace PalmHill.BlazorChat.Client.Services
         /// </summary>
         public async Task CancelTextGeneration()
         {
-            var canceled = await _blazorChatApi!.Chat.CancelChat(WebSocketChatConnection!.ConversationId);
+            var canceled = await _blazorChatApi!.Chat.CancelChat(ConversationId);
 
             if (canceled.Content)
             { 
