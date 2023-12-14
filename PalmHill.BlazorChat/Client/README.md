@@ -36,3 +36,8 @@ Here's a key page in the Pages folder:
 ## Key Services
 - `ChatService.cs`: The main service provided by Dependency Injection for operating the UI.
 - `WebSocketChatService.cs`: The service used by the ChatService to interact with the server via WebSockets.
+
+## To D
+- [ ] Themeing and brading
+- [ ] Select docs for Chat
+- [ ] Display citations for Chat with docs
