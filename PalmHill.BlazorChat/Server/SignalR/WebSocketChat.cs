@@ -19,13 +19,11 @@ namespace PalmHill.BlazorChat.Server.SignalR
     /// </summary>
     public class WebSocketChat : Hub
     {
-        public WebSocketChat(InjectedModel injectedModel, LlmMemory.ServerlessLlmMemory? llmMemory = null)
+        public WebSocketChat(InjectedModel injectedModel)
         {
             InjectedModel = injectedModel;
-            LlmMemory = llmMemory;
         }
         private InjectedModel InjectedModel { get; }
-        private ServerlessLlmMemory? LlmMemory { get; }
         
 
         /// <summary>
