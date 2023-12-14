@@ -17,14 +17,14 @@ namespace PalmHill.BlazorChat.Client.Services
 
         }
 
-        private BlazorChatApi _blazorChatApi;
+        private readonly BlazorChatApi _blazorChatApi;
 
         public Guid ConversationId { get; set; }
 
         /// <summary>
         /// The list of files that have been uploaded for Chat.
         /// </summary>
-        public List<AttachmentInfo> UploadedFiles = new List<AttachmentInfo>();
+        public List<AttachmentInfo> UploadedFiles { get; private set; } = new List<AttachmentInfo>();
 
         /// <summary>
         /// Whether the chat is in Attachment mode. Will only reference attached douments.
@@ -37,7 +37,7 @@ namespace PalmHill.BlazorChat.Client.Services
         /// <summary>
         /// The list of files that have been selected for Chat. This is non-functional for now.
         /// </summary>
-        public List<AttachmentInfo> SelectedFiles = new List<AttachmentInfo>();
+        public List<AttachmentInfo> SelectedFiles { get; private set; } = new List<AttachmentInfo>();
 
 
         /// <summary>

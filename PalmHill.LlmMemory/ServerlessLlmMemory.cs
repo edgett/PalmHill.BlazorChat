@@ -29,8 +29,8 @@ namespace PalmHill.LlmMemory
 
             if (!AttachmentInfos.TryAdd(attachmentInfo.Id, attachmentInfo))
             {
-                throw new Exception("Failed to add attachment to memory");
-            };
+                throw new InvalidOperationException("Failed to add attachment to memory");
+            }
 
             attachmentInfo.Size = attachmentInfo.FileBytes.LongLength;
 
@@ -87,7 +87,7 @@ namespace PalmHill.LlmMemory
         {
             var isDocReady = await KernelMemory.IsDocumentReadyAsync(attachmentInfo.Id.ToString(), attachmentInfo.ConversationId.ToString());
 
-            if (attachmentInfo != null && attachmentInfo?.Status != AttachmentStatus.Failed)
+            if (attachmentInfo.Status != AttachmentStatus.Failed)
             {
                 attachmentInfo!.Status = isDocReady ? AttachmentStatus.Uploaded : AttachmentStatus.Pending;
             }

@@ -25,14 +25,12 @@ namespace PalmHill.BlazorChat.Client.Services
             NavigationManager navigationManager,
             LocalStorageService localStorage,
             IDialogService dialogService,
-            ThemeService themeControl,
             BlazorChatApi blazorChatApi
             )
         {
 
             _localStorageService = localStorage;
             _dialogService = dialogService;
-            _themeControl = themeControl;
             _blazorChatApi = blazorChatApi;
             _navigationManager = navigationManager;
             setupAttachmentService();
@@ -84,7 +82,6 @@ namespace PalmHill.BlazorChat.Client.Services
 
         private readonly LocalStorageService _localStorageService;
         private readonly IDialogService _dialogService;
-        private readonly ThemeService _themeControl;
         private readonly BlazorChatApi _blazorChatApi;
         private readonly NavigationManager _navigationManager;
 
@@ -117,7 +114,7 @@ namespace PalmHill.BlazorChat.Client.Services
             if (
                 AttachmentService is null
                 ||
-                AttachmentService.AttachmentsEnabled == false
+                !AttachmentService.AttachmentsEnabled
                 )
             {
                 await SendToWebSocketChat();
@@ -263,7 +260,7 @@ namespace PalmHill.BlazorChat.Client.Services
 
             WebSocketChatConnection.OnInferenceStatusUpdate += (sender, inferenceStatusUpdate) =>
             {
-                if (inferenceStatusUpdate.IsComplete == true)
+                if (inferenceStatusUpdate.IsComplete)
                 {
                     SetReady();
                 }

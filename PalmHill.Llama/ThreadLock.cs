@@ -2,7 +2,7 @@
 {
     public static class ThreadLock
     {
-        public static SemaphoreSlim InferenceLock = new SemaphoreSlim(1, 1);
+        public static SemaphoreSlim InferenceLock { get; private set; } = new SemaphoreSlim(1, 1);
 
     }
 }

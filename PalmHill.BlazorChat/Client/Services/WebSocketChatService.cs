@@ -36,7 +36,7 @@ namespace PalmHill.BlazorChat.Client.Services
         /// </summary>
         public Guid ConversationId { get; }
 
-        private LocalStorageService _localStorageService;
+        private readonly LocalStorageService _localStorageService;
 
         /// <summary>
         /// The list of <see cref="WebSocketChatMessage"/> to be interacted with.
@@ -144,7 +144,7 @@ namespace PalmHill.BlazorChat.Client.Services
                 userMessage.Role = ChatMessageRole.User;
                 chatConversation.ChatMessages.Add(userMessage);
 
-                if (promptAndResponse.IsComplete && promptAndResponse.Success == true)
+                if (promptAndResponse.IsComplete && promptAndResponse.Success)
                 {
                     var modelMessage = new ChatMessage();
                     modelMessage.Message = promptAndResponse.Resonse;

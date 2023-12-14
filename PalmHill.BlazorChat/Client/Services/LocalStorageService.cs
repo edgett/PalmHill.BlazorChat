@@ -8,8 +8,8 @@ namespace PalmHill.BlazorChat.Client.Services
     /// </summary>
     public class LocalStorageService
     {
-        private ILocalStorageService _localStorage;
-        private ThemeService _themeControl;
+        private readonly ILocalStorageService _localStorage;
+        private readonly ThemeService _themeControl;
 
         /// <summary>
         /// Use dependency injection to get the local storage service and the theme service.

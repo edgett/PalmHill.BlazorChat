@@ -7,6 +7,7 @@ using PalmHill.Llama;
 using PalmHill.Llama.Models;
 using PalmHill.LlmMemory;
 using System.Diagnostics;
+using System.Text;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -156,7 +157,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
             var session = modelContext.CreateChatSession(conversation);
             var inferenceParams = conversation.GetInferenceParams(InjectedModel.DefaultAntiPrompts);
 
-            var fullResponse = "";
+            var fullResponse = new StringBuilder();
             var totalTokens = 0;
             var inferenceStopwatch = new Stopwatch();
 
@@ -175,15 +176,15 @@ namespace PalmHill.BlazorChat.Server.WebApi
                 }
 
                 totalTokens++;
-                fullResponse += text;
+                fullResponse.Append(text);
             }
             modelContext.Dispose();
             inferenceStopwatch.Stop();
-
+            var fullResponseString = fullResponse.ToString();
             Console.WriteLine($"Inference took {inferenceStopwatch.ElapsedMilliseconds}ms and generated {totalTokens} tokens. {(totalTokens / (inferenceStopwatch.ElapsedMilliseconds / (float)1000)).ToString("F2")} tokens/second.");
-            Console.WriteLine(fullResponse);
+            Console.WriteLine(fullResponseString);
 
-            return fullResponse;
+            return fullResponseString;
         }
 
     }
