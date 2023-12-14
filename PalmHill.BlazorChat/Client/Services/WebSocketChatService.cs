@@ -16,11 +16,13 @@ namespace PalmHill.BlazorChat.Client.Services
         /// <param name="chatHubUri"></param>
         /// <param name="webSocketChatMessages">The list of <see cref="WebSocketChatMessage"/> to be interacted with.</param>
         public WebSocketChatService(
+            Guid conversationId,
             Uri chatHubUri,
             List<WebSocketChatMessage> webSocketChatMessages,
             LocalStorageService localStorageService
             )
         {
+            ConversationId = conversationId;
             _localStorageService = localStorageService;
             WebSocketChatMessages = webSocketChatMessages;
             HubConnection = new HubConnectionBuilder()
@@ -32,7 +34,7 @@ namespace PalmHill.BlazorChat.Client.Services
         /// <summary>
         /// Used for DB correlation. (Later)
         /// </summary>
-        public Guid ConversationId { get; } = Guid.NewGuid();
+        public Guid ConversationId { get; }
 
         private LocalStorageService _localStorageService;
 

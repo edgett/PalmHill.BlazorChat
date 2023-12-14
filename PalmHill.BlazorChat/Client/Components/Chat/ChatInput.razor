@@ -11,11 +11,11 @@
 
 <FluentFooter Class="w-100" Style="position:fixed; bottom:15px;">
     <FluentStack Class="chat-messages input-area">
-        <div class="file-input-area" @onclick="Controller!.ToggleAttachmentsVisible">
-            <FluentCounterBadge Count="Controller?.UploadedFiles.Count ?? 0"
+        <div class="file-input-area" @onclick="_toggleAttachmentVisible">
+            <FluentCounterBadge Count="Controller?.AttachmentService?.UploadedFiles.Count ?? 0"
                                 ShowZero="true"
                                 BottomPosition="-10">
-                <FluentButton Id="uploadButton"
+                <FluentButton Id="uploadButton" Disabled="Controller?.AttachmentService is null"
                               IconStart="(new Icons.Regular.Size24.Attach())"
                               Style="margin-top:6px;"></FluentButton>
             </FluentCounterBadge>
@@ -33,7 +33,7 @@
             @if (Controller?.CanSend == true)
             {
                 <FluentButton OnClick="_sendPrompt"
-                              Disabled="string.IsNullOrWhiteSpace(Controller!.UserInput)"
+                              Disabled="!UserInputValid"
                               Appearance="Appearance.Accent"
                               IconStart="(new Icons.Regular.Size24.Send())"
                               Style="margin-top:6px;"></FluentButton>
@@ -87,11 +87,13 @@
     /// <param name="e">The key pressed.</param>
     private async Task _handleKeyPress(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter" && !e.ShiftKey)
+        if (e.Key == "Enter" && !e.ShiftKey && UserInputValid)
         {
             await _sendPrompt();
         }
     }
+
+    public bool UserInputValid { get => userInnputValid();  }
 
     /// <summary>
     /// Resizes the main text area.
@@ -101,6 +103,15 @@
         await JSRuntime.InvokeVoidAsync("textAreaAdjust", textAreaElement);
     }
 
+    private void _toggleAttachmentVisible()
+    {
+        Controller?.AttachmentService?.ToggleAttachmentsVisible();
+    }
+
+    private bool userInnputValid()
+    {
+        return !string.IsNullOrWhiteSpace(Controller!.UserInput);
+    }
 
 
 
