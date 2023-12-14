@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Runtime.CompilerServices;
+﻿using PalmHill.BlazorChat.Shared.Models;
 using System.Text;
-using System.Threading.Tasks;
-using PalmHill.BlazorChat.Shared.Models;
 
 namespace PalmHill.BlazorChat.Shared
 {

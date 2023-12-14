@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
+﻿using Microsoft.AspNetCore.Components.Forms;
 using PalmHill.BlazorChat.ApiClient;
 using PalmHill.BlazorChat.Shared.Models;
 using Refit;
@@ -11,11 +10,11 @@ namespace PalmHill.BlazorChat.Client.Services
         public AttachmentService(
             BlazorChatApi blazorChatApi,
             Guid conversationId
-            ) 
+            )
         {
             _blazorChatApi = blazorChatApi;
             ConversationId = conversationId;
-            
+
         }
 
         private BlazorChatApi _blazorChatApi;

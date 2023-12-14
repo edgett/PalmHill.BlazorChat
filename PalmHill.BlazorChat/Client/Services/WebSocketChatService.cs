@@ -68,7 +68,7 @@ namespace PalmHill.BlazorChat.Client.Services
         public async Task StartAsync()
         {
             await HubConnection.StartAsync();
-        }  
+        }
 
         /// <summary>
         /// Stop the WebSocket connection.

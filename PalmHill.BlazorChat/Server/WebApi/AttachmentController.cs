@@ -1,10 +1,8 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.KernelMemory.FileSystem.DevTools;
 using PalmHill.BlazorChat.Server.SignalR;
 using PalmHill.BlazorChat.Shared.Models;
-using PalmHill.LlmMemory;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -26,7 +24,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
             WebSocketChat = webSocketChat;
         }
 
-        
+
 
         [HttpGet("list/{conversationId}")]
         public IEnumerable<AttachmentInfo> GetAttachments(Guid conversationId)
@@ -118,15 +116,15 @@ namespace PalmHill.BlazorChat.Server.WebApi
 
         [HttpGet("{attachmentId}/file")]
         public ActionResult GetAttachmentFile(Guid attachmentId)
-        { 
+        {
             var attachmentInfo = LlmMemory.AttachmentInfos[attachmentId];
             if (attachmentInfo == null)
             {
-                   return NotFound();
+                return NotFound();
             }
 
             if (attachmentInfo.FileBytes == null || attachmentInfo.Status != AttachmentStatus.Uploaded)
-            { 
+            {
                 return BadRequest("File not ready.");
             }
 

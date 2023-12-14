@@ -5,7 +5,7 @@
     /// </summary>
     public class WebSocketInferenceString
     {
-        
+
         public Guid WebSocketChatMessageId { get; set; } = Guid.NewGuid();
         public string InferenceString { get; set; } = string.Empty;
     }

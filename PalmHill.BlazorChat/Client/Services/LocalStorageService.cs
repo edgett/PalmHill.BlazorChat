@@ -1,5 +1,4 @@
 ﻿using Blazored.LocalStorage;
-using Markdig.Syntax.Inlines;
 using PalmHill.BlazorChat.Client.Models;
 
 namespace PalmHill.BlazorChat.Client.Services

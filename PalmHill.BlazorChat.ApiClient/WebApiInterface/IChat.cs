@@ -1,5 +1,5 @@
-﻿using Refit;
-using PalmHill.BlazorChat.Shared.Models;
+﻿using PalmHill.BlazorChat.Shared.Models;
+using Refit;
 
 
 namespace PalmHill.BlazorChat.ApiClient.WebApiInterface

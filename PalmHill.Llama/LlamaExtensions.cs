@@ -1,12 +1,10 @@
-﻿using LLama.Common;
-using LLama;
-using PalmHill.BlazorChat.Shared.Models;
-using static LLama.Common.ChatHistory;
-using PalmHill.BlazorChat.Shared;
-using Microsoft.Extensions.DependencyInjection;
-using PalmHill.Llama.Models;
-using Microsoft.Extensions.Hosting;
+﻿using LLama;
+using LLama.Common;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using PalmHill.BlazorChat.Shared.Models;
+using PalmHill.Llama.Models;
 
 namespace PalmHill.Llama
 {
@@ -116,11 +114,11 @@ namespace PalmHill.Llama
         {
             var defaultModelConfigSection = "InferenceModelConfig";
 
-                //Attemt to get model config from config
+            //Attemt to get model config from config
             modelConfig = builder?.GetModelConfigFromConfigSection(defaultModelConfigSection);
 
             if (modelConfig == null)
-            { 
+            {
                 throw new ArgumentNullException(nameof(modelConfig), $"The argument {modelConfig} must be supplied if there is no {defaultModelConfigSection} section in app configuartion.");
             }
 
@@ -151,7 +149,7 @@ namespace PalmHill.Llama
         }
 
 
-        
+
 
 
         public static ModelConfig? GetModelConfigFromConfigSection(this IHostApplicationBuilder builder, string configSection)

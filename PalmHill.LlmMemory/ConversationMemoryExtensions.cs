@@ -1,17 +1,9 @@
-﻿using LLama.Common;
-using LLama;
-using Microsoft.Extensions.Configuration;
+﻿using LLamaSharp.KernelMemory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PalmHill.Llama.Models;
-using PalmHill.Llama;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LLamaSharp.KernelMemory;
 using Microsoft.KernelMemory;
+using PalmHill.Llama;
+using PalmHill.Llama.Models;
 
 namespace PalmHill.LlmMemory
 {
@@ -49,8 +41,8 @@ namespace PalmHill.LlmMemory
             var memory = new KernelMemoryBuilder()
             .WithLLamaSharpDefaults(memoryModelConfig)
             .Build<MemoryServerless>();
-            
-            
+
+
             var llmMemory = new ServerlessLlmMemory(memory);
             builder.Services.AddSingleton(llmMemory);
 

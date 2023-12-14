@@ -1,14 +1,12 @@
-﻿using LLama.Common;
-using LLama;
+﻿using LLama;
 using Microsoft.AspNetCore.Mvc;
-using PalmHill.BlazorChat.Shared.Models;
-using PalmHill.Llama;
-using System.Diagnostics;
-using PalmHill.Llama.Models;
 using Microsoft.AspNetCore.SignalR;
 using PalmHill.BlazorChat.Server.SignalR;
-using PalmHill.BlazorChat.Shared.Models.WebSocket;
+using PalmHill.BlazorChat.Shared.Models;
+using PalmHill.Llama;
+using PalmHill.Llama.Models;
 using PalmHill.LlmMemory;
+using System.Diagnostics;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -140,7 +138,8 @@ namespace PalmHill.BlazorChat.Server.WebApi
             {
                 return false;
             }
-            else { 
+            else
+            {
                 await cancelToken.CancelAsync();
                 return true;
             }

@@ -10,7 +10,7 @@ namespace PalmHill.BlazorChat.Client.Models
         /// <param name="localStorageSettings">The object to copy.</param>
         /// <returns>A new instance of <see cref="LocalStorageSettings"/> with values from <paramref name="localStorageSettings"/>.</returns>
         public static LocalStorageSettings CreateCopy(this LocalStorageSettings localStorageSettings)
-        { 
+        {
             var copy = new LocalStorageSettings();
             copy.DarkMode = localStorageSettings.DarkMode;
             copy.InferenceSettings = localStorageSettings.InferenceSettings.CreateCopy();
@@ -25,7 +25,7 @@ namespace PalmHill.BlazorChat.Client.Models
         /// <param name="inferenceSettings">The object top copy.</param>
         /// <returns>A new instance of <see cref="InferenceSettings"/> with values from <paramref name="inferenceSettings"/>.</returns>
         public static InferenceSettings CreateCopy(this InferenceSettings inferenceSettings)
-        { 
+        {
             var copy = new InferenceSettings();
             copy.MaxLength = inferenceSettings.MaxLength;
             copy.PresencePenalty = inferenceSettings.PresencePenalty;

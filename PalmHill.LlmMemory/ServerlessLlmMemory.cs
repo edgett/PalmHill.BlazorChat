@@ -1,9 +1,7 @@
-﻿using Azure.Core;
-using Microsoft.KernelMemory;
+﻿using Microsoft.KernelMemory;
 using PalmHill.BlazorChat.Shared.Models;
 using PalmHill.Llama;
 using System.Collections.Concurrent;
-using System.Threading;
 
 namespace PalmHill.LlmMemory
 {
@@ -42,11 +40,11 @@ namespace PalmHill.LlmMemory
             var documentId = string.Empty;
             try
             {
-              documentId   = await KernelMemory.ImportDocumentAsync(stream,
-              attachmentInfo.Name,
-              attachmentInfo.Id.ToString(),
-              tagCollection,
-              attachmentInfo.ConversationId.ToString());
+                documentId = await KernelMemory.ImportDocumentAsync(stream,
+                attachmentInfo.Name,
+                attachmentInfo.Id.ToString(),
+                tagCollection,
+                attachmentInfo.ConversationId.ToString());
             }
             catch (Exception ex)
             {
@@ -133,8 +131,8 @@ namespace PalmHill.LlmMemory
             }
 
             throw exception;
-            
-            
+
+
         }
 
         private string processQuery(string query)

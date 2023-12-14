@@ -1,12 +1,9 @@
-﻿using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.FluentUI.AspNetCore.Components;
 using PalmHill.BlazorChat.ApiClient;
 using PalmHill.BlazorChat.Client.Components.Settings;
 using PalmHill.BlazorChat.Client.Models;
 using PalmHill.BlazorChat.Shared.Models;
-using PalmHill.BlazorChat.Shared.Models.WebSocket;
-using System.Data;
 
 namespace PalmHill.BlazorChat.Client.Services
 {
@@ -32,7 +29,7 @@ namespace PalmHill.BlazorChat.Client.Services
             BlazorChatApi blazorChatApi
             )
         {
-            
+
             _localStorageService = localStorage;
             _dialogService = dialogService;
             _themeControl = themeControl;
@@ -122,7 +119,7 @@ namespace PalmHill.BlazorChat.Client.Services
                 ||
                 AttachmentService.AttachmentsEnabled == false
                 )
-            { 
+            {
                 await SendToWebSocketChat();
             }
 
@@ -172,7 +169,7 @@ namespace PalmHill.BlazorChat.Client.Services
             chatMessage.Id = prompt.Id;
             chatMessage.Message = prompt.Prompt;
             chatMessage.Role = ChatMessageRole.Question;
-            
+
             infrerenceRequest.ChatMessages.Add(chatMessage);
 
             var apiResponse = await _blazorChatApi!.Chat.Ask(infrerenceRequest);
@@ -222,7 +219,7 @@ namespace PalmHill.BlazorChat.Client.Services
             }
         }
 
-        
+
 
         /// <summary>
         /// Chat is ready to send a message.
@@ -244,7 +241,7 @@ namespace PalmHill.BlazorChat.Client.Services
             var canceled = await _blazorChatApi!.Chat.CancelChat(ConversationId);
 
             if (canceled.Content)
-            { 
+            {
                 SetReady();
             }
 
@@ -259,7 +256,7 @@ namespace PalmHill.BlazorChat.Client.Services
         {
             WebSocketChatConnection = new WebSocketChatService(
                     ConversationId,
-                    _navigationManager.ToAbsoluteUri("/chathub?customUserId=user1"), 
+                    _navigationManager.ToAbsoluteUri("/chathub?customUserId=user1"),
                     WebsocketChatMessages,
                     _localStorageService
                     );
@@ -267,7 +264,7 @@ namespace PalmHill.BlazorChat.Client.Services
             WebSocketChatConnection.OnInferenceStatusUpdate += (sender, inferenceStatusUpdate) =>
             {
                 if (inferenceStatusUpdate.IsComplete == true)
-                { 
+                {
                     SetReady();
                 }
             };
@@ -283,7 +280,7 @@ namespace PalmHill.BlazorChat.Client.Services
         private void setupAttachmentService()
         {
             AttachmentService = new AttachmentService(
-                _blazorChatApi, 
+                _blazorChatApi,
                 ConversationId
             );
 
@@ -292,7 +289,7 @@ namespace PalmHill.BlazorChat.Client.Services
             {
                 StateHasChanged();
             };
-           
+
         }
 
         /// <summary>
