@@ -103,62 +103,6 @@ namespace PalmHill.Llama
         }
 
 
-        /// <summary>
-        /// Add Llama to the service collection.
-        /// </summary>
-        /// <param name="builder"></param>
-        /// <param name="modelConfig"></param>
-        /// <exception cref="FileNotFoundException">Occurs when the model file is missing.</exception>
-        /// <exception cref="ArgumentNullException">Occurs when the <see cref="ModelConfig"/> is null.</exception>"
-        public static InjectedModel AddLlamaModel(this IHostApplicationBuilder builder, ModelConfig? modelConfig = null)
-        {
-            var defaultModelConfigSection = "InferenceModelConfig";
-
-            //Attemt to get model config from config
-            modelConfig = builder?.GetModelConfigFromConfigSection(defaultModelConfigSection);
-
-            if (modelConfig == null)
-            {
-                throw new ArgumentNullException(nameof(modelConfig), $"The argument {modelConfig} must be supplied if there is no {defaultModelConfigSection} section in app configuartion.");
-            }
-
-            //check if model is present
-            var modelExsists = System.IO.File.Exists(modelConfig.ModelPath);
-            if (!modelExsists)
-            {
-                throw new FileNotFoundException($"Model file does not exsist.", modelConfig.ModelPath);
-            }
-
-            //Initlize Llama
-            ModelParams parameters = new ModelParams(modelConfig.ModelPath ?? "")
-            {
-                ContextSize = modelConfig.ContextSize,
-                GpuLayerCount = modelConfig.GpuLayerCount,
-                MainGpu = modelConfig.Gpu
-            };
-
-            LLamaWeights model = LLamaWeights.LoadFromFile(parameters);
-            //End Initlize Llama
-
-            var injectedModel = new InjectedModel(model, parameters, modelConfig.AntiPrompts);
-
-            //Add to services
-            builder?.Services.AddSingleton(injectedModel);
-
-            return injectedModel;
-        }
-
-
-
-
-
-        public static ModelConfig? GetModelConfigFromConfigSection(this IHostApplicationBuilder builder, string configSection)
-        {
-            var appConfig = builder?.Configuration.GetSection(configSection);
-            var appSettingsConfig = appConfig?.Get<ModelConfig>();
-            appSettingsConfig!.AntiPrompts = appConfig?.GetSection("AntiPrompts").Get<List<string>>() ?? [];
-
-            return appSettingsConfig;
-        }
+       
     }
 }

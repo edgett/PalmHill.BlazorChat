@@ -3,7 +3,7 @@ using LLama.Common;
 
 namespace PalmHill.Llama.Models
 {
-    public class InjectedModel
+    public class InjectedModel : IAsyncDisposable, IDisposable
     {
         public LLamaWeights Model { get; }
         public ModelParams ModelParams { get; }
@@ -14,6 +14,16 @@ namespace PalmHill.Llama.Models
             Model = model;
             ModelParams = modelParams;
             DefaultAntiPrompts = defaultAntiPrompts;
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await Task.Run(() => Model.Dispose());
+        }
+
+        public void Dispose()
+        {
+            Model.Dispose();
         }
     }
 }

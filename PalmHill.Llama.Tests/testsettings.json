@@ -1,0 +1,16 @@
+﻿{
+  "Model1": {
+    "ModelPath": "C:\\models\\orca-2-13b.Q6_K.gguf",
+    "GpuLayerCount": 100,
+    "ContextSize": 4096,
+    "Gpu": 0,
+    "AntiPrompts": [ "User:" ]
+  },
+  "Model2": {
+    "ModelPath": "C:\\models\\mistral-7b-openorca.Q4_K_M.gguf",
+    "GpuLayerCount": 100,
+    "ContextSize": 2048,
+    "Gpu": 0,
+    "AntiPrompts": [ "Question:" ]
+  }
+}
