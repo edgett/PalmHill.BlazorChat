@@ -10,10 +10,13 @@ namespace PalmHill.BlazorChat.ApiClient
             HttpClient = httpClient;
             Attachment = RestService.For<IAttachment>(httpClient);
             Chat = RestService.For<IChat>(httpClient);
+            Model = RestService.For<IModel>(httpClient);
         }
 
         public HttpClient HttpClient { get; }
         public IAttachment Attachment { get; }
         public IChat Chat { get; }
+        public IModel Model { get; }
+
     }
 }
