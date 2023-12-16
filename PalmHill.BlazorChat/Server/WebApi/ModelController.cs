@@ -27,12 +27,12 @@ namespace PalmHill.BlazorChat.Server.WebApi
         [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(string))]
         public ActionResult<InjectedModel?> GetCurrentModel()
         {
-            var model = _modelProvider.GetModel();
-
             if (_modelProvider.ModelSwapLock.CurrentCount == 0)
             {
                 return StatusCode(StatusCodes.Status409Conflict, "Model operation in progress.");
             }
+
+            var model = _modelProvider.GetModel();
 
             if (model is null)
             {

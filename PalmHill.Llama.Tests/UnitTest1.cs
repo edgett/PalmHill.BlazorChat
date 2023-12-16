@@ -20,8 +20,9 @@ namespace PalmHill.Llama.Tests
         {
             var configJson = File.ReadAllText("testsettings.json");
             var config = JsonObject.Parse(configJson);
-            var model1ConfigJson = config["Model1"].ToJsonString();
-            var model2ConfigJson = config["Model2"].ToJsonString();
+            Assert.IsNotNull(config);
+            var model1ConfigJson = config["Model1"]?.ToJsonString();
+            var model2ConfigJson = config["Model2"]?.ToJsonString();
 
             var testTask = testLoadUnload(model1ConfigJson, model2ConfigJson);
 
@@ -29,12 +30,12 @@ namespace PalmHill.Llama.Tests
             Assert.IsTrue(testTask.IsCompletedSuccessfully);
         }
 
-        private static async Task testLoadUnload(string model1ConfigJson, string model2ConfigJson)
+        private static async Task testLoadUnload(string? model1ConfigJson, string? model2ConfigJson)
         {
             //Get model config from json
-            var modelConfig1 = JsonSerializer.Deserialize<ModelConfig>(model1ConfigJson);
-            var modelConfig2 = JsonSerializer.Deserialize<ModelConfig>(model2ConfigJson);
-            
+            var modelConfig1 = JsonSerializer.Deserialize<ModelConfig>(model1ConfigJson ?? "");
+            var modelConfig2 = JsonSerializer.Deserialize<ModelConfig>(model2ConfigJson ?? "");
+
             //Assert model config is not null
             Assert.IsNotNull(modelConfig1);
             Assert.IsNotNull(modelConfig2);

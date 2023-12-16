@@ -39,5 +39,5 @@ Note: This library is not yet available on NuGet.
 ## To Do
 - [ ] Publish to NuGet
 - [ ] Add SignalR Chat suppport
-- [ ] Add support for model swapping APIs
+- [x] Add support for model swapping APIs
 

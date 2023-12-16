@@ -44,7 +44,6 @@ namespace PalmHill.Llama
 
         public InjectedModel? GetModel()
         {
-            InitializeServiceProvider();
             ModelSwapLock.Wait();
             var model = _modelServiceProvider?.GetService<InjectedModel>();
             ModelSwapLock.Release();
