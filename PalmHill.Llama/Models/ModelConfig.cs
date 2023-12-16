@@ -23,5 +23,6 @@ namespace PalmHill.Llama.Models
             var configJson =  JsonSerializer.Serialize(this);
             return configJson;
         }
+        public string ModelName { get => System.IO.Path.GetFileName(ModelPath);}
     }
 }

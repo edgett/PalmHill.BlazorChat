@@ -1,27 +1,33 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PalmHill.Llama.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PalmHill.Llama
 {
     public static class ModelProvider
     {
-        private static SemaphoreSlim _modelSwapLock { get; set; } = new SemaphoreSlim(1, 1);
-        private static IServiceCollection _modelServiceCollection { get; } = new ServiceCollection();
-        private static ServiceProvider _modelServiceProvider { get => _modelServiceCollection.BuildServiceProvider(); }
+        private static SemaphoreSlim _modelSwapLock = new SemaphoreSlim(1, 1);
+        private static IServiceCollection _modelServiceCollection = new ServiceCollection();
+        private static ServiceProvider? _modelServiceProvider;
+        private static bool _isServiceProviderInitialized = false;
+
+        private static void InitializeServiceProvider()
+        {
+            if (!_isServiceProviderInitialized)
+            {
+                _modelServiceProvider = _modelServiceCollection.BuildServiceProvider();
+                _isServiceProviderInitialized = true;
+            }
+        }
 
         public static async Task LoadModel(ModelConfig modelConfig)
-        { 
-            await _modelSwapLock.WaitAsync();
-            //await UnloadModel();
-            await Task.Run(() => { 
+        {
+            await UnloadModel();
+            await Task.Run(async () => {
                 try
                 {
+                    await _modelSwapLock.WaitAsync();
                     _modelServiceCollection.AddLlamaModel(modelConfig);
+                    InitializeServiceProvider();
                     _modelSwapLock.Release();
                 }
                 catch (Exception e)
@@ -34,19 +40,36 @@ namespace PalmHill.Llama
 
         public static InjectedModel? GetModel()
         {
-            var injectedModel = _modelServiceProvider.GetService<InjectedModel>();
-            return injectedModel;
+            InitializeServiceProvider();
+            return _modelServiceProvider?.GetService<InjectedModel>();
         }
 
         public static async Task UnloadModel()
         {
             await _modelSwapLock.WaitAsync();
-            await Task.Run(() => _modelServiceCollection.Clear());
+            await Task.Run(() =>
+            {
+                var servicesToDispose = _modelServiceProvider?.GetServices<InjectedModel>();
+
+                if (servicesToDispose is null)
+                {
+                    return;
+                }
+
+                foreach (var service in servicesToDispose)
+                {
+                    if (service is IDisposable disposableService)
+                    {
+                        disposableService.Dispose();
+                    }
+                }
+                _modelServiceCollection.Clear();
+            });
+            _modelServiceProvider?.Dispose();
+            _modelServiceProvider = null;
+            _isServiceProviderInitialized = false;
+
             _modelSwapLock.Release();
         }
-
-
-
-      
     }
 }

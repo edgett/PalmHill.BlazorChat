@@ -21,54 +21,78 @@ namespace PalmHill.Llama.Tests
             var model1ConfigJson = config["Model1"].ToJsonString();
             var model2ConfigJson = config["Model2"].ToJsonString();
 
-            var testTask = TestLoadUnload(model1ConfigJson, model2ConfigJson);
+            var testTask = testLoadUnload(model1ConfigJson, model2ConfigJson);
 
             testTask.GetAwaiter().GetResult();  
             Assert.IsTrue(testTask.IsCompletedSuccessfully);
         }
 
-        private static async Task TestLoadUnload(string model1ConfigJson, string model2ConfigJson)
+        private static async Task testLoadUnload(string model1ConfigJson, string model2ConfigJson)
         {
-            
-            // Assuming 'config' is of type IConfiguration
+            //Get model config from json
             var modelConfig1 = JsonSerializer.Deserialize<ModelConfig>(model1ConfigJson);
             var modelConfig2 = JsonSerializer.Deserialize<ModelConfig>(model2ConfigJson);
-
-
+            
+            //Assert model config is not null
             Assert.IsNotNull(modelConfig1);
             Assert.IsNotNull(modelConfig2);
 
+
+            var loadTimer = new Stopwatch();
+            //Load model 1, then wait 10 seconds
+            Console.WriteLine($"Loading {modelConfig1.ModelName}");
+            await loadModel(modelConfig1);
+            countDown(10, $"{modelConfig1.ModelName} loaded. Unloading model");
+
+            //Unload model 1, then wait 3 seconds
+            await unloadModel();
+            countDown(3, $"{modelConfig1.ModelName} unloaded. Loading model {modelConfig2.ModelPath}");
+
+
+            //Load model 2, then wait 3 seconds
+            await loadModel(modelConfig2);
+            countDown(3, $"{modelConfig2.ModelName} loaded. Loading model {modelConfig2.ModelPath}");
+
+            //Load model 1, without unloading first, then wait 3 seconds
+            await loadModel(modelConfig1);
+            countDown(3, $"{modelConfig1.ModelName} loaded. Unloading");
+
+            //Unload
+            await unloadModel();
+        }
+
+
+        private static async Task loadModel(ModelConfig modelConfig)
+        {
             var loadTimer = new Stopwatch();
 
             loadTimer.Start();
-            await ModelProvider.LoadModel(modelConfig1);
+            await ModelProvider.LoadModel(modelConfig);
             loadTimer.Stop();
-            Console.WriteLine($"Load time {System.IO.Path.GetFileName(modelConfig1.ModelPath)}: {loadTimer.ElapsedMilliseconds}ms");
+            Console.WriteLine($"Load time {modelConfig.ModelName}: {loadTimer.ElapsedMilliseconds}ms");
             var currentModel = ModelProvider.GetModel();
             Assert.IsNotNull(currentModel);
+        }
 
-            await Task.Delay(10000);
-            loadTimer.Reset();
+        private static async Task unloadModel()
+        {
+            var loadTimer = new Stopwatch();
+
             loadTimer.Start();
             await ModelProvider.UnloadModel();
             loadTimer.Stop();
-            Console.WriteLine($"Unload time {System.IO.Path.GetFileName(modelConfig1.ModelPath)}: {loadTimer.ElapsedMilliseconds}ms");
+            Console.WriteLine($"Unload time: {loadTimer.ElapsedMilliseconds}ms");
             var unloadedModel = ModelProvider.GetModel();
             Assert.IsNull(unloadedModel);
+        }
 
-            await Task.Delay(10000);
-            loadTimer.Reset();
-            loadTimer.Start();
-            await ModelProvider.LoadModel(modelConfig2);
-            loadTimer.Stop();
-            Console.WriteLine($"Load time {System.IO.Path.GetFileName(modelConfig2.ModelPath)}: {loadTimer.ElapsedMilliseconds}ms");
-            await Task.Delay(10000);
-            var currentModel2 = ModelProvider.GetModel();
-            Assert.IsNotNull(currentModel2);
-            var unloadedModel2 = ModelProvider.GetModel();
-            Assert.IsNull(unloadedModel2);
-
-            Assert.Pass();
+        private static void countDown(int seconds, string message)
+        {             
+            for (int i = seconds; i > 0; i--)
+            {
+                Console.WriteLine($"{message} in {i} seconds");
+                Thread.Sleep(1000);
+            }
         }
     }
 }
