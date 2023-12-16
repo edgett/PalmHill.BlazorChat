@@ -10,6 +10,8 @@ namespace PalmHill.Llama.Models
     {
         [JsonIgnore]
         public LLamaWeights Model { get; }
+        [JsonIgnore]
+        public LLamaContext Context { get; set; }
         public ModelParams ModelParams { get; }
         public ModelConfig LoadConfig { get; }
 
@@ -18,6 +20,7 @@ namespace PalmHill.Llama.Models
             Model = model;
             ModelParams = modelParams;
             LoadConfig = defaultAntiPrompts;
+            Context = new LLamaContext(Model, ModelParams);
         }
 
         public async ValueTask DisposeAsync()

@@ -96,7 +96,7 @@ namespace PalmHill.BlazorChat.Server.SignalR
             }
 
             // Create a context for the model and a chat session for the conversation
-            LLamaContext modelContext = InjectedModel.Model.CreateContext(InjectedModel.ModelParams);
+            LLamaContext modelContext = InjectedModel.Context;
             var session = modelContext.CreateChatSession(chatConversation);
             var inferenceParams = chatConversation.GetInferenceParams(InjectedModel.LoadConfig.AntiPrompts);
 
@@ -116,7 +116,6 @@ namespace PalmHill.BlazorChat.Server.SignalR
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    modelContext.Dispose();
                     inferenceStopwatch.Stop();
 
                     throw new OperationCanceledException(cancellationToken);
@@ -139,7 +138,6 @@ namespace PalmHill.BlazorChat.Server.SignalR
 
 
             }
-            modelContext.Dispose();
 
             inferenceStopwatch.Stop();
 

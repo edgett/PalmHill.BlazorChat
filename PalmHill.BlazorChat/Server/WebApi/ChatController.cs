@@ -160,7 +160,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
                 throw new NoModelLoadedException();
             }
 
-            LLamaContext modelContext = InjectedModel.Model.CreateContext(InjectedModel.ModelParams);
+            LLamaContext modelContext = InjectedModel.Context;
             var session = modelContext.CreateChatSession(conversation);
             var inferenceParams = conversation.GetInferenceParams(InjectedModel.LoadConfig.AntiPrompts);
 
@@ -176,7 +176,6 @@ namespace PalmHill.BlazorChat.Server.WebApi
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    modelContext.Dispose();
                     inferenceStopwatch.Stop();
 
                     throw new OperationCanceledException(cancellationToken);
@@ -185,7 +184,6 @@ namespace PalmHill.BlazorChat.Server.WebApi
                 totalTokens++;
                 fullResponse.Append(text);
             }
-            modelContext.Dispose();
             inferenceStopwatch.Stop();
             var fullResponseString = fullResponse.ToString();
             Console.WriteLine($"Inference took {inferenceStopwatch.ElapsedMilliseconds}ms and generated {totalTokens} tokens. {(totalTokens / (inferenceStopwatch.ElapsedMilliseconds / (float)1000)).ToString("F2")} tokens/second.");
