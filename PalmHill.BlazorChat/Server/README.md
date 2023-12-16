@@ -34,5 +34,4 @@ The server-side application depends on several packages and projects. These depe
 
 ## To Do
 
-- [ ] Add support for multiple LLMs
-- [ ] 
+- [ ] Add support for hot-swapping models
