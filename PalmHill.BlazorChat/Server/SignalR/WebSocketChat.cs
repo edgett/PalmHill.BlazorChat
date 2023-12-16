@@ -14,11 +14,13 @@ namespace PalmHill.BlazorChat.Server.SignalR
     /// </summary>
     public class WebSocketChat : Hub
     {
-        public WebSocketChat(InjectedModel injectedModel)
+        private readonly ModelProvider _modelProvider;
+
+        public WebSocketChat(ModelProvider modelProvider)
         {
-            InjectedModel = injectedModel;
+            _modelProvider = modelProvider;
         }
-        private InjectedModel InjectedModel { get; }
+        private InjectedModel? InjectedModel { get => _modelProvider.GetModel(); }
 
 
         /// <summary>
@@ -56,6 +58,16 @@ namespace PalmHill.BlazorChat.Server.SignalR
                 // Handle the cancellation operation
                 Console.WriteLine($"Inference for {conversationId} was canceled.");
             }
+            catch (NoModelLoadedException)
+            {
+                var inferenceStatusUpdate = new WebSocketInferenceStatusUpdate();
+                inferenceStatusUpdate.MessageId = chatConversation.ChatMessages.LastOrDefault()?.Id;
+                inferenceStatusUpdate.IsComplete = true;
+                inferenceStatusUpdate.Success = false;
+                await Clients.Caller.SendAsync("InferenceStatusUpdate", inferenceStatusUpdate);
+                // Handle the cancellation operation
+                Console.WriteLine($"Inference for {conversationId} error. No model loaded.");
+            }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
@@ -78,10 +90,15 @@ namespace PalmHill.BlazorChat.Server.SignalR
         /// <returns>A Task that represents the asynchronous operation.</returns>
         private async Task DoInferenceAndRespondToClient(ISingleClientProxy respondToClient, InferenceRequest chatConversation, CancellationToken cancellationToken)
         {
+            if (InjectedModel == null)
+            {
+                throw new NoModelLoadedException();
+            }
+
             // Create a context for the model and a chat session for the conversation
             LLamaContext modelContext = InjectedModel.Model.CreateContext(InjectedModel.ModelParams);
             var session = modelContext.CreateChatSession(chatConversation);
-            var inferenceParams = chatConversation.GetInferenceParams(InjectedModel.DefaultAntiPrompts);
+            var inferenceParams = chatConversation.GetInferenceParams(InjectedModel.LoadConfig.AntiPrompts);
 
             var messageId = chatConversation.ChatMessages.LastOrDefault()?.Id;
 

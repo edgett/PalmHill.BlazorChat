@@ -8,7 +8,7 @@ using PalmHill.BlazorChat.Shared.Models;
 
 namespace PalmHill.BlazorChat.Server.WebApi
 {
-    [Route("api/[controller]", Name = "Attachment")]
+    [Route("api/attachment", Name = "Attachment")]
     [ApiController]
     public class AttachmentController : ControllerBase
     {

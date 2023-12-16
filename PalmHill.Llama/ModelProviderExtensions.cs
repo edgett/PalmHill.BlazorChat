@@ -15,7 +15,17 @@ namespace PalmHill.Llama
     public static class ModelProviderExtensions
     {
         const string DEFAULT_MODEL_CONFIG_SECTION = "InferenceModelConfig";
-       
+
+
+        public static ModelProvider AddLlamaModelProvider(this IServiceCollection serviceCollection)
+        {
+            var modelProvider = new ModelProvider();
+            //Add to services
+            serviceCollection.AddSingleton(modelProvider);
+
+            return modelProvider;
+        }
+
         /// <summary>
         /// Add Llama to the service collection.
         /// </summary>
@@ -38,17 +48,12 @@ namespace PalmHill.Llama
             }
 
             //Initlize Llama
-            ModelParams parameters = new ModelParams(modelConfig.ModelPath ?? "")
-            {
-                ContextSize = modelConfig.ContextSize,
-                GpuLayerCount = modelConfig.GpuLayerCount,
-                MainGpu = modelConfig.Gpu
-            };
+            ModelParams parameters = modelConfig.ToModelParams();
 
             LLamaWeights model = LLamaWeights.LoadFromFile(parameters);
             //End Initlize Llama
 
-            var injectedModel = new InjectedModel(model, parameters, modelConfig.AntiPrompts);
+            var injectedModel = new InjectedModel(model, parameters, modelConfig);
 
             //Add to services
             serviceCollection?.AddSingleton(injectedModel);
@@ -56,19 +61,29 @@ namespace PalmHill.Llama
             return injectedModel;
         }
 
-        public static InjectedModel AddLlamaModel(this IServiceCollection serviceCollection, IConfigurationManager configuration)
+        //public static InjectedModel AddLlamaModel(this IServiceCollection serviceCollection, IConfigurationManager configuration)
+        //{
+        //    //Attemt to get model config from config
+        //    var modelConfig = configuration.GetModelConfigFromConfigSection(DEFAULT_MODEL_CONFIG_SECTION);
+
+        //    var injectedModel = serviceCollection.AddLlamaModel(modelConfig);
+
+        //    return injectedModel;
+        //}
+
+        public static ModelParams ToModelParams(this ModelConfig modelConfig)
         {
-            //Attemt to get model config from config
-            var modelConfig = configuration.GetModelConfigFromConfigSection(DEFAULT_MODEL_CONFIG_SECTION);
+            var modelParams = new ModelParams(modelConfig.ModelPath ?? "")
+            {
+                ContextSize = modelConfig.ContextSize,
+                GpuLayerCount = modelConfig.GpuLayerCount,
+                MainGpu = modelConfig.Gpu,
+            };
 
-            var injectedModel = serviceCollection.AddLlamaModel(modelConfig);
-
-            return injectedModel;
+            return modelParams;
         }
 
-
-
-        public static ModelConfig? GetModelConfigFromConfigSection(this IConfigurationManager configuration, string configSection)
+        public static ModelConfig? GetModelConfigFromConfigSection(this IConfiguration configuration, string configSection)
         {
             var appConfig = configuration?.GetSection(configSection);
             var appSettingsConfig = appConfig?.Get<ModelConfig>();

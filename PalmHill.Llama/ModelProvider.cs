@@ -3,50 +3,57 @@ using PalmHill.Llama.Models;
 
 namespace PalmHill.Llama
 {
-    public static class ModelProvider
+    public class ModelProvider
     {
-        private static SemaphoreSlim _modelSwapLock = new SemaphoreSlim(1, 1);
-        private static IServiceCollection _modelServiceCollection = new ServiceCollection();
-        private static ServiceProvider? _modelServiceProvider;
-        private static bool _isServiceProviderInitialized = false;
+        public SemaphoreSlim ModelSwapLock { get; private set; } = new SemaphoreSlim(1, 1);
+        private IServiceCollection _modelServiceCollection = new ServiceCollection();
+        private ServiceProvider? _modelServiceProvider;
+        private bool _isServiceProviderInitialized = false;
 
-        private static void InitializeServiceProvider()
+        private void InitializeServiceProvider()
         {
             if (!_isServiceProviderInitialized)
             {
                 _modelServiceProvider = _modelServiceCollection.BuildServiceProvider();
                 _isServiceProviderInitialized = true;
             }
+
         }
 
-        public static async Task LoadModel(ModelConfig modelConfig)
+        public async Task<InjectedModel?> LoadModel(ModelConfig modelConfig)
         {
             await UnloadModel();
-            await Task.Run(async () => {
+            await Task.Run(async () =>
+            {
                 try
                 {
-                    await _modelSwapLock.WaitAsync();
+                    await ModelSwapLock.WaitAsync();
                     _modelServiceCollection.AddLlamaModel(modelConfig);
                     InitializeServiceProvider();
-                    _modelSwapLock.Release();
+                    ModelSwapLock.Release();
                 }
                 catch (Exception e)
                 {
-                    _modelSwapLock.Release();
+                    ModelSwapLock.Release();
                     throw new InvalidOperationException($"Failed to load {modelConfig.ModelPath}. See inner exception.", e);
                 }
             });
-        }
 
-        public static InjectedModel? GetModel()
-        {
-            InitializeServiceProvider();
             return _modelServiceProvider?.GetService<InjectedModel>();
         }
 
-        public static async Task UnloadModel()
+        public InjectedModel? GetModel()
         {
-            await _modelSwapLock.WaitAsync();
+            InitializeServiceProvider();
+            ModelSwapLock.Wait();
+            var model = _modelServiceProvider?.GetService<InjectedModel>();
+            ModelSwapLock.Release();
+            return model;
+        }
+
+        public async Task UnloadModel()
+        {
+            await ModelSwapLock.WaitAsync();
             await Task.Run(() =>
             {
                 var servicesToDispose = _modelServiceProvider?.GetServices<InjectedModel>();
@@ -69,7 +76,7 @@ namespace PalmHill.Llama
             _modelServiceProvider = null;
             _isServiceProviderInitialized = false;
 
-            _modelSwapLock.Release();
+            ModelSwapLock.Release();
         }
     }
 }

@@ -1,19 +1,23 @@
 ﻿using LLama;
 using LLama.Common;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace PalmHill.Llama.Models
 {
+
     public class InjectedModel : IAsyncDisposable, IDisposable
     {
+        [JsonIgnore]
         public LLamaWeights Model { get; }
         public ModelParams ModelParams { get; }
-        public List<string> DefaultAntiPrompts { get; set; }
+        public ModelConfig LoadConfig { get; }
 
-        public InjectedModel(LLamaWeights model, ModelParams modelParams, List<string> defaultAntiPrompts)
+        public InjectedModel(LLamaWeights model, ModelParams modelParams, ModelConfig defaultAntiPrompts)
         {
             Model = model;
             ModelParams = modelParams;
-            DefaultAntiPrompts = defaultAntiPrompts;
+            LoadConfig = defaultAntiPrompts;
         }
 
         public async ValueTask DisposeAsync()
@@ -24,6 +28,17 @@ namespace PalmHill.Llama.Models
         public void Dispose()
         {
             Model.Dispose();
+        }
+
+        public string ToJson()
+        {
+            var options = new JsonSerializerOptions
+            {
+                Converters = { new EncodingConverter() }
+            };
+
+            var json = JsonSerializer.Serialize(this, options);
+            return json;
         }
     }
 }

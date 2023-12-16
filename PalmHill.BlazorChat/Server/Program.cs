@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // Initlize Llama
-//builder.AddLlamaModel();
+builder.Services.AddLlamaModelProvider();
 // End Initlize Llama
 
 // Initiaize Memory
@@ -17,9 +17,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers().AddJsonOptions(options =>
-        //Make Swagger use enums.
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter())
-    );
+{
+    //Json convert for encoding in ModelParams.
+    options.JsonSerializerOptions.Converters.Add(new EncodingConverter());
+    //Make Swagger use enums.
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

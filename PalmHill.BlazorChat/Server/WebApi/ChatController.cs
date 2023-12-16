@@ -19,28 +19,30 @@ namespace PalmHill.BlazorChat.Server.WebApi
     /// </summary>
     [Route("api/chat", Name = "Chat")]
     [ApiController]
-    public class ApiChatController : ControllerBase
+    public class ChatController : ControllerBase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ApiChatController"/> class.
+        /// Initializes a new instance of the <see cref="ChatController"/> class.
         /// </summary>
         /// <param name="model">The LLamaWeights model.</param>
         /// <param name="modelParams">The model parameters.</param>
-        public ApiChatController(
-            InjectedModel injectedModel,
+        public ChatController(
+            ModelProvider modelProvider,
             IHubContext<WebSocketChat> webSocketChat,
             LlmMemory.ServerlessLlmMemory? llmMemory = null
             )
         {
-            InjectedModel = injectedModel;
+            _modelProvider = modelProvider;
             WebSocketChat = webSocketChat;
             LlmMemory = llmMemory;
 
         }
 
+        private readonly ModelProvider _modelProvider;
+
         private IHubContext<WebSocketChat> WebSocketChat { get; }
         public ServerlessLlmMemory? LlmMemory { get; }
-        private InjectedModel InjectedModel { get; }
+        private InjectedModel? InjectedModel { get => _modelProvider.GetModel(); }
 
         /// <summary>
         /// Handles a chat API request.
@@ -153,9 +155,14 @@ namespace PalmHill.BlazorChat.Server.WebApi
         /// <returns>Returns the inference result as a string.</returns>
         private async Task<string> DoInference(InferenceRequest conversation, CancellationToken cancellationToken)
         {
+            if (InjectedModel is null)
+            { 
+                throw new NoModelLoadedException();
+            }
+
             LLamaContext modelContext = InjectedModel.Model.CreateContext(InjectedModel.ModelParams);
             var session = modelContext.CreateChatSession(conversation);
-            var inferenceParams = conversation.GetInferenceParams(InjectedModel.DefaultAntiPrompts);
+            var inferenceParams = conversation.GetInferenceParams(InjectedModel.LoadConfig.AntiPrompts);
 
             var fullResponse = new StringBuilder();
             var totalTokens = 0;

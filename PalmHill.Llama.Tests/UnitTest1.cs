@@ -8,6 +8,8 @@ namespace PalmHill.Llama.Tests
 {
     public class Tests
     {
+        public static ModelProvider TestModelProvider { get; } = new ModelProvider();
+
         [SetUp]
         public void Setup()
         {
@@ -67,10 +69,12 @@ namespace PalmHill.Llama.Tests
             var loadTimer = new Stopwatch();
 
             loadTimer.Start();
-            await ModelProvider.LoadModel(modelConfig);
+            await TestModelProvider.LoadModel(modelConfig);
             loadTimer.Stop();
             Console.WriteLine($"Load time {modelConfig.ModelName}: {loadTimer.ElapsedMilliseconds}ms");
-            var currentModel = ModelProvider.GetModel();
+            var currentModel = TestModelProvider.GetModel();
+            var modelJson = currentModel?.ToJson();
+            Assert.IsNotEmpty(modelJson);
             Assert.IsNotNull(currentModel);
         }
 
@@ -79,10 +83,10 @@ namespace PalmHill.Llama.Tests
             var loadTimer = new Stopwatch();
 
             loadTimer.Start();
-            await ModelProvider.UnloadModel();
+            await TestModelProvider.UnloadModel();
             loadTimer.Stop();
             Console.WriteLine($"Unload time: {loadTimer.ElapsedMilliseconds}ms");
-            var unloadedModel = ModelProvider.GetModel();
+            var unloadedModel = TestModelProvider.GetModel();
             Assert.IsNull(unloadedModel);
         }
 
