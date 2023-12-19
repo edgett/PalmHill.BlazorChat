@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +17,21 @@
     <ProjectReference Include="..\..\PalmHill.LlmMemory\PalmHill.LlmMemory.csproj" />
     <ProjectReference Include="..\Client\PalmHill.BlazorChat.Client.csproj" />
     <ProjectReference Include="..\Shared\PalmHill.BlazorChat.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\.dockerignore">
+      <Link>.dockerignore</Link>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="orca-2-13b.Q6_K.gguf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="mistral-7b-openorca.Q4_K_M.gguf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
