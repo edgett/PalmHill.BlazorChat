@@ -3,6 +3,7 @@ using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
 using PalmHill.BlazorChat.Server.SignalR;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.FluentUI.AspNetCore.Components;
 using PalmHill.LlmMemory;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -66,10 +67,10 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 //Disable compression for development.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseResponseCompression();
-}
+// if (!app.Environment.IsDevelopment())
+// {
+//     app.UseResponseCompression();
+// }
 app.UseRouting();
 
 //Configure WebSocket URI.
@@ -85,4 +86,22 @@ app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
 
-app.Run();
+var ipBinding = builder.Configuration["IpBinding"];
+// Dont consider ipbinding during dev.
+// if (app.Environment.IsDevelopment())
+// {
+//     Console.WriteLine("IP Binding cleared Development Env.");
+//     ipBinding = null;
+// }
+//If ip binding conifg is setup, use it. Otherwise use defaults.
+if (ipBinding != null)
+{
+    Console.WriteLine($"IP Binding config used: {ipBinding}");
+    app.Run(ipBinding);
+}
+else
+{
+    Console.WriteLine("IP Binding config not used.");
+    app.Run();
+}
+

@@ -25,13 +25,4 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="orca-2-13b.Q6_K.gguf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="mistral-7b-openorca.Q4_K_M.gguf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
