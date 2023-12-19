@@ -1,0 +1,6 @@
+﻿services:
+  palmhill.blazorchat.server:
+    image: palmhill.blazorchat.server
+    build:
+      context: .
+      dockerfile: PalmHill.BlazorChat/Server/Dockerfile
