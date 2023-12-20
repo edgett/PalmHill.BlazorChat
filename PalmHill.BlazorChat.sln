@@ -22,6 +22,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalmHill.BlazorChat.ApiClie
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PalmHill.Llama.Tests", "PalmHill.Llama.Tests\PalmHill.Llama.Tests.csproj", "{71169505-F7CE-477B-8D25-855233DBC5BA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PalmHill.ModelHub", "PalmHill.ModelHub\PalmHill.ModelHub.csproj", "{9AE91FF7-AC8C-4DDE-A0F8-2F9ACE82FEEA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PalmHill.ModelHub.Tests", "PalmHill.ModelHub.Tests\PalmHill.ModelHub.Tests.csproj", "{B6DD977B-BF2D-46C2-86A9-BA37A9510B75}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +60,14 @@ Global
 		{71169505-F7CE-477B-8D25-855233DBC5BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{71169505-F7CE-477B-8D25-855233DBC5BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71169505-F7CE-477B-8D25-855233DBC5BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AE91FF7-AC8C-4DDE-A0F8-2F9ACE82FEEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AE91FF7-AC8C-4DDE-A0F8-2F9ACE82FEEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AE91FF7-AC8C-4DDE-A0F8-2F9ACE82FEEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AE91FF7-AC8C-4DDE-A0F8-2F9ACE82FEEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6DD977B-BF2D-46C2-86A9-BA37A9510B75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6DD977B-BF2D-46C2-86A9-BA37A9510B75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6DD977B-BF2D-46C2-86A9-BA37A9510B75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6DD977B-BF2D-46C2-86A9-BA37A9510B75}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
