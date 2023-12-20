@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PalmHill.ModelHub", "PalmHi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PalmHill.ModelHub.Tests", "PalmHill.ModelHub.Tests\PalmHill.ModelHub.Tests.csproj", "{B6DD977B-BF2D-46C2-86A9-BA37A9510B75}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PalmHill.LlmMemory.Tests", "PalmHill.LlmMemory.Tests\PalmHill.LlmMemory.Tests.csproj", "{B9D25EE2-6C59-477E-B2A3-D16164A38DE9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +70,10 @@ Global
 		{B6DD977B-BF2D-46C2-86A9-BA37A9510B75}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6DD977B-BF2D-46C2-86A9-BA37A9510B75}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6DD977B-BF2D-46C2-86A9-BA37A9510B75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9D25EE2-6C59-477E-B2A3-D16164A38DE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9D25EE2-6C59-477E-B2A3-D16164A38DE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9D25EE2-6C59-477E-B2A3-D16164A38DE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9D25EE2-6C59-477E-B2A3-D16164A38DE9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

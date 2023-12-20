@@ -10,44 +10,36 @@ namespace PalmHill.LlmMemory
     public static class ConversationMemoryExtensions
     {
 
-        //public static ServerlessLlmMemory AddLlmMemory(this IHostApplicationBuilder builder, ModelConfig? modelConfig = null)
-        //{
-        //    var defaultModelConfigSection = "EmbeddingModelConfig";
+        public static ServerlessLlmMemory AddLlmMemory(this IServiceCollection services, ModelConfig? modelConfig = null)
+        {
+            if (modelConfig == null)
+            {
+                throw new ArgumentNullException(nameof(modelConfig), $"The argument {modelConfig} must be supplied.");
+            }
 
-        //    if (modelConfig == null)
-        //    {
-        //        //Attemt to get model config from config
-        //        modelConfig = builder.GetModelConfigFromConfigSection(defaultModelConfigSection);
-        //    }
+            //check if model is present
+            var modelExsists = System.IO.File.Exists(modelConfig.ModelPath);
+            if (!modelExsists)
+            {
+                throw new FileNotFoundException($"Model file does not exsist.", modelConfig.ModelPath);
+            }
 
-        //    if (modelConfig == null)
-        //    {
-        //        throw new ArgumentNullException(nameof(modelConfig), $"The argument {modelConfig} must be supplied if there is no {defaultModelConfigSection} section in app configuartion.");
-        //    }
+            var memoryModelConfig = new LLamaSharpConfig(modelConfig.ModelPath);
+            memoryModelConfig.DefaultInferenceParams = new LLama.Common.InferenceParams();
+            memoryModelConfig.DefaultInferenceParams.AntiPrompts = modelConfig.AntiPrompts;
+            memoryModelConfig.ContextSize = modelConfig.ContextSize;
+            memoryModelConfig.GpuLayerCount = modelConfig.GpuLayerCount;
 
-        //    //check if model is present
-        //    var modelExsists = System.IO.File.Exists(modelConfig.ModelPath);
-        //    if (!modelExsists)
-        //    {
-        //        throw new FileNotFoundException($"Model file does not exsist.", modelConfig.ModelPath);
-        //    }
-
-        //    var memoryModelConfig = new LLamaSharpConfig(modelConfig.ModelPath);
-        //    memoryModelConfig.DefaultInferenceParams = new LLama.Common.InferenceParams();
-        //    memoryModelConfig.DefaultInferenceParams.AntiPrompts = modelConfig.AntiPrompts;
-        //    memoryModelConfig.ContextSize = modelConfig.ContextSize;
-        //    memoryModelConfig.GpuLayerCount = modelConfig.GpuLayerCount;
-
-        //    var memory = new KernelMemoryBuilder()
-        //    .WithLLamaSharpDefaults(memoryModelConfig)
-        //    .Build<MemoryServerless>();
+            var memory = new KernelMemoryBuilder()
+            .WithLLamaSharpDefaults(memoryModelConfig)
+            .Build<MemoryServerless>();
 
 
-        //    var llmMemory = new ServerlessLlmMemory(memory);
-        //    builder.Services.AddSingleton(llmMemory);
+            var llmMemory = new ServerlessLlmMemory(memory);
+            services.AddSingleton(llmMemory);
 
-        //    return llmMemory;
-        //}
+            return llmMemory;
+        }
 
 
     }

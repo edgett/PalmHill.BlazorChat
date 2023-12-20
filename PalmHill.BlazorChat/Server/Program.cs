@@ -11,8 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddLlamaModelProvider();
 // End Initlize Llama
 
+var llmMemoryConfig = builder.Configuration.GetModelConfigFromConfigSection("EmbeddingModelConfig");
 // Initiaize Memory
-//builder.AddLlmMemory();
+builder.Services.AddLlmMemory(llmMemoryConfig);
 // End Initiaize Memory
 
 

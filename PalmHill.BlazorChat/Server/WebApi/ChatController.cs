@@ -107,7 +107,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
 
             try
             {
-                var answer = await LlmMemory.Ask(conversationId.ToString(), question, cancellationTokenSource.Token);
+                var answer = await LlmMemory.Ask(conversationId, question, cancellationTokenSource.Token);
 
                 var chatMessageAnswer = new ChatMessage()
                 {
