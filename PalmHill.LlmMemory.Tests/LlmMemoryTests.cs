@@ -26,7 +26,7 @@ namespace PalmHill.LlmMemory.Tests
             var modelConfig2 = JsonSerializer.Deserialize<ModelConfig>(model2ConfigJson ?? "");
 
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddLlmMemory(modelConfig2);
+            serviceCollection.AddLlmMemory(modelConfig1, modelConfig2);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var llmMemory = serviceProvider.GetService<ServerlessLlmMemory>();
