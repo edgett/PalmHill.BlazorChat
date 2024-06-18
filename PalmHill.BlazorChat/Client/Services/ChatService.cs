@@ -8,7 +8,7 @@ using PalmHill.BlazorChat.Shared.Models;
 namespace PalmHill.BlazorChat.Client.Services
 {
     /// <summary>
-    /// The the main service that controls the chat UI. 
+    /// The main service that controls the chat UI. 
     /// </summary>
     public class ChatService
     {
