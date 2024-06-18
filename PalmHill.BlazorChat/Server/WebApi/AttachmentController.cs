@@ -59,13 +59,20 @@ namespace PalmHill.BlazorChat.Server.WebApi
 
         // POST api/<AttachmentController>
         [HttpPost("{conversationId}/{attachmentId}")]
-        public ActionResult<AttachmentInfo> AddAttachment([FromForm] FileUpload fileUpload, Guid conversationId, Guid attachmentId)
+        public async Task<ActionResult<AttachmentInfo>> AddAttachment([FromForm] FileUpload fileUpload, Guid conversationId, Guid attachmentId)
         {
             var file = fileUpload.File;
 
             if (file == null)
             {
                 return BadRequest("No file provided.");
+            }
+
+            byte[] fileBytes;
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.CopyToAsync(memoryStream);
+                fileBytes = memoryStream.ToArray();
             }
 
             var attachmentInfo = new AttachmentInfo()
@@ -76,7 +83,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
                 Size = file.Length,
                 Status = AttachmentStatus.Pending,
                 ConversationId = conversationId,
-                FileBytes = file.OpenReadStream().ReadAllBytes()
+                FileBytes = fileBytes
             };
             var userId = "user1";
             _ = DoImportAsync(userId, attachmentInfo);
