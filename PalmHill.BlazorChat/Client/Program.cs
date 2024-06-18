@@ -2,7 +2,6 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.FluentUI.AspNetCore.Components;
-using Microsoft.FluentUI.AspNetCore.Components.DesignTokens;
 using PalmHill.BlazorChat.ApiClient;
 using PalmHill.BlazorChat.Client;
 using PalmHill.BlazorChat.Client.Services;

@@ -1,12 +1,13 @@
-﻿using LLama.Common;
-using LLama;
-using PalmHill.BlazorChat.Shared.Models;
-using static LLama.Common.ChatHistory;
-using PalmHill.BlazorChat.Shared;
-using Microsoft.Extensions.DependencyInjection;
-using PalmHill.Llama.Models;
-using Microsoft.Extensions.Hosting;
+﻿using LLama;
+using LLama.Batched;
+using LLama.Common;
+using LLamaSharp.SemanticKernel;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.SemanticKernel;
+using PalmHill.BlazorChat.Shared.Models;
+using PalmHill.Llama.Models;
 
 namespace PalmHill.Llama
 {
@@ -104,6 +105,34 @@ namespace PalmHill.Llama
             return inferenceParams;
         }
 
+        public static PromptExecutionSettings GetPromptExecutionSettings(this InferenceRequest chatConversation, List<string>? defaultAntiPrompts = null)
+        {
+            var inferenceParams = chatConversation.GetInferenceParams(defaultAntiPrompts);
+            var promptExecutionSettings = new LLamaSharpPromptExecutionSettings();
+            promptExecutionSettings.TopP = inferenceParams.TopP;
+            promptExecutionSettings.Temperature = inferenceParams.Temperature;
+            promptExecutionSettings.FrequencyPenalty = inferenceParams.FrequencyPenalty;
+            promptExecutionSettings.PresencePenalty = inferenceParams.PresencePenalty;
+            promptExecutionSettings.MaxTokens = inferenceParams.MaxTokens;
+            promptExecutionSettings.StopSequences = inferenceParams.AntiPrompts.ToList();
+
+
+            return promptExecutionSettings;
+        }
+
+        public static Microsoft.SemanticKernel.ChatCompletion.ChatHistory GetChatHistory(this InferenceRequest chatConversation)
+        {
+            var chatSession = new Microsoft.SemanticKernel.ChatCompletion.ChatHistory(chatConversation.SystemMessage);
+            foreach (var message in chatConversation.ChatMessages)
+            {
+                var role = (message.Role == ChatMessageRole.Assistant ? Microsoft.SemanticKernel.ChatCompletion.AuthorRole.Assistant : Microsoft.SemanticKernel.ChatCompletion.AuthorRole.User);
+                var chatHistoryItem = new Microsoft.SemanticKernel.ChatMessageContent(role, message.Message);
+                chatSession.Add(chatHistoryItem);
+            }
+
+            return chatSession;
+        }
+
 
         /// <summary>
         /// Add Llama to the service collection.
@@ -116,11 +145,11 @@ namespace PalmHill.Llama
         {
             var defaultModelConfigSection = "InferenceModelConfig";
 
-                //Attemt to get model config from config
+            //Attemt to get model config from config
             modelConfig = builder?.GetModelConfigFromConfigSection(defaultModelConfigSection);
 
             if (modelConfig == null)
-            { 
+            {
                 throw new ArgumentNullException(nameof(modelConfig), $"The argument {modelConfig} must be supplied if there is no {defaultModelConfigSection} section in app configuartion.");
             }
 
@@ -151,7 +180,7 @@ namespace PalmHill.Llama
         }
 
 
-        
+
 
 
         public static ModelConfig? GetModelConfigFromConfigSection(this IHostApplicationBuilder builder, string configSection)

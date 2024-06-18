@@ -1,12 +1,9 @@
-﻿using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.FluentUI.AspNetCore.Components;
 using PalmHill.BlazorChat.ApiClient;
 using PalmHill.BlazorChat.Client.Components.Settings;
 using PalmHill.BlazorChat.Client.Models;
 using PalmHill.BlazorChat.Shared.Models;
-using PalmHill.BlazorChat.Shared.Models.WebSocket;
-using System.Data;
 
 namespace PalmHill.BlazorChat.Client.Services
 {
@@ -28,18 +25,20 @@ namespace PalmHill.BlazorChat.Client.Services
             NavigationManager navigationManager,
             LocalStorageService localStorage,
             IDialogService dialogService,
-            ThemeService themeControl,
             BlazorChatApi blazorChatApi
             )
         {
-            
+
             _localStorageService = localStorage;
             _dialogService = dialogService;
-            _themeControl = themeControl;
             _blazorChatApi = blazorChatApi;
             _navigationManager = navigationManager;
+            setupAttachmentService();
             setupWebSocketChatConnection();
         }
+
+
+        public Guid ConversationId { get; set; } = Guid.NewGuid();
 
         /// <summary>
         /// User input from the chat box.
@@ -53,23 +52,8 @@ namespace PalmHill.BlazorChat.Client.Services
         /// Whether the chat is ready to stop.
         /// </summary>
         public bool CanStop { get; set; } = false;
-        /// <summary>
-        /// Whether the chat is in Attachment mode. Will only reference attached douments.
-        /// </summary>
-        public bool AttachmentsEnabled { get; set; } = false;
-        /// <summary>
-        /// Show the attachment panel.
-        /// </summary>
-        public bool AttachmentsVisible { get; set; } = false;
-        /// <summary>
-        /// The list of files that have been selected for Chat. This is non-functional for now.
-        /// </summary>
-        public List<AttachmentInfo> SelectedFiles = new List<AttachmentInfo>();
 
-        /// <summary>
-        /// The list of files that have been uploaded for Chat.
-        /// </summary>
-        public List<AttachmentInfo> UploadedFiles = new List<AttachmentInfo>();
+
 
         /// <summary>
         /// The local storage settings.
@@ -86,15 +70,18 @@ namespace PalmHill.BlazorChat.Client.Services
         public WebSocketChatService? WebSocketChatConnection { get; private set; }
 
         /// <summary>
+        /// The AttachmentService that handles the attachment upload.
+        /// </summary>
+        public AttachmentService? AttachmentService { get; private set; }
+
+        /// <summary>
         /// Event handler for when the state changes.
         /// </summary>
         public event EventHandler<bool>? OnStateChange;
 
 
-
         private readonly LocalStorageService _localStorageService;
         private readonly IDialogService _dialogService;
-        private readonly ThemeService _themeControl;
         private readonly BlazorChatApi _blazorChatApi;
         private readonly NavigationManager _navigationManager;
 
@@ -124,12 +111,16 @@ namespace PalmHill.BlazorChat.Client.Services
         /// <returns></returns>
         public async Task SendPrompt()
         {
-            if (AttachmentsEnabled == false)
-            { 
+            if (
+                AttachmentService is null
+                ||
+                !AttachmentService.AttachmentsEnabled
+                )
+            {
                 await SendToWebSocketChat();
             }
 
-            if (AttachmentsEnabled == true)
+            if (AttachmentService?.AttachmentsEnabled == true)
             {
                 await AskDocumentApi();
             }
@@ -145,6 +136,7 @@ namespace PalmHill.BlazorChat.Client.Services
             CanStop = true;
 
             var prompt = new WebSocketChatMessage();
+            prompt.ConversationId = ConversationId;
             prompt.Prompt = UserInput;
             WebsocketChatMessages.Add(prompt);
             UserInput = string.Empty;
@@ -163,17 +155,18 @@ namespace PalmHill.BlazorChat.Client.Services
 
             var prompt = new WebSocketChatMessage();
             prompt.Prompt = UserInput;
+            prompt.ConversationId = ConversationId;
             WebsocketChatMessages.Add(prompt);
             UserInput = string.Empty;
             StateHasChanged();
 
             var infrerenceRequest = new InferenceRequest();
-            infrerenceRequest.Id = WebSocketChatConnection!.ConversationId;
+            infrerenceRequest.Id = ConversationId;
             var chatMessage = new ChatMessage();
             chatMessage.Id = prompt.Id;
             chatMessage.Message = prompt.Prompt;
             chatMessage.Role = ChatMessageRole.Question;
-            
+
             infrerenceRequest.ChatMessages.Add(chatMessage);
 
             var apiResponse = await _blazorChatApi!.Chat.Ask(infrerenceRequest);
@@ -223,33 +216,7 @@ namespace PalmHill.BlazorChat.Client.Services
             }
         }
 
-        /// <summary>
-        /// Toggles the <see cref="AttachmentsVisible"/> property.
-        /// This does not toggle the <see cref="AttachmentsEnabled"/> property.
-        /// </summary>
-        public void ToggleAttachmentsVisible()
-        {
-            AttachmentsVisible = !AttachmentsVisible;
-            StateHasChanged();
-        }
 
-        /// <summary>
-        /// Shows the <see cref="Client.Components.Attachment.AttachmentManager"/>.
-        /// </summary>
-        public void ShowAttachments()
-        {
-            AttachmentsVisible = true;
-            StateHasChanged();
-        }
-
-        /// <summary>
-        /// Hides the <see cref="Client.Components.Attachment.AttachmentManager"/>.
-        /// </summary>
-        public void HideAttachments()
-        {
-            AttachmentsVisible = false;
-            StateHasChanged();
-        }
 
         /// <summary>
         /// Chat is ready to send a message.
@@ -268,10 +235,10 @@ namespace PalmHill.BlazorChat.Client.Services
         /// </summary>
         public async Task CancelTextGeneration()
         {
-            var canceled = await _blazorChatApi!.Chat.CancelChat(WebSocketChatConnection!.ConversationId);
+            var canceled = await _blazorChatApi!.Chat.CancelChat(ConversationId);
 
             if (canceled.Content)
-            { 
+            {
                 SetReady();
             }
 
@@ -285,25 +252,41 @@ namespace PalmHill.BlazorChat.Client.Services
         private void setupWebSocketChatConnection()
         {
             WebSocketChatConnection = new WebSocketChatService(
-                    _navigationManager.ToAbsoluteUri("/chathub?customUserId=user1"), 
+                    ConversationId,
+                    _navigationManager.ToAbsoluteUri("/chathub?customUserId=user1"),
                     WebsocketChatMessages,
                     _localStorageService
                     );
 
             WebSocketChatConnection.OnInferenceStatusUpdate += (sender, inferenceStatusUpdate) =>
             {
-                if (inferenceStatusUpdate.IsComplete == true)
-                { 
+                if (inferenceStatusUpdate.IsComplete)
+                {
                     SetReady();
                 }
             };
 
             WebSocketChatConnection.OnAttachmentStatusUpdate += (sender, attachmentInfo) =>
             {
-                var attachmentInfoToUpdate = UploadedFiles.SingleOrDefault(af => af.Id == attachmentInfo.Id);
+                var attachmentInfoToUpdate = AttachmentService!.UploadedFiles.SingleOrDefault(af => af.Id == attachmentInfo.Id);
                 attachmentInfoToUpdate!.Status = attachmentInfo.Status;
                 StateHasChanged();
             };
+        }
+
+        private void setupAttachmentService()
+        {
+            AttachmentService = new AttachmentService(
+                _blazorChatApi,
+                ConversationId
+            );
+
+
+            AttachmentService.OnStateChange += (sender, state) =>
+            {
+                StateHasChanged();
+            };
+
         }
 
         /// <summary>

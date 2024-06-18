@@ -19,7 +19,7 @@ namespace PalmHill.BlazorChat.Server.SignalR
             }
 
             if (httpContext.Request.Query.ContainsKey("customUserId"))
-            { 
+            {
                 return httpContext.Request.Query["customUserId"].SingleOrDefault() ?? "";
             }
 

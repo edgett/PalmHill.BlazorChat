@@ -11,7 +11,7 @@ namespace PalmHill.BlazorChat.Client.Models
         /// Parameters for the inference request.
         /// </summary>
         public InferenceSettings InferenceSettings { get; set; } = new InferenceSettings();
-        
+
         /// <summary>
         /// System message for the inference request.
         /// </summary>

@@ -38,5 +38,11 @@ Create instances of `InjectedModel` to work with pre-trained LLama models. Confi
 
 Configure your models and operational parameters with the `ModelConfig` class, allowing for flexible and robust application setups.
 
+## To Do
+
+- [ ] Add NuGet package
+- [ ] Add unit tests
+- [ ] Support for Model Switching
+
 
 

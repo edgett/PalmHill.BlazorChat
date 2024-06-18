@@ -1,9 +1,13 @@
 ﻿using Microsoft.KernelMemory;
 using PalmHill.BlazorChat.Shared.Models;
-using PalmHill.Llama;
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace PalmHill.LlmMemory
+namespace PalmHill.Llama
 {
     public class ServerlessLlmMemory
     {
@@ -34,7 +38,7 @@ namespace PalmHill.LlmMemory
 
             attachmentInfo.Size = attachmentInfo.FileBytes.LongLength;
 
-            await ThreadLock.InferenceLock.WaitAsync();
+            //await ThreadLock.InferenceLock.WaitAsync();
 
             var stream = new MemoryStream(attachmentInfo.FileBytes);
             var documentId = string.Empty;
@@ -53,7 +57,7 @@ namespace PalmHill.LlmMemory
             }
             finally
             {
-                ThreadLock.InferenceLock.Release();
+                //ThreadLock.InferenceLock.Release();
             }
 
 
@@ -113,7 +117,7 @@ namespace PalmHill.LlmMemory
             Exception? exception;
             try
             {
-                await Llama.ThreadLock.InferenceLock.WaitAsync(cancellationToken);
+                //await Llama.ThreadLock.InferenceLock.WaitAsync(cancellationToken);
                 var results = await KernelMemory.AskAsync(processedQuery, conversationId, cancellationToken: cancellationToken);
                 return results;
             }
@@ -127,7 +131,7 @@ namespace PalmHill.LlmMemory
             }
             finally
             {
-                Llama.ThreadLock.InferenceLock.Release();
+//                Llama.ThreadLock.InferenceLock.Release();
             }
 
             throw exception;
@@ -143,4 +147,5 @@ namespace PalmHill.LlmMemory
         }
 
     }
+
 }

@@ -30,3 +30,9 @@ The server-side application depends on several packages and projects. These depe
 - PalmHill.LlmMemory
 - PlamHill.BlazorChat.Client
 - PlamHill.BlazorChat.Shared
+
+
+## To Do
+
+- [ ] Add support for multiple LLMs
+- [ ] 

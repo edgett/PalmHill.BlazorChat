@@ -7,13 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.6" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\PalmHill.LlamaKernel\PalmHill.Llama.Kernel.csproj" />
     <ProjectReference Include="..\..\PalmHill.Llama\PalmHill.Llama.csproj" />
-    <ProjectReference Include="..\..\PalmHill.LlmMemory\PalmHill.LlmMemory.csproj" />
     <ProjectReference Include="..\Client\PalmHill.BlazorChat.Client.csproj" />
     <ProjectReference Include="..\Shared\PalmHill.BlazorChat.Shared.csproj" />
   </ItemGroup>

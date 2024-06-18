@@ -1,10 +1,9 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.KernelMemory.FileSystem.DevTools;
 using PalmHill.BlazorChat.Server.SignalR;
 using PalmHill.BlazorChat.Shared.Models;
-using PalmHill.LlmMemory;
+using PalmHill.Llama;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,19 +13,21 @@ namespace PalmHill.BlazorChat.Server.WebApi
     [ApiController]
     public class AttachmentController : ControllerBase
     {
-        private LlmMemory.ServerlessLlmMemory LlmMemory { get; }
+        private ServerlessLlmMemory LlmMemory { get; }
         private IHubContext<WebSocketChat> WebSocketChat { get; }
 
         public AttachmentController(
-            LlmMemory.ServerlessLlmMemory llmMemory,
+            LlamaKernel llamaKernel,
             IHubContext<WebSocketChat> webSocketChat
             )
         {
-            LlmMemory = llmMemory;
+            LlmMemory = llamaKernel.Kernel.Services
+                .GetService<ServerlessLlmMemory>() 
+                ?? throw new InvalidOperationException($"{nameof(ServerlessLlmMemory)} not loaded.");
             WebSocketChat = webSocketChat;
         }
 
-        
+
 
         [HttpGet("list/{conversationId}")]
         public IEnumerable<AttachmentInfo> GetAttachments(Guid conversationId)
@@ -61,13 +62,20 @@ namespace PalmHill.BlazorChat.Server.WebApi
 
         // POST api/<AttachmentController>
         [HttpPost("{conversationId}/{attachmentId}")]
-        public ActionResult<AttachmentInfo> AddAttachment([FromForm] FileUpload fileUpload, Guid conversationId, Guid attachmentId)
+        public async Task<ActionResult<AttachmentInfo>> AddAttachment([FromForm] FileUpload fileUpload, Guid conversationId, Guid attachmentId)
         {
             var file = fileUpload.File;
 
             if (file == null)
             {
                 return BadRequest("No file provided.");
+            }
+
+            byte[] fileBytes;
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.CopyToAsync(memoryStream);
+                fileBytes = memoryStream.ToArray();
             }
 
             var attachmentInfo = new AttachmentInfo()
@@ -78,7 +86,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
                 Size = file.Length,
                 Status = AttachmentStatus.Pending,
                 ConversationId = conversationId,
-                FileBytes = file.OpenReadStream().ReadAllBytes()
+                FileBytes = fileBytes
             };
             var userId = "user1";
             _ = DoImportAsync(userId, attachmentInfo);
@@ -118,15 +126,15 @@ namespace PalmHill.BlazorChat.Server.WebApi
 
         [HttpGet("{attachmentId}/file")]
         public ActionResult GetAttachmentFile(Guid attachmentId)
-        { 
+        {
             var attachmentInfo = LlmMemory.AttachmentInfos[attachmentId];
             if (attachmentInfo == null)
             {
-                   return NotFound();
+                return NotFound();
             }
 
             if (attachmentInfo.FileBytes == null || attachmentInfo.Status != AttachmentStatus.Uploaded)
-            { 
+            {
                 return BadRequest("File not ready.");
             }
 

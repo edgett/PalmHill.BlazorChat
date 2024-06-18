@@ -1,18 +1,26 @@
 ﻿using LLama;
 using LLama.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PalmHill.Llama.Models
 {
     public class InjectedModel
     {
         public LLamaWeights Model { get; }
-        public ModelParams ModelParams { get;  }
+        public ModelParams ModelParams { get; }
         public List<string> DefaultAntiPrompts { get; set; }
+
+        public ModelParams EmbeddingParameters
+        {
+            get
+            {
+                var embeddingParams = new ModelParams(ModelParams.ModelPath);
+                embeddingParams.Embeddings = true;
+                embeddingParams.ContextSize = ModelParams.ContextSize;
+                embeddingParams.GpuLayerCount = ModelParams.GpuLayerCount;
+                embeddingParams.MainGpu = ModelParams.MainGpu;
+                return embeddingParams;
+            }
+        }
 
         public InjectedModel(LLamaWeights model, ModelParams modelParams, List<string> defaultAntiPrompts)
         {

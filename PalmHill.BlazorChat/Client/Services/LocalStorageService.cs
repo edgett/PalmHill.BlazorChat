@@ -1,5 +1,4 @@
 ﻿using Blazored.LocalStorage;
-using Markdig.Syntax.Inlines;
 using PalmHill.BlazorChat.Client.Models;
 
 namespace PalmHill.BlazorChat.Client.Services
@@ -9,8 +8,8 @@ namespace PalmHill.BlazorChat.Client.Services
     /// </summary>
     public class LocalStorageService
     {
-        private ILocalStorageService _localStorage;
-        private ThemeService _themeControl;
+        private readonly ILocalStorageService _localStorage;
+        private readonly ThemeService _themeControl;
 
         /// <summary>
         /// Use dependency injection to get the local storage service and the theme service.

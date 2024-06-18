@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PalmHill.Llama.Models
+﻿namespace PalmHill.Llama.Models
 {
     public class ModelConfig
     {
@@ -12,6 +6,6 @@ namespace PalmHill.Llama.Models
         public int GpuLayerCount { get; set; } = 20;
         public uint ContextSize { get; set; } = 2048;
         public int Gpu { get; set; } = 0;
-        public List<string> AntiPrompts = [];
+        public List<string> AntiPrompts { get; set; } = [];
     }
 }

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.FluentUI.AspNetCore.Components.DesignTokens;
+﻿using Microsoft.FluentUI.AspNetCore.Components.DesignTokens;
 
 namespace PalmHill.BlazorChat.Client.Services
 {
@@ -22,7 +21,7 @@ namespace PalmHill.BlazorChat.Client.Services
 
         private BaseLayerLuminance? _baseLayerLuminance { get; }
 
-        private AccentBaseColor? _accentBaseColor { get;  }
+        private AccentBaseColor? _accentBaseColor { get; }
 
         /// <summary>
         /// Changes the theme.

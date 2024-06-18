@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace PalmHill.BlazorChat.Shared.Models
 {
@@ -20,7 +15,7 @@ namespace PalmHill.BlazorChat.Shared.Models
         /// The file name of the attachment.
         /// </summary>
         public string Name { get; set; } = "";
-        
+
         /// <summary>
         /// The file bytes of the attachment. (Not serialized). Used for import/memorization.
         /// </summary>
