@@ -29,19 +29,22 @@ namespace PalmHill.BlazorChat.Server.WebApi
         /// <param name="modelParams">The model parameters.</param>
         public ApiChatController(
             IHubContext<WebSocketChat> webSocketChat,
-            LlamaKernel llamaKernel
+            LlamaKernel llamaKernel,
+            ILogger<ApiChatController> logger
             )
         {
             WebSocketChat = webSocketChat;
             LlamaKernel = llamaKernel;
             LlmMemory = llamaKernel.Kernel.Services.GetService<ServerlessLlmMemory>();
             ChatCompletion = llamaKernel.Kernel.Services.GetService<IChatCompletionService>();
+            _logger = logger;
         }
 
         private IHubContext<WebSocketChat> WebSocketChat { get; }
         public LlamaKernel LlamaKernel { get; }
         public ServerlessLlmMemory? LlmMemory { get; }
         public IChatCompletionService? ChatCompletion { get; }
+        private ILogger<ApiChatController> _logger { get; }
 
         /// <summary>
         /// Handles a chat API request.
@@ -67,7 +70,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
             catch (OperationCanceledException)
             {
                 errorText = $"Inference for {conversationId} was canceled.";
-                Console.WriteLine(errorText);
+                _logger.LogWarning(errorText);
                 return StatusCode(444, errorText);
             }
             catch (Exception ex)
@@ -80,7 +83,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
                 ChatCancelation.CancelationTokens.TryRemove(conversationId, out _);
             }
 
-            Console.WriteLine(errorText);
+            _logger.LogError(errorText);
             return StatusCode(500, errorText);
         }
 
@@ -169,10 +172,15 @@ namespace PalmHill.BlazorChat.Server.WebApi
             var chatExecutionSettings = conversation.GetPromptExecutionSettings();
 
             inferenceStopwatch.Start();
-            var asyncResponse = ChatCompletion.GetStreamingChatMessageContentsAsync(chatSession, 
+            var asyncResponse = ChatCompletion?.GetStreamingChatMessageContentsAsync(chatSession, 
                 chatExecutionSettings, 
                 cancellationToken: cancellationToken);
 
+            if (asyncResponse == null)
+            {
+                _logger.LogError($"{nameof(IChatCompletionService)} not implemented.");
+                throw new InvalidOperationException($"{nameof(IChatCompletionService)} not implemented.");
+            }
 
             await foreach (var text in asyncResponse)
             {
@@ -181,8 +189,8 @@ namespace PalmHill.BlazorChat.Server.WebApi
             }
             inferenceStopwatch.Stop();
             var fullResponseString = fullResponse.ToString();
-            Console.WriteLine($"Inference took {inferenceStopwatch.ElapsedMilliseconds}ms and generated {totalTokens} tokens. {(totalTokens / (inferenceStopwatch.ElapsedMilliseconds / (float)1000)).ToString("F2")} tokens/second.");
-            Console.WriteLine(fullResponseString);
+            _logger.LogInformation($"Inference took {inferenceStopwatch.ElapsedMilliseconds}ms and generated {totalTokens} tokens. {(totalTokens / (inferenceStopwatch.ElapsedMilliseconds / (float)1000)).ToString("F2")} tokens/second.");
+            _logger.LogInformation(fullResponseString);
 
             return fullResponseString;
         }

@@ -2,6 +2,7 @@
 using LLama;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.SemanticKernel.ChatCompletion;
+using PalmHill.BlazorChat.Server.WebApi;
 using PalmHill.BlazorChat.Shared.Models;
 using PalmHill.BlazorChat.Shared.Models.WebSocket;
 using PalmHill.Llama;
@@ -16,15 +17,16 @@ namespace PalmHill.BlazorChat.Server.SignalR
     /// </summary>
     public class WebSocketChat : Hub
     {
-        public WebSocketChat(LlamaKernel llamaKernel)
+        public WebSocketChat(LlamaKernel llamaKernel, ILogger<WebSocketChat> logger)
         {
             LlamaKernel = llamaKernel;
             ChatCompletion = llamaKernel.Kernel.Services.GetService<IChatCompletionService>();
+            _logger = logger;
         }
 
         public LlamaKernel LlamaKernel { get; }
         public IChatCompletionService? ChatCompletion { get; }
-
+        private ILogger<WebSocketChat> _logger { get; }
 
         /// <summary>
         /// Sends a chat prompt to the client and waits for a response. The method performs inference on the chat conversation and sends the result back to the client.
@@ -59,11 +61,11 @@ namespace PalmHill.BlazorChat.Server.SignalR
                 inferenceStatusUpdate.Success = false;
                 await Clients.Caller.SendAsync("InferenceStatusUpdate", inferenceStatusUpdate);
                 // Handle the cancellation operation
-                Console.WriteLine($"Inference for {conversationId} was canceled.");
+                _logger.LogWarning($"Text generation for {conversationId} was canceled via WebSockets.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                _logger.LogError(ex, $"WebSocket text generation failed for ConversationId: {conversationId}");
             }
             finally
             {
@@ -96,7 +98,16 @@ namespace PalmHill.BlazorChat.Server.SignalR
 
 
             inferenceStopwatch.Start();
-            var asyncResponse = ChatCompletion.GetStreamingChatMessageContentsAsync(chatHistory, inferenceParams, cancellationToken: cancellationToken);
+            var asyncResponse = ChatCompletion?.GetStreamingChatMessageContentsAsync(chatHistory, inferenceParams, cancellationToken: cancellationToken);
+
+            if (asyncResponse == null)
+            {
+                _logger.LogError($"{nameof(IChatCompletionService)} not implemented.");
+                await respondToClient.SendAsync("ReceiveInferenceString", $"Error: {nameof(IChatCompletionService)} not implemented.");
+                return;
+            }
+
+
             // Perform inference and send the response to the client
             await foreach (var text in asyncResponse)
             {
@@ -131,8 +142,8 @@ namespace PalmHill.BlazorChat.Server.SignalR
                 await respondToClient.SendAsync("ReceiveInferenceString", chatConversation.Id, textBuffer);
             }
 
-            Console.WriteLine($"Inference took {inferenceStopwatch.ElapsedMilliseconds}ms and generated {totalTokens} tokens. {(totalTokens / (inferenceStopwatch.ElapsedMilliseconds / (float)1000)).ToString("F2")} tokens/second.");
-            Console.WriteLine(fullResponse);
+            _logger.LogInformation($"Inference took {inferenceStopwatch.ElapsedMilliseconds}ms and generated {totalTokens} tokens. {(totalTokens / (inferenceStopwatch.ElapsedMilliseconds / (float)1000)).ToString("F2")} tokens/second.");
+            _logger.LogInformation(fullResponse);
         }
 
         /// <summary>

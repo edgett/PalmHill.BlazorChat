@@ -15,16 +15,20 @@ namespace PalmHill.BlazorChat.Server.WebApi
     {
         private ServerlessLlmMemory LlmMemory { get; }
         private IHubContext<WebSocketChat> WebSocketChat { get; }
+        private ILogger<AttachmentController> _logger { get; }
+
 
         public AttachmentController(
             LlamaKernel llamaKernel,
-            IHubContext<WebSocketChat> webSocketChat
+            IHubContext<WebSocketChat> webSocketChat,
+            ILogger<AttachmentController> logger
             )
         {
             LlmMemory = llamaKernel.Kernel.Services
                 .GetService<ServerlessLlmMemory>() 
                 ?? throw new InvalidOperationException($"{nameof(ServerlessLlmMemory)} not loaded.");
             WebSocketChat = webSocketChat;
+            _logger = logger;
         }
 
 
@@ -104,6 +108,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error importing attachment.");
                 attachmentInfo.Status = AttachmentStatus.Failed;
                 await WebSocketChat.Clients.User(userId!).SendCoreAsync("AttachmentStatusUpdate", [attachmentInfo]);
             }
