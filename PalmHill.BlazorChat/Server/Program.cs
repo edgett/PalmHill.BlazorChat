@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.OpenApi.Models;
 using PalmHill.BlazorChat.Server.SignalR;
 using PalmHill.Llama;
-using PalmHill.LlmMemory;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,9 +11,7 @@ builder.AddLlamaModel();
 // End Initlize Llama
 
 
-// Initiaize Memory
-builder.AddLlmMemory();
-// End Initiaize Memory
+builder.Services.AddSingleton<LlamaKernel>();
 
 
 builder.Services.AddControllers().AddJsonOptions(options =>

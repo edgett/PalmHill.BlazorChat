@@ -9,6 +9,19 @@ namespace PalmHill.Llama.Models
         public ModelParams ModelParams { get; }
         public List<string> DefaultAntiPrompts { get; set; }
 
+        public ModelParams EmbeddingParameters
+        {
+            get
+            {
+                var embeddingParams = new ModelParams(ModelParams.ModelPath);
+                embeddingParams.Embeddings = true;
+                embeddingParams.ContextSize = ModelParams.ContextSize;
+                embeddingParams.GpuLayerCount = ModelParams.GpuLayerCount;
+                embeddingParams.MainGpu = ModelParams.MainGpu;
+                return embeddingParams;
+            }
+        }
+
         public InjectedModel(LLamaWeights model, ModelParams modelParams, List<string> defaultAntiPrompts)
         {
             Model = model;

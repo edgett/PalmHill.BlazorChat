@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.KernelMemory.FileSystem.DevTools;
 using PalmHill.BlazorChat.Server.SignalR;
 using PalmHill.BlazorChat.Shared.Models;
+using PalmHill.Llama;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -12,15 +13,17 @@ namespace PalmHill.BlazorChat.Server.WebApi
     [ApiController]
     public class AttachmentController : ControllerBase
     {
-        private LlmMemory.ServerlessLlmMemory LlmMemory { get; }
+        private ServerlessLlmMemory LlmMemory { get; }
         private IHubContext<WebSocketChat> WebSocketChat { get; }
 
         public AttachmentController(
-            LlmMemory.ServerlessLlmMemory llmMemory,
+            LlamaKernel llamaKernel,
             IHubContext<WebSocketChat> webSocketChat
             )
         {
-            LlmMemory = llmMemory;
+            LlmMemory = llamaKernel.Kernel.Services
+                .GetService<ServerlessLlmMemory>() 
+                ?? throw new InvalidOperationException($"{nameof(ServerlessLlmMemory)} not loaded.");
             WebSocketChat = webSocketChat;
         }
 

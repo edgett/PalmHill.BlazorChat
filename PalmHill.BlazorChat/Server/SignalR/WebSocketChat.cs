@@ -1,5 +1,7 @@
-﻿using LLama;
+﻿using Azure.AI.OpenAI;
+using LLama;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.SemanticKernel.ChatCompletion;
 using PalmHill.BlazorChat.Shared.Models;
 using PalmHill.BlazorChat.Shared.Models.WebSocket;
 using PalmHill.Llama;
@@ -14,11 +16,14 @@ namespace PalmHill.BlazorChat.Server.SignalR
     /// </summary>
     public class WebSocketChat : Hub
     {
-        public WebSocketChat(InjectedModel injectedModel)
+        public WebSocketChat(LlamaKernel llamaKernel)
         {
-            InjectedModel = injectedModel;
+            LlamaKernel = llamaKernel;
+            ChatCompletion = llamaKernel.Kernel.Services.GetService<IChatCompletionService>();
         }
-        private InjectedModel InjectedModel { get; }
+
+        public LlamaKernel LlamaKernel { get; }
+        public IChatCompletionService? ChatCompletion { get; }
 
 
         /// <summary>
@@ -36,7 +41,7 @@ namespace PalmHill.BlazorChat.Server.SignalR
 
             try
             {
-                await ThreadLock.InferenceLock.WaitAsync(cancellationTokenSource.Token);
+                //await ThreadLock.InferenceLock.WaitAsync(cancellationTokenSource.Token);
                 await DoInferenceAndRespondToClient(Clients.Caller, chatConversation, cancellationTokenSource.Token);
 
                 var inferenceStatusUpdate = new WebSocketInferenceStatusUpdate();
@@ -62,7 +67,7 @@ namespace PalmHill.BlazorChat.Server.SignalR
             }
             finally
             {
-                ThreadLock.InferenceLock.Release();
+                //ThreadLock.InferenceLock.Release();
                 ChatCancelation.CancelationTokens.TryRemove(conversationId, out _);
 
             }
@@ -79,9 +84,8 @@ namespace PalmHill.BlazorChat.Server.SignalR
         private async Task DoInferenceAndRespondToClient(ISingleClientProxy respondToClient, InferenceRequest chatConversation, CancellationToken cancellationToken)
         {
             // Create a context for the model and a chat session for the conversation
-            LLamaContext modelContext = InjectedModel.Model.CreateContext(InjectedModel.ModelParams);
-            var session = modelContext.CreateChatSession(chatConversation);
-            var inferenceParams = chatConversation.GetInferenceParams(InjectedModel.DefaultAntiPrompts);
+            var chatHistory = chatConversation.GetChatHistory();
+            var inferenceParams = chatConversation.GetPromptExecutionSettings();
 
             var messageId = chatConversation.ChatMessages.LastOrDefault()?.Id;
 
@@ -90,18 +94,15 @@ namespace PalmHill.BlazorChat.Server.SignalR
             var totalTokens = 0;
             var inferenceStopwatch = new Stopwatch();
 
+
             inferenceStopwatch.Start();
-            var asyncResponse = session.ChatAsync(session.History,
-                                                        inferenceParams,
-                                                        cancellationToken);
+            var asyncResponse = ChatCompletion.GetStreamingChatMessageContentsAsync(chatHistory, inferenceParams, cancellationToken: cancellationToken);
             // Perform inference and send the response to the client
             await foreach (var text in asyncResponse)
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    modelContext.Dispose();
                     inferenceStopwatch.Stop();
-
                     throw new OperationCanceledException(cancellationToken);
                 }
 
@@ -122,10 +123,9 @@ namespace PalmHill.BlazorChat.Server.SignalR
 
 
             }
-            modelContext.Dispose();
-
+            
             inferenceStopwatch.Stop();
-
+            
             if (textBuffer.Length > 0)
             {
                 await respondToClient.SendAsync("ReceiveInferenceString", chatConversation.Id, textBuffer);

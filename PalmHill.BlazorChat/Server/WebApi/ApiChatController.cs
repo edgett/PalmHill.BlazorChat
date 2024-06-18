@@ -5,9 +5,10 @@ using PalmHill.BlazorChat.Server.SignalR;
 using PalmHill.BlazorChat.Shared.Models;
 using PalmHill.Llama;
 using PalmHill.Llama.Models;
-using PalmHill.LlmMemory;
 using System.Diagnostics;
 using System.Text;
+using Microsoft.KernelMemory;
+using Microsoft.SemanticKernel.ChatCompletion;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -27,20 +28,20 @@ namespace PalmHill.BlazorChat.Server.WebApi
         /// <param name="model">The LLamaWeights model.</param>
         /// <param name="modelParams">The model parameters.</param>
         public ApiChatController(
-            InjectedModel injectedModel,
             IHubContext<WebSocketChat> webSocketChat,
-            LlmMemory.ServerlessLlmMemory? llmMemory = null
+            LlamaKernel llamaKernel
             )
         {
-            InjectedModel = injectedModel;
             WebSocketChat = webSocketChat;
-            LlmMemory = llmMemory;
-
+            LlamaKernel = llamaKernel;
+            LlmMemory = llamaKernel.Kernel.Services.GetService<ServerlessLlmMemory>();
+            ChatCompletion = llamaKernel.Kernel.Services.GetService<IChatCompletionService>();
         }
 
         private IHubContext<WebSocketChat> WebSocketChat { get; }
+        public LlamaKernel LlamaKernel { get; }
         public ServerlessLlmMemory? LlmMemory { get; }
-        private InjectedModel InjectedModel { get; }
+        public IChatCompletionService? ChatCompletion { get; }
 
         /// <summary>
         /// Handles a chat API request.
@@ -59,7 +60,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
 
             try
             {
-                await ThreadLock.InferenceLock.WaitAsync(cancellationTokenSource.Token);
+                //await ThreadLock.InferenceLock.WaitAsync(cancellationTokenSource.Token);
                 var response = await DoInference(conversation, cancellationTokenSource.Token);
                 return Ok(response);
             }
@@ -75,7 +76,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
             }
             finally
             {
-                ThreadLock.InferenceLock.Release();
+                //ThreadLock.InferenceLock.Release();
                 ChatCancelation.CancelationTokens.TryRemove(conversationId, out _);
             }
 
@@ -91,7 +92,6 @@ namespace PalmHill.BlazorChat.Server.WebApi
                 var result = StatusCode(503, "No LlmMemory loaded.");
                 return result;
             }
-
 
             var conversationId = chatConversation.Id;
             var cancellationTokenSource = new CancellationTokenSource();
@@ -153,32 +153,32 @@ namespace PalmHill.BlazorChat.Server.WebApi
         /// <returns>Returns the inference result as a string.</returns>
         private async Task<string> DoInference(InferenceRequest conversation, CancellationToken cancellationToken)
         {
-            LLamaContext modelContext = InjectedModel.Model.CreateContext(InjectedModel.ModelParams);
-            var session = modelContext.CreateChatSession(conversation);
-            var inferenceParams = conversation.GetInferenceParams(InjectedModel.DefaultAntiPrompts);
 
             var fullResponse = new StringBuilder();
             var totalTokens = 0;
             var inferenceStopwatch = new Stopwatch();
 
+            var chatSession = new ChatHistory(conversation.SystemMessage);
+            foreach (var message in conversation.ChatMessages)
+            {
+                var role = (message.Role == ChatMessageRole.Assistant ? AuthorRole.Assistant : AuthorRole.User);
+                var chatHistoryItem = new Microsoft.SemanticKernel.ChatMessageContent(role, message.Message);
+                chatSession.Add(chatHistoryItem);
+            }
+
+            var chatExecutionSettings = conversation.GetPromptExecutionSettings();
+
             inferenceStopwatch.Start();
-            var asyncResponse = session.ChatAsync(session.History,
-                                                        inferenceParams,
-                                                        cancellationToken);
+            var asyncResponse = ChatCompletion.GetStreamingChatMessageContentsAsync(chatSession, 
+                chatExecutionSettings, 
+                cancellationToken: cancellationToken);
+
+
             await foreach (var text in asyncResponse)
             {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    modelContext.Dispose();
-                    inferenceStopwatch.Stop();
-
-                    throw new OperationCanceledException(cancellationToken);
-                }
-
                 totalTokens++;
                 fullResponse.Append(text);
             }
-            modelContext.Dispose();
             inferenceStopwatch.Stop();
             var fullResponseString = fullResponse.ToString();
             Console.WriteLine($"Inference took {inferenceStopwatch.ElapsedMilliseconds}ms and generated {totalTokens} tokens. {(totalTokens / (inferenceStopwatch.ElapsedMilliseconds / (float)1000)).ToString("F2")} tokens/second.");

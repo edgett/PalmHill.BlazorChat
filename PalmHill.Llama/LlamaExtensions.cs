@@ -1,8 +1,11 @@
 ﻿using LLama;
+using LLama.Batched;
 using LLama.Common;
+using LLamaSharp.SemanticKernel;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.SemanticKernel;
 using PalmHill.BlazorChat.Shared.Models;
 using PalmHill.Llama.Models;
 
@@ -100,6 +103,34 @@ namespace PalmHill.Llama
                 AntiPrompts = defaultAntiPrompts ?? []
             };
             return inferenceParams;
+        }
+
+        public static PromptExecutionSettings GetPromptExecutionSettings(this InferenceRequest chatConversation, List<string>? defaultAntiPrompts = null)
+        {
+            var inferenceParams = chatConversation.GetInferenceParams(defaultAntiPrompts);
+            var promptExecutionSettings = new LLamaSharpPromptExecutionSettings();
+            promptExecutionSettings.TopP = inferenceParams.TopP;
+            promptExecutionSettings.Temperature = inferenceParams.Temperature;
+            promptExecutionSettings.FrequencyPenalty = inferenceParams.FrequencyPenalty;
+            promptExecutionSettings.PresencePenalty = inferenceParams.PresencePenalty;
+            promptExecutionSettings.MaxTokens = inferenceParams.MaxTokens;
+            promptExecutionSettings.StopSequences = inferenceParams.AntiPrompts.ToList();
+
+
+            return promptExecutionSettings;
+        }
+
+        public static Microsoft.SemanticKernel.ChatCompletion.ChatHistory GetChatHistory(this InferenceRequest chatConversation)
+        {
+            var chatSession = new Microsoft.SemanticKernel.ChatCompletion.ChatHistory(chatConversation.SystemMessage);
+            foreach (var message in chatConversation.ChatMessages)
+            {
+                var role = (message.Role == ChatMessageRole.Assistant ? Microsoft.SemanticKernel.ChatCompletion.AuthorRole.Assistant : Microsoft.SemanticKernel.ChatCompletion.AuthorRole.User);
+                var chatHistoryItem = new Microsoft.SemanticKernel.ChatMessageContent(role, message.Message);
+                chatSession.Add(chatHistoryItem);
+            }
+
+            return chatSession;
         }
 
 

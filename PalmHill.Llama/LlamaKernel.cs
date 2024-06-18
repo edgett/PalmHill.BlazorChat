@@ -6,12 +6,9 @@ using Microsoft.KernelMemory;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using PalmHill.Llama.Models;
-using LLamaSharp.SemanticKernel.TextEmbedding;
-using Microsoft.SemanticKernel.Memory;
-using LLama.Common;
 
 
-namespace PalmHill.LlamaKernel
+namespace PalmHill.Llama
 {
     public class LlamaKernel
     {
@@ -27,12 +24,22 @@ namespace PalmHill.LlamaKernel
                 var llamaSharpChatCompletion = new LLamaSharpChatCompletion(chatExecutor);
                 return llamaSharpChatCompletion;
             });
-            kernelBuilder.Services.AddKernelMemory(km => {
-                var embedding = new LLamaEmbedder(injectedModel.Model, injectedModel.ModelParams);
+
+            kernelBuilder.Services.AddSingleton<Microsoft.KernelMemory.AI.ITextGenerator>(sp =>
+            {
+                var ctx = injectedModel.Model.CreateContext(injectedModel.ModelParams);
+                var textGenerator = new LlamaSharpTextGenerator(injectedModel.Model, ctx);
+                return textGenerator;
+            });
+
+            kernelBuilder.Services.AddKernelMemory(km =>
+            {
+                var embedding = new LLamaEmbedder(injectedModel.Model, injectedModel.EmbeddingParameters);
                 var textEmbeddingGeneration = new LLamaSharpTextEmbeddingGenerator(embedding);
                 km.WithLLamaSharpTextEmbeddingGeneration(textEmbeddingGeneration);
                 km.Build<MemoryServerless>();
-            });
+            })
+            .AddSingleton<ServerlessLlmMemory>();
 
 
             Kernel = kernelBuilder.Build();
