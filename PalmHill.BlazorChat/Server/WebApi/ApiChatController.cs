@@ -59,7 +59,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
 
             var conversationId = conversation.Id;
             var cancellationTokenSource = new CancellationTokenSource();
-            ChatCancelation.CancelationTokens[conversationId] = cancellationTokenSource;
+            ChatCancellation.CancellationTokens[conversationId] = cancellationTokenSource;
 
             try
             {
@@ -80,7 +80,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
             finally
             {
                 //ThreadLock.InferenceLock.Release();
-                ChatCancelation.CancelationTokens.TryRemove(conversationId, out _);
+                ChatCancellation.CancellationTokens.TryRemove(conversationId, out _);
             }
 
             _logger.LogError(errorText);
@@ -98,7 +98,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
 
             var conversationId = chatConversation.Id;
             var cancellationTokenSource = new CancellationTokenSource();
-            ChatCancelation.CancelationTokens[conversationId] = cancellationTokenSource;
+            ChatCancellation.CancellationTokens[conversationId] = cancellationTokenSource;
 
             var question = chatConversation.ChatMessages.LastOrDefault()?.Message;
             if (question == null)
@@ -137,7 +137,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
         [HttpDelete("cancel/{conversationId}", Name = "CancelChat")]
         public async Task<bool> CancelChat(Guid conversationId)
         {
-            var cancelToken = ChatCancelation.CancelationTokens[conversationId];
+            var cancelToken = ChatCancellation.CancellationTokens[conversationId];
             if (cancelToken == null)
             {
                 return false;
@@ -154,6 +154,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
         /// </summary>
         /// <param name="conversation">The chat conversation for which to perform inference.</param>
         /// <returns>Returns the inference result as a string.</returns>
+        [SerialExecution("ModelOperation")]
         private async Task<string> DoInference(InferenceRequest conversation, CancellationToken cancellationToken)
         {
 

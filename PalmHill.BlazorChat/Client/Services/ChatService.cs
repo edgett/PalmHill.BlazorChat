@@ -65,7 +65,7 @@ namespace PalmHill.BlazorChat.Client.Services
         /// <summary>
         /// The list of chat messages. Containing a prompt and its response.
         /// </summary>
-        public List<WebSocketChatMessage> WebsocketChatMessages { get; private set; } = new List<WebSocketChatMessage>();
+        public List<WebSocketChatMessage> WebSocketChatMessages { get; private set; } = new List<WebSocketChatMessage>();
 
         /// <summary>
         /// The WebSocketChatService that handles the WebSocket connection.
@@ -142,7 +142,7 @@ namespace PalmHill.BlazorChat.Client.Services
             var prompt = new WebSocketChatMessage();
             prompt.ConversationId = ConversationId;
             prompt.Prompt = UserInput;
-            WebsocketChatMessages.Add(prompt);
+            WebSocketChatMessages.Add(prompt);
             UserInput = string.Empty;
             StateHasChanged();
             await SendInferenceRequest();
@@ -160,7 +160,7 @@ namespace PalmHill.BlazorChat.Client.Services
             var prompt = new WebSocketChatMessage();
             prompt.Prompt = UserInput;
             prompt.ConversationId = ConversationId;
-            WebsocketChatMessages.Add(prompt);
+            WebSocketChatMessages.Add(prompt);
             UserInput = string.Empty;
             StateHasChanged();
 
@@ -258,7 +258,7 @@ namespace PalmHill.BlazorChat.Client.Services
             WebSocketChatConnection = new WebSocketChatService(
                     ConversationId,
                     _navigationManager.ToAbsoluteUri("/chathub?customUserId=user1"),
-                    WebsocketChatMessages,
+                    WebSocketChatMessages,
                     _localStorageService
                     );
 

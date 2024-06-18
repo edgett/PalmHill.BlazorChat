@@ -98,6 +98,7 @@ namespace PalmHill.BlazorChat.Server.WebApi
             return attachmentInfo;
         }
 
+        [SerialExecution("ModelOperation")]
         private async Task DoImportAsync(string? userId, AttachmentInfo attachmentInfo)
         {
             try
