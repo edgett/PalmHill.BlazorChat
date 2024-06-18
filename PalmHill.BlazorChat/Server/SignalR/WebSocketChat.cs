@@ -1,5 +1,6 @@
 ﻿using Azure.AI.OpenAI;
 using LLama;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.SemanticKernel.ChatCompletion;
 using PalmHill.BlazorChat.Server.WebApi;
@@ -39,7 +40,7 @@ namespace PalmHill.BlazorChat.Server.SignalR
         {
             var conversationId = chatConversation.Id;
             var cancellationTokenSource = new CancellationTokenSource();
-            ChatCancelation.CancelationTokens[conversationId] = cancellationTokenSource;
+            ChatCancellation.CancellationTokens[conversationId] = cancellationTokenSource;
 
             try
             {
@@ -70,7 +71,7 @@ namespace PalmHill.BlazorChat.Server.SignalR
             finally
             {
                 //ThreadLock.InferenceLock.Release();
-                ChatCancelation.CancelationTokens.TryRemove(conversationId, out _);
+                ChatCancellation.CancellationTokens.TryRemove(conversationId, out _);
 
             }
         }
@@ -83,6 +84,7 @@ namespace PalmHill.BlazorChat.Server.SignalR
         /// <param name="messageId">The unique identifier for the message.</param>
         /// <param name="chatConversation">The chat conversation to use for inference.</param>
         /// <returns>A Task that represents the asynchronous operation.</returns>
+        [SerialExecution("ModelOperation")]
         private async Task DoInferenceAndRespondToClient(ISingleClientProxy respondToClient, InferenceRequest chatConversation, CancellationToken cancellationToken)
         {
             // Create a context for the model and a chat session for the conversation
