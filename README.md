@@ -4,7 +4,7 @@
 
 - Support for Llama3 models.
 - Reduce memory consumption by using a single model for both chat and embedding.
-- Utilize Microsoft's [semantic-kernel]("https://github.com/microsoft/semantic-kernel") for chat, embedding, and document retrieval.
+- Utilize Microsoft's [`semantic-kernel`](https://github.com/microsoft/semantic-kernel) for chat, embedding, and document retrieval.
 
 
 ![Demo](Documentation/demo-gif.gif)
