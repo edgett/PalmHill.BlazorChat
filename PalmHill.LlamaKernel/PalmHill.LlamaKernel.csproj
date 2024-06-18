@@ -7,6 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="LLamaSharp.kernel-memory" Version="0.13.0" />
+    <PackageReference Include="LLamaSharp.semantic-kernel" Version="0.13.0" />
+    <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.62.240605.1" />
     <PackageReference Include="Microsoft.SemanticKernel.Core" Version="1.14.1" />
   </ItemGroup>
 
