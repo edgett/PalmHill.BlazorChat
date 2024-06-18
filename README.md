@@ -1,5 +1,12 @@
 ﻿# PalmHill.BlazorChat
 
+## New (6/18/2024)
+
+- Support for Llama3 models.
+- Reduce memory consumption by using a single model for both chat and embedding.
+- Utilize Microsoft's [semantic-kernel]("https://github.com/microsoft/semantic-kernel") for chat, embedding, and document retrieval.
+
+
 ![Demo](Documentation/demo-gif.gif)
 
 ## Table of Contents
@@ -77,10 +84,10 @@ Before you begin, ensure you have the following installed on your system:
 
 
 ### Step 1: Download and Place the Language Model
-1. **Download the Language Model:** First, you'll need to download the appropriate Llama 2 language model for the application. Any GGUF/Llama2 model should work and can be downloaded from Hugginface. We reccomend selecting a model that will fit your VRAM and RAM from [this list](https://huggingface.co/TheBloke/Orca-2-13B-GGUF).
+1. **Download the Language Model:** First, you'll need to download the appropriate Llama 2 language model for the application. Any GGUF/Llama2 model should work and can be downloaded from Huggingface. We recommend selecting a model that will fit your VRAM and RAM from [this list](https://huggingface.co/TheBloke/Orca-2-13B-GGUF).
 
-    For testing Chat [TheBloke/Orca-2-13B-GGUF](https://huggingface.co/TheBloke/Orca-2-13B-GGUF/blob/main/orca-2-13b.Q6_K.gguf) was used and requires at least 13gb VRAM.
-    For testing Embedding [TheBloke/Mistral-7B-OpenOrca-GGUF](https://huggingface.co/TheBloke/Mistral-7B-OpenOrca-GGUF/blob/main/mistral-7b-openorca.Q4_K_M.gguf) was used and requires at least 7gb VRAM.
+    For testing [TheBloke/CapybaraHermes-2.5-Mistral-7B-GGUF](https://huggingface.co/TheBloke/CapybaraHermes-2.5-Mistral-7B-GGUF/blob/main/capybarahermes-2.5-mistral-7b.Q8_0.gguf) was used and requires at least 10gb VRAM.
+    
 
 2. **Place the Model:** Once downloaded, place the model file in a designated directory on your system. Remember the path of this directory, as you'll need it for configuring the application.
 
@@ -113,19 +120,11 @@ Before you begin, ensure you have the following installed on your system:
       },
       "AllowedHosts": "*",
       "InferenceModelConfig": {
-        "ModelPath": "C:\\models\\orca-2-13b.Q6_K.gguf",
-        "GpuLayerCount": 100,
+        "ModelPath": "C:\\models\\capybarahermes-2.5-mistral-7b.Q8_0.gguf",
+        "GpuLayerCount": 40,
         "ContextSize": 4096,
         "Gpu": 0,
         "AntiPrompts": [ "User:" ]
-      },
-      "EmbeddingModelConfig": {
-        "ModelPath": "C:\\models\\mistral-7b-openorca.Q4_K_M.gguf",
-        "GpuLayerCount": 100,
-        "ContextSize": 2048,
-        "Gpu": 0,
-        "AntiPrompts": [ "Question:" ]
-
       }
     }
     ```
@@ -134,7 +133,7 @@ Before you begin, ensure you have the following installed on your system:
 ### Step 5: Run the Application
 1. **Build the Solution:** Build the solution in Visual Studio to ensure all dependencies are correctly resolved.
 2. **Run the Application:** Click 'Play' in Visual Studio to start the application. This will launch the application in your default web browser.
-3. **Application URLs:** The application will open to the URLs specified in Blazorchat/Server/`launchSettings.json`, typically `https://localhost:7233` and `http://localhost:5222`. You can access the application via either of these URLs in your browser.
+3. **Application URLs:** The application will open to the URLs specified in BlazorChat/Server/`launchSettings.json`, typically `https://localhost:7233` and `http://localhost:5222`. You can access the application via either of these URLs in your browser.
 
 ### Troubleshooting and Tips
 - Ensure that all necessary NuGet packages are installed and up to date.
