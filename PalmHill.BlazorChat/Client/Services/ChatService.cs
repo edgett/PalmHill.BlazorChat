@@ -4,6 +4,7 @@ using PalmHill.BlazorChat.ApiClient;
 using PalmHill.BlazorChat.Client.Components.Settings;
 using PalmHill.BlazorChat.Client.Models;
 using PalmHill.BlazorChat.Shared.Models;
+using System.Reflection.Emit;
 
 namespace PalmHill.BlazorChat.Client.Services
 {
@@ -25,7 +26,8 @@ namespace PalmHill.BlazorChat.Client.Services
             NavigationManager navigationManager,
             LocalStorageService localStorage,
             IDialogService dialogService,
-            BlazorChatApi blazorChatApi
+            BlazorChatApi blazorChatApi,
+            ILogger<ChatService> logger
             )
         {
 
@@ -33,6 +35,7 @@ namespace PalmHill.BlazorChat.Client.Services
             _dialogService = dialogService;
             _blazorChatApi = blazorChatApi;
             _navigationManager = navigationManager;
+            _logger = logger;
             setupAttachmentService();
             setupWebSocketChatConnection();
         }
@@ -84,6 +87,7 @@ namespace PalmHill.BlazorChat.Client.Services
         private readonly IDialogService _dialogService;
         private readonly BlazorChatApi _blazorChatApi;
         private readonly NavigationManager _navigationManager;
+        private readonly ILogger<ChatService> _logger;
 
 
         /// <summary>
@@ -242,7 +246,7 @@ namespace PalmHill.BlazorChat.Client.Services
                 SetReady();
             }
 
-            Console.WriteLine($"CancelTextGeneration failed ({canceled.StatusCode}): {canceled.ReasonPhrase}");
+            _logger.LogWarning($"Text generation for ConversationId {ConversationId} canceled via API: ({canceled.StatusCode}): {canceled.ReasonPhrase}");
         }
 
         /// <summary>

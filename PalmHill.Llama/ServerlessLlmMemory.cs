@@ -1,4 +1,5 @@
-﻿using Microsoft.KernelMemory;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.KernelMemory;
 using PalmHill.BlazorChat.Shared.Models;
 using System;
 using System.Collections.Concurrent;
@@ -11,13 +12,15 @@ namespace PalmHill.Llama
 {
     public class ServerlessLlmMemory
     {
-        public ServerlessLlmMemory(IKernelMemory kernelMemory)
+        public ServerlessLlmMemory(IKernelMemory kernelMemory, ILogger<ServerlessLlmMemory> logger)
         {
             KernelMemory = kernelMemory;
+            _logger = logger;
         }
 
         public IKernelMemory KernelMemory { get; }
 
+        private readonly ILogger<ServerlessLlmMemory> _logger;
 
         public ConcurrentDictionary<Guid, AttachmentInfo> AttachmentInfos { get; } = new ConcurrentDictionary<Guid, AttachmentInfo>();
 
@@ -53,7 +56,7 @@ namespace PalmHill.Llama
             catch (Exception ex)
             {
                 attachmentInfo.Status = AttachmentStatus.Failed;
-                Console.WriteLine(ex);
+                _logger.LogError(ex, "Error importing attachment.");
             }
             finally
             {

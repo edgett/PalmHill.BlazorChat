@@ -18,8 +18,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalmHill.BlazorChat.Shared"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalmHill.BlazorChat.ApiClient", "PalmHill.BlazorChat.ApiClient\PalmHill.BlazorChat.ApiClient.csproj", "{434FEDF0-2AD0-4276-AC06-E26126EEF237}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalmHill.Llama.Kernel", "PalmHill.LlamaKernel\PalmHill.Llama.Kernel.csproj", "{D92943B2-5585-432B-BFEC-ECC13B5A82D1}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,10 +44,6 @@ Global
 		{434FEDF0-2AD0-4276-AC06-E26126EEF237}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{434FEDF0-2AD0-4276-AC06-E26126EEF237}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{434FEDF0-2AD0-4276-AC06-E26126EEF237}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D92943B2-5585-432B-BFEC-ECC13B5A82D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D92943B2-5585-432B-BFEC-ECC13B5A82D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D92943B2-5585-432B-BFEC-ECC13B5A82D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D92943B2-5585-432B-BFEC-ECC13B5A82D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

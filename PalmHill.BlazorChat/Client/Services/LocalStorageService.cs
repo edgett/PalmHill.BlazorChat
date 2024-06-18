@@ -63,7 +63,7 @@ namespace PalmHill.BlazorChat.Client.Services
             {
                 var localStorageSettings = await _localStorage.GetItemAsync<LocalStorageSettings>("LocalStorageSettings");
 
-                if (localStorageSettings.SettingsVersion == LocalStorageSettings.CurrentSettingsVersion)
+                if (localStorageSettings?.SettingsVersion == LocalStorageSettings.CurrentSettingsVersion)
                 {
                     return localStorageSettings;
                 }
