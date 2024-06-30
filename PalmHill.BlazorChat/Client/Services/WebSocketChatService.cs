@@ -2,6 +2,7 @@
 using PalmHill.BlazorChat.Client.Models;
 using PalmHill.BlazorChat.Shared.Models;
 using PalmHill.BlazorChat.Shared.Models.WebSocket;
+using System.Linq;
 
 namespace PalmHill.BlazorChat.Client.Services
 {
@@ -85,7 +86,24 @@ namespace PalmHill.BlazorChat.Client.Services
         public async Task SendInferenceRequestAsync()
         {
             var inferenceRequest = await GetInferenceRequestFromWebsocketMessages();
-            await HubConnection.SendAsync("InferenceRequest", inferenceRequest);
+            var lastPrompt = WebSocketChatMessages.SingleOrDefault(s=> s.Id == inferenceRequest.ChatMessages.Last().Id);
+
+            await foreach (var m in HubConnection.StreamAsync<WebSocketInferenceString>("InferenceRequest", inferenceRequest))
+            {
+                lastPrompt?.AddResponseString(m.InferenceString);
+                OnReceiveInferenceString?.Invoke(this, m);
+            };
+
+            lastPrompt!.CompleteResponse(true);
+
+            var statusUpdate = new WebSocketInferenceStatusUpdate()
+            {
+                MessageId = inferenceRequest.ChatMessages.Last().Id,
+                IsComplete = true,
+                Success = true
+            };
+
+            OnInferenceStatusUpdate?.Invoke(this, statusUpdate);
         }
 
         /// <summary>
@@ -93,13 +111,7 @@ namespace PalmHill.BlazorChat.Client.Services
         /// </summary>
         private void setupHubConnection()
         {
-            //Whena an InferenceString message is received, add it to the last prompt.
-            HubConnection.On<WebSocketInferenceString>("ReceiveInferenceString", (inferenceString) =>
-            {
-                var lastPrompt = WebSocketChatMessages.SingleOrDefault(cm => cm.Id == inferenceString.WebSocketChatMessageId);
-                lastPrompt?.AddResponseString(inferenceString.InferenceString);
-                OnReceiveInferenceString?.Invoke(this, inferenceString);
-            });
+  
 
             //When an InferenceStatusUpdate message is received, update the last prompt.
             HubConnection.On<WebSocketInferenceStatusUpdate>("InferenceStatusUpdate", (statusUpdate) =>
