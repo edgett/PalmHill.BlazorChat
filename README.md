@@ -1,5 +1,11 @@
 ﻿# PalmHill.BlazorChat
 
+## New (6/30/2024)
+
+  - Use SignalR IAsyncEnumerable streaming for chat messages.
+  - Tested [capybarahermes-2.5-mistral-7b.Q4_K_M.gguf](https://huggingface.co/TheBloke/CapybaraHermes-2.5-Mistral-7B-GGUF/blob/main/capybarahermes-2.5-mistral-7b.Q4_K_M.gguf) on a NVIDIA GeForce RTX 4060 Laptop GPU with 8GB VRAM.
+  - ![Demo of capybarahermes](Documentation/capybarahermes-2.5-mistral-7b.Q4_K_M_screenshot.png)
+
 ## New (6/18/2024)
 
 - Support for Llama3 models.
@@ -59,7 +65,7 @@ PalmHill.BlazorChat offers a range of features to provide a seamless and interac
 
 - **Chat Settings**: Customize your chat experience with adjustable settings such as temperature, max length, top P, frequency penalty, and presence penalty, all managed by the [`ChatSettings.razor`](PalmHill.BlazorChat/Client/Components/ChatSettings.razor#L1-L37) component.
 
-- **Error Handling**: The application gracefully handles errors and displays a user-friendly error page [`Error.razor`](PalmHill.BlazorChat/Client/Pages/Error.razor#L1-L15) when an unhandled error occurs.
+- **Error Handling**: The application gracefully handles errors and displays a user-friendly error page [`Error.razor`](PalmHill.BlazorChat/Client/Pages/Error.razor#L1-L15) when an unhanded error occurs.
 
 - **Responsive Layout**: The application layout is responsive and provides a consistent look and feel across different screen sizes, thanks to the `FluentContainer` and `FluentRow` components from the Fluent UI library.
 
