@@ -157,7 +157,7 @@ namespace PalmHill.Llama
             var modelExsists = System.IO.File.Exists(modelConfig.ModelPath);
             if (!modelExsists)
             {
-                throw new FileNotFoundException($"Model file does not exsist.", modelConfig.ModelPath);
+                throw new FileNotFoundException($"Model file does not exist.", modelConfig.ModelPath);
             }
 
             //Initlize Llama
