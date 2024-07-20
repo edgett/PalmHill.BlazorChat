@@ -27,8 +27,6 @@
     {
         // Update the markdownToRender variable based on the new response
         _inferenceMarkdownToRender = WebSocketChatMessage?.Resonse ?? string.Empty;
-        mdSection?.RefreshContent();
-        // Invoke a StateHasChanged to refresh the UI if needed
         StateHasChanged();
     }
 

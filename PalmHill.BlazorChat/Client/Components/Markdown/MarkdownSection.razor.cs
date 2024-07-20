@@ -8,79 +8,73 @@ namespace PalmHill.BlazorChat.Client.Components.Markdown;
 public partial class MarkdownSection : FluentComponentBase
 {
     private string? _content;
-    private bool _raiseContentConverted;
+    private bool _contentChanged;
+    private static readonly MarkdownPipeline _markdownPipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
 
-    /// <summary>
-    /// Gets or sets the Markdown content 
-    /// </summary>
     [Parameter]
     public string? Content { get; set; }
 
-    /// <summary>
-    /// Event callback for when the Markdown content is converted to HTML.
-    /// </summary>
+    [Parameter]
+    public EventCallback<string> ContentChanged { get; set; }
+
     [Parameter]
     public EventCallback OnContentConverted { get; set; }
 
-    public string? InternalContent
-    {
-        get => _content;
-        set
-        {
-            _content = value;
-            HtmlContent = ConvertToMarkupString(_content);
-
-
-            if (OnContentConverted.HasDelegate)
-            {
-                OnContentConverted.InvokeAsync();
-            }
-            _raiseContentConverted = true;
-            StateHasChanged();
-        }
-    }
-
     public MarkupString HtmlContent { get; private set; }
 
-
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
-        if (Content is null)
-            throw new ArgumentException("You need to provide either Content or FromAsset parameter");
-
-        InternalContent = Content;
+        if (Content != _content)
+        {
+            _content = Content;
+            UpdateHtmlContent();
+            _contentChanged = true;
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (_raiseContentConverted)
+        if (_contentChanged)
         {
-            _raiseContentConverted = false;
-            if (OnContentConverted.HasDelegate)
-            {
-                await OnContentConverted.InvokeAsync();
-            }
-
+            _contentChanged = false;
+            await ContentChanged.InvokeAsync(_content);
+            await OnContentConverted.InvokeAsync();
         }
     }
 
-    public void RefreshContent()
+    public void SetContent(string content)
     {
-        InternalContent = Content;
+        if (content != _content)
+        {
+            _content = content;
+            UpdateHtmlContent();
+            _contentChanged = true;
+            StateHasChanged();
+        }
     }
 
+    private void UpdateHtmlContent()
+    {
+        HtmlContent = ConvertToMarkupString(_content);
+    }
 
     private static MarkupString ConvertToMarkupString(string? value)
     {
-        if (!string.IsNullOrWhiteSpace(value))
+        if (string.IsNullOrWhiteSpace(value))
         {
-            // Convert markdown string to HTML
-            string? html = Markdig.Markdown.ToHtml(value, new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
-
-            // Return sanitized HTML as a MarkupString that Blazor can render
-            return new MarkupString(html);
+            return new MarkupString();
         }
 
-        return new MarkupString();
+        try
+        {
+            string html = Markdig.Markdown.ToHtml(value, _markdownPipeline);
+            return new MarkupString(html);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error converting Markdown to HTML: {ex.Message}");
+            return new MarkupString($"<p>Error rendering Markdown: {ex.Message}</p>");
+        }
     }
+
 }
