@@ -37,7 +37,12 @@ namespace PalmHill.Llama
                 var embedding = new LLamaEmbedder(injectedModel.Model, injectedModel.EmbeddingParameters);
                 var textEmbeddingGeneration = new LLamaSharpTextEmbeddingGenerator(embedding);
                 km.WithLLamaSharpTextEmbeddingGeneration(textEmbeddingGeneration);
-                km.Build<MemoryServerless>();
+                km.WithCustomTextPartitioningOptions( new Microsoft.KernelMemory.Configuration.TextPartitioningOptions { 
+                    MaxTokensPerParagraph = 1,
+                    MaxTokensPerLine = 1,
+                    OverlappingTokens = 0
+                })
+                .Build<MemoryServerless>();
             })
             .AddSingleton<ServerlessLlmMemory>();
 

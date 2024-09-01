@@ -18,6 +18,8 @@ namespace PalmHill.Llama.Models
                 embeddingParams.ContextSize = ModelParams.ContextSize;
                 embeddingParams.GpuLayerCount = ModelParams.GpuLayerCount;
                 embeddingParams.MainGpu = ModelParams.MainGpu;
+                embeddingParams.SplitMode = ModelParams.SplitMode;
+                embeddingParams.TensorSplits = ModelParams.TensorSplits;
                 return embeddingParams;
             }
         }

@@ -5,7 +5,7 @@
         public string ModelPath { get; set; } = "";
         public int GpuLayerCount { get; set; } = 20;
         public uint ContextSize { get; set; } = 2048;
-        public int Gpu { get; set; } = 0;
+        public int Gpu { get; set; } = 1;
         public List<string> AntiPrompts { get; set; } = [];
     }
 }
