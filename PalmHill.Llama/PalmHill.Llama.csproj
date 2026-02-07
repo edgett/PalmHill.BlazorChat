@@ -7,14 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LLamaSharp" Version="0.13.0" />
-    <PackageReference Include="LLamaSharp.Backend.Cuda12" Version="0.13.0" />
-    <PackageReference Include="LLamaSharp.kernel-memory" Version="0.13.0" />
-    <PackageReference Include="LLamaSharp.semantic-kernel" Version="0.13.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.1" />
+    <PackageReference Include="LLamaSharp" Version="0.15.0" />
+    <PackageReference Include="LLamaSharp.Backend.Cuda12" Version="0.15.0" />
+    <PackageReference Include="LLamaSharp.kernel-memory" Version="0.15.0" />
+    <PackageReference Include="LLamaSharp.semantic-kernel" Version="0.15.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
-    <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.62.240605.1" />
-    <PackageReference Include="Microsoft.SemanticKernel.Core" Version="1.14.1" />
+    <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.71.240820.1" />
+    <PackageReference Include="Microsoft.SemanticKernel.Core" Version="1.17.2" />
   </ItemGroup>
 
   <ItemGroup>
